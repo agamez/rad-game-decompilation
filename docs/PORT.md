@@ -848,3 +848,57 @@ What was established:
   dumps, frame_58E8/EC/F0/F4.bin (the robot frame blocks),
   port_settle.bin (post-fix), full_fixtest.{log,txt} (the broken
   replay), full_base.txt (the restored win).
+
+### Session 9 addendum (BGI-trace session): the residue mechanism fully decoded, the diverging call found
+
+Instrumented pal_bgi_dispatch (BLIT/PROBE/CAP trace via RAD_BGI_LOG=1) and ran
+the exact repro (settle -> LEFT -> DOWN).  The complete chain:
+
+1. 1F08 prologue: captures the LEFT strip (CAP 213,146 w3: 11,11,11,7..) and
+   RIGHT strip (CAP 224,146 w3: 3,9,9,9..) of the robot box band
+   (rows 146-160), gap-close stamps them 1 px outward (BLIT 212 w3, BLIT 225 w3),
+   frees them, then re-captures 5-wide versions (CAP 212 w4: 11,11,11,7,0 /
+   CAP 224 w4: 0,3,9,9,9).
+2. 2153 open loop (i=1..19): stamps dwLoc10 at B4+0Dh-i and dwLoc14 at
+   B4+19h+i; six 1E3C probes per step -- ALL RETURN 0 (clear) at every step,
+   so the loop runs to its counter bound in the port.
+3. 23EE leftward march (i=1..64): 4-wide stamps B4+0Dh-i, probes
+   (B8+1Bh,B4+0Ch-i)/(B8+0Dh,B4+0Ch-i) -- again all clear, runs to 0x41.
+4. Re-seal: CAP (147,146) w5 = 0,11,11,11,7 (the march's OWN paint!) and 3
+   rightward stamps x147-149 -> LEFTOVER STRIP x150-153 (body colours).
+5. Marches from captures at (244,146) w5 = 3,9,9,9,0 (the march's own paint
+   again!) leftward 244->199 -> LEFTOVER STRIP x199-202 (wire colours).
+6. Then captures (180,146)/(168,146), stamps x180/x168, PROBE (156,265)=11,
+   and the slide (B4 199->155, 44 stamps of the 43x28 window block) whose
+   stamps erase x155-198 -- which is why only the two strips remain.
+
+DOSBox shows NONE of the strips: its equivalent sequence erases the band
+completely.  Two hard facts measured against DOSBox:
+
+- Post-DOWN, columns x210 and x218 (rows 144-162) are palette index 8 in the
+  reference but 0 in the port.  Those are exactly the eraser lines 1F08's
+  prologue draws over the wire columns (1AF6 = line op si=0x0C).
+- THE PORT'S PROLOGUE 1AF6 CALLS (seg0C74_part6.c:127-132) NEVER DISPATCH
+  si=0x0C: the full 2.7M-line trace contains no "si=0c ax=00da bx=0092"
+  (line x=218 y146-161) nor ax=00d2 (x=210).  The 1C32(0x00) right before
+  them DOES dispatch (si=1e ax=0300).  So the eraser lines are simply never
+  drawn by the port, the band is never sealed, the later marches run over
+  live wire/body pixels, capture their own paint and spread it -- the
+  leftovers.  In the original the lines are drawn (colour 8), the probes at
+  (210/218, 146) then hit, and the marches never run.
+
+Attempts that did NOT work (both reverted, both verified against fullrun.py):
+- Global getpixel y-1 (plus block-op y-1 anchors): settle becomes pixel-perfect
+  and the stop matches DOSBox, but the mission-001 F5 replay desyncs (crates
+  stop at x397 instead of the goal; rec stays 1.0).
+- Line colour 0->8 globally: same replay desync.
+
+NEXT SESSION'S PRECISE TASK: make the port's 1F08 prologue actually emit the
+two eraser lines the way the original does.  Why fn1AB8_1AF6 (si=0x0C) from
+part6.c:127-132 never reaches pal_bgi_dispatch is unknown: check whether
+fn1AB8_10F4(1,0,0) before them changes the dispatch path, whether the 1AF6
+wrapper should be a different driver op, or whether the prologue's control
+flow diverges earlier than assumed.  A scoped fix (only those two lines, or
+the 1F08-local state) is required: global line-colour / probe changes break
+the recorded replay.  The 0-vs-8 background encoding split (129720 px) remains
+a secondary lead for the probe semantics.
