@@ -717,3 +717,71 @@ divergence.
 - REMAINING: the per-command waits = the bomb-margin (the F3
   sequence needs >10s + the margin), then the full run; the
   missions 102/103 = the manual solving from the live grid.
+
+## Session 8 -- the DOWN-residue investigation: the wire state machine decoded
+### The reported bug
+User report (mission 001/002 manual play): after DOWN, "sprites / wire
+column remain at left-right of robot; robot gets stuck".  The earlier
+repro attempts (downtest/downtest2/downtest3) used RELATIVE '+' fake-key
+schedules, so their key times were cumulative and the DOWN/RIGHT keys
+fired at unintended moments (or never); their residue numbers were
+artifacts of that.
+
+### The robot state machine (verified against the asm slices)
+- 58B4/58B6 = robot box x-left/x-right; 58B8 = y-top; 58BA = the
+  descent-floor y (the intro descent tracks BA=B8+43; the bounce and
+  the walks leave BA at the level floor).
+- 5968 (word): 1 = the wire retracted / normal, 0xFFFF = the wire
+  fully extended (the climb-grab / wire-walk states).
+- UP ('H' -> 51AA -> 1B3B): capture 43x28 box, ascend <= 0x58 px
+  (070D(0Ah,0C8h)/px, probes above), then descend back; the return is
+  interruptible by the below-probes -> the ledge-grab path (direction
+  sweeps + 0FA1/0E2E arm sprites + 0DE5/0CFA(0Bh)).  A full bounce
+  ends where it started; 5968 restored to 1.
+- DOWN ('P' -> 51B2): with 5968==1 probes (BA+1,B6+1)/(BA+1,B6+17h);
+  with 0xFFFF probes (BA+1,B4-1)/(BA+1,B4-17h); any hit = refuse.
+  On pass -> 2AD9: entry sweep 0D43(0Bh) (5968->0FFFF) or 0D94(0Bh)
+  (5968->1), save-under march while (BA-2Bh)>B8 (B8++/px, the
+  captured block re-blitted; the block's row 0 carries the wire
+  cross-section = the wire column painted behind the descending
+  robot - the intended rendering), exit sweep 0DE5/0CFA(0Bh) unless
+  58B3<>0, then 02D8(4D0Ch*58E6h/4).
+- LEFT ('K' -> 54F0): probes -> optional 2AD9 fall check -> 37C3.
+  37C3 with 5968==1 calls 0D43(15h) = the FULL wire extension
+  (5968->0FFFF) and returns 1 = the walk animation is skipped;
+  with 5968<>1 it runs the edge-probe march (B4--).
+- RIGHT ('M' -> 54B1): probes -> optional 2AD9 -> 3615; 3615 with
+  5968==0FFFF calls 0CFA(15h) = the full wire retraction (5968->1)
+  and returns 1; otherwise the march (B4++).  (The asm `cmp word
+  [5968h],0FFh` is an 83 /7 ib SIGN-EXTENDED imm8 = 0FFFFh.)
+- So the first LEFT while hanging on the wire ALWAYS extends the
+  wire instead of walking, and a DOWN only descends where the
+  descent floor 58BA is more than 43 px below 58B8 (else a no-op
+  sweep blip).  Both leave wire tiles painted at the robot by
+  design; the descent paints the wire column behind the robot.
+
+### Verification (this session)
+- The port sweeps 0CFA/0D43/0D94/0DE5, 2AD9, 1B3B, 51B2, 54F0/54B1,
+  3615/37C3 match the asm slices literally (incl. the sign-extended
+  0FFFFh compare in 3615).
+- Side-by-side with DOSBox (Xvfb :99 + xdotool + 0.1s root captures,
+  /tmp/opencode/dn_dos2.sh vs /tmp/opencode/dn_port3.py), the
+  identical schedule d/F1/d/UP/RIGHT/LEFT/LEFT/DOWN/RIGHT produces
+  IDENTICAL phase behavior: the bounce (net ~140 px), the 4-cell
+  walk into the crate, the LEFT wire-extension (173 px, no walk),
+  the LEFT walk back, the DOWN reposition (199->155, BA 176->264)
+  + the real descent 133->221, and no response to the final RIGHT
+  (only the timer) - in BOTH implementations.
+- Mid-animation keys are buffered and executed after the animation
+  (the command loop), matching the original's BIOS-buffer behavior.
+- The 64-entry key FIFO >= the BIOS 16-key ring; the visible-window
+  present path uploads the full canvas every frame (no stale
+  regions; the dummy-driver canvas equals the presented texture).
+
+### Verdict
+The current build reproduces the reference on every tested path; the
+painted wire column after a descent and the first-LEFT wire extension
+are original behavior.  The user's exact repro (keys/mission/build)
+is requested; if it predates the presentation fix (the per-step event
+pump in fn1E78_pace_ns), the stale-sprite appearance is explained by
+that earlier defect.
