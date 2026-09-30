@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+# gen_globals.py -- write src/globals.c and analysis/summary/globals.tsv.
+#
+# Scans every analysis/reko/RAD_*.c for DGROUP (ds-relative) memory references
+# and materialises the referenced offsets as symbols.  Overlapping / contiguous
+# byte references are merged into a byte array; isolated scalar references keep
+# their width.  Segment-pointer offsets are listed but not defined.  See README.md.
+
+import os
+import re
+import sys
+from collections import OrderedDict
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import reko_common as rc  # noqa: E402
+
+DS_REF_RE = re.compile(
+    r"Mem\d+\[\s*ds(?:_\d+)?\s*:\s*"
+    r"(?P<off>~?0x[0-9A-Fa-f]+|~?\d+)"
+    r"(?:\s*<\s*(?P<width>\d+)\s*>)?"
+    r"\s*:\s*(?P<type>[A-Za-z_][A-Za-z0-9_]*|\d+)?"
+)
+
+
+def parse_offset(tok):
+    neg = tok.startswith("~")
+    if neg:
+        tok = tok[1:]
+    if tok.lower().startswith("0x"):
+        val = int(tok, 16)
+    else:
+        val = int(tok)
+    if neg:
+        val = (-val) & 0xFFFF
+    return val
+
+
+def size_for(width, typ):
+    if width is not None:
+        w = int(width)
+        return w // 8 if w in (8, 16, 32, 64) else -1
+    if typ is None:
+        return -1
+    if typ in ("byte",):
+        return 1
+    if typ in ("word16", "ptr16"):
+        return 2
+    if typ in ("word32",):
+        return 4
+    if typ.isdigit():
+        w = int(typ)
+        return w // 8 if w in (8, 16, 32, 64) else -1
+    return -1
+
+
+def scan():
+    """Return an OrderedDict (offset, size, type) -> {'refs': n,
+    'segs': set} in first-seen order."""
+    refs = OrderedDict()
+    for seg in rc.segment_ids():
+        path = os.path.join(rc.REKO_DIR, "RAD_%s.c" % seg)
+        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        for m in DS_REF_RE.finditer(text):
+            off = parse_offset(m.group("off"))
+            typ = m.group("type")
+            size = size_for(m.group("width"), typ)
+            key = (off, size, typ if typ is not None else "")
+            rec = refs.setdefault(key, {"n": 0, "segs": set()})
+            rec["n"] += 1
+            rec["segs"].add(seg)
+    return refs
+
+
+def merge_intervals(items):
+    """items: list of (start, end, payload, all_bytes).  Merge overlapping
+    intervals, plus adjacent intervals only when both sides are byte-sized."""
+    items = sorted(items, key=lambda x: (x[0], x[1]))
+    runs = []
+    for start, end, payload, all_bytes in items:
+        if runs:
+            cur = runs[-1]
+            overlap = start < cur["end"]
+            adjacent_bytes = start == cur["end"] and cur["all_bytes"] and all_bytes
+            if overlap or adjacent_bytes:
+                cur["end"] = max(cur["end"], end)
+                cur["members"].append(payload)
+                cur["all_bytes"] = cur["all_bytes"] and all_bytes
+                continue
+        runs.append(
+            {
+                "start": start,
+                "end": end,
+                "members": [payload],
+                "all_bytes": all_bytes,
+            }
+        )
+    return runs
+
+
+def symbol_for(offset):
+    return "g_%04X" % offset
+
+
+def main():
+    rc.ensure_dir(rc.SRC_DIR)
+    rc.ensure_dir(rc.SUMMARY_DIR)
+    refs = scan()
+
+    mapped = []      # (offset,size,type)
+    unmapped = []    # (offset,size,type)
+    segptr = []
+    for (off, size, typ), rec in refs.items():
+        if off >= rc.SEGPTR_MIN:
+            segptr.append((off, size, typ, rec))
+        elif size > 0:
+            mapped.append((off, size, typ))
+        else:
+            unmapped.append((off, size, typ, rec))
+
+    intervals = []
+    for off, size, typ in mapped:
+        intervals.append((off, off + size, (off, size, typ), size == 1))
+    runs = merge_intervals(intervals)
+
+    # offset -> symbol map
+    sym_of = {}
+    for run in runs:
+        sym = symbol_for(run["start"])
+        for (off, size, typ) in run["members"]:
+            sym_of[off] = sym
+
+    # ---- globals.c -------------------------------------------------------
+    defines = []
+    for run in runs:
+        sym = symbol_for(run["start"])
+        span = run["end"] - run["start"]
+        aliases = ",".join(
+            "0x%04X(%s)" % (o, t if t else ("%dB" % s)) for (o, s, t) in run["members"]
+        )
+        if len(run["members"]) == 1 and span in (1, 2, 4):
+            # single scalar reference
+            typ = "u8" if span == 1 else ("u16" if span == 2 else "u32")
+            defines.append("%s %s; /* 0x%04X %s */" % (typ, sym, run["start"], aliases))
+        else:
+            defines.append(
+                "u8 %s[%d]; /* 0x%04X aliases: %s */" % (sym, span, run["start"], aliases)
+            )
+
+    xmacro = []
+    for run in runs:
+        span = run["end"] - run["start"]
+        xmacro.append(
+            "//   X(0x%04X, %s, %d)" % (run["start"], symbol_for(run["start"]), span)
+        )
+
+    lines = [
+        "/* DGROUP data definitions recovered from analysis/reko/RAD_*.c.",
+        " * Generated by analysis/tools/gen_globals.py -- do not edit by hand.",
+        " * Each symbol is named g_<ds-offset>; see analysis/summary/globals.tsv. */",
+        "",
+        '#include "radtypes.h"',
+        "",
+        "// Offset -> symbol map (x-macro style):",
+        "//   offset, symbol, size",
+    ]
+    lines += xmacro
+    lines.append("")
+    lines += defines
+    lines.append("")
+
+    out_path = os.path.join(rc.SRC_DIR, "globals.c")
+    with open(out_path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines))
+
+    # ---- globals.tsv -----------------------------------------------------
+    tsv_path = os.path.join(rc.SUMMARY_DIR, "globals.tsv")
+    with open(tsv_path, "w", encoding="utf-8") as fh:
+        fh.write("offset_hex\tsize\ttype\tsymbol\tn_refs\tsegments_referencing\tflags\n")
+        for (off, size, typ), rec in refs.items():
+            if off >= rc.SEGPTR_MIN:
+                flag = "segptr"
+                sym = "-"
+            elif size > 0:
+                flag = ""
+                sym = sym_of.get(off, "-")
+            else:
+                flag = "unmapped"
+                sym = "-"
+            fh.write(
+                "0x%04X\t%d\t%s\t%s\t%d\t%s\t%s\n"
+                % (
+                    off,
+                    size,
+                    typ if typ else "",
+                    sym,
+                    rec["n"],
+                    ",".join(sorted(rec["segs"])),
+                    flag,
+                )
+            )
+
+    print(
+        "wrote %s (%d symbols) and %s (%d ref groups)"
+        % (out_path, len(runs), tsv_path, len(refs))
+    )
+
+
+if __name__ == "__main__":
+    main()

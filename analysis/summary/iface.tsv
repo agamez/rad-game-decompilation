@@ -1,0 +1,359 @@
+seg	func	prototype	confidence	notes
+0800	0000	u16 fn0800_0000(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+0800	0024	void fn0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0800	005A	void fn0800_005A(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0800	00C1	u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+0800	0103	void fn0800_0103(void)	mech	dropped Eq_17 ds
+0800	0147	u16 fn0800_0147(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	01FE	void fn0800_01FE(void)	mech	dropped Eq_17 ds
+0800	031B	u16 fn0800_031B(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out bpOut -> pointer; out dsOut -> pointer
+0800	03F8	u16 fn0800_03F8(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	04CC	s16 fn0800_04CC(u8 bArg02)	semi	Eq_N from name/union width
+0800	04E3	u8 fn0800_04E3(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	0619	u16 fn0800_0619(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	0768	s16 fn0800_0768(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out bpOut -> pointer; out dsOut -> pointer
+0800	0877	u8 fn0800_0877(void)	mech	dropped Eq_17 ds
+0800	08C0	u16 fn0800_08C0(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	08E9	s16 fn0800_08E9(s16 dx)	mech	dropped Eq_17 ds
+0800	09C2	u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out bpOut -> pointer; out dsOut -> pointer
+0800	0AA1	u16 fn0800_0AA1(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	0B42	u16 fn0800_0B42(void * dsOut)	semi	dropped Eq_17 ds
+0800	0BEC	u16 fn0800_0BEC(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	0C71	s16 fn0800_0C71(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	0D20	u16 fn0800_0D20(u8 * ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C, u8 * ptrArg0E)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+0800	11EF	u16 fn0800_11EF(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	1315	u8 fn0800_1315(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0800	149F	u16 fn0800_149F(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	166D	u16 fn0800_166D(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	184C	u16 fn0800_184C(void * dsOut)	semi	dropped Eq_17 ds
+0800	19E1	u8 fn0800_19E1(u8 * ptrArg04, u16 * dxOut, void * bpOut, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+0800	1D55	u8 fn0800_1D55(u16 * dxOut, void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0800	1E3F	u16 fn0800_1E3F(s16 dx, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	2004	u16 fn0800_2004(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	21E7	u16 fn0800_21E7(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	2401	u16 fn0800_2401(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	2827	u16 fn0800_2827(u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	2C0C	u16 fn0800_2C0C(s16 dx, u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	31B7	u16 fn0800_31B7(s16 dx, u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0800	36E6	void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0800	3850	u8 fn0800_3850(u8 * chOut, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out chOut -> pointer; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0800	391E	u16 fn0800_391E(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	3BF2	void fn0800_3BF2(void * ptrArg04)	mech	
+0800	3C72	u16 fn0800_3C72(void * ptrArg04, s16 * dxOut)	mech	out dxOut -> pointer
+0800	3CFA	u16 fn0800_3CFA(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	3D9D	u16 fn0800_3D9D(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	4168	u16 fn0800_4168(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0800	4255	void fn0800_4255(void * es)	mech	
+0C43	0000	u16 fn0C43_0000(u8 bArg02, void * dsOut)	semi	dropped Eq_17 ds
+0C43	001E	u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out bpOut -> pointer
+0C43	0056	void fn0C43_0056(void)	mech	dropped Eq_17 ds
+0C43	0095	u16 fn0C43_0095(u16 ax, u16 wArg02, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0C43	00B9	u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C43	02FB	void fn0C43_02FB(void)	mech	dropped Eq_17 ds
+0C74	0000	u8 fn0C74_0000(u8 * ptrArg04, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+0C74	004B	void fn0C74_004B(u32 dwArg04, u8 * ptrArg08)	semi	Eq_N from name/union width
+0C74	007C	void fn0C74_007C(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0C74	00B2	void fn0C74_00B2(u8 bArg04)	mech	dropped Eq_17 ds
+0C74	00DB	void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0C74	011E	u16 fn0C74_011E(u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	020C	u16 fn0C74_020C(u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	02D8	u16 fn0C74_02D8(u16 wArg02, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	03D4	u16 fn0C74_03D4(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0C74	05B8	u8 * fn0C74_05B8(u16 * dsOut)	semi	member pointer return -> u8 *; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	06B7	u16 fn0C74_06B7(u16 wArg04, u16 wArg06)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+0C74	070D	u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)	semi	member pointer return -> u8 *; dropped Eq_17 ds; Eq_N from name/union width
+0C74	076B	u16 fn0C74_076B(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0C74	0A35	u16 fn0C74_0A35(void)	mech	dropped Eq_17 ds
+0C74	0CFA	u16 fn0C74_0CFA(u8 bArg02, void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	0D43	u16 fn0C74_0D43(u8 bArg02, void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	0D94	u8 * fn0C74_0D94(u8 bArg02, u16 * dsOut)	semi	member pointer return -> u8 *; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	0DE5	u8 * fn0C74_0DE5(u8 bArg02, u16 * dsOut)	semi	member pointer return -> u8 *; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	0E2E	u8 * fn0C74_0E2E(u16 wArg02, void * dsOut)	semi	member pointer return -> u8 *; dropped Eq_17 ds; Eq_N from name/union width; wArg02 carries the caller's ([bp-4]) word (all sites are `push bp ; call 0E2E` from fn0C74_0FA1 and the callee reads ss:[bp_caller-4], the arm-extension index) -- the flat model passes that value directly
+0C74	0FA1	u8 fn0C74_0FA1(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	1B3B	u16 fn0C74_1B3B(void * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds
+0C74	1D95	u16 fn0C74_1D95(u16 wArg02, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width
+0C74	1F08	u8 fn0C74_1F08(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0C74	2AD9	u16 fn0C74_2AD9(u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	2BBD	u16 fn0C74_2BBD(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+0C74	2E5A	u8 fn0C74_2E5A(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0C74	3236	u8 fn0C74_3236(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0C74	3615	u8 fn0C74_3615(u16 * dxOut, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; Eq_N from name/union width; out bpOut -> pointer; out dsOut -> pointer
+0C74	37C3	u8 fn0C74_37C3(u16 * dxOut, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; Eq_N from name/union width; out bpOut -> pointer; out dsOut -> pointer
+0C74	396E	u8 fn0C74_396E(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	3F74	u8 fn0C74_3F74(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	45CE	u8 fn0C74_45CE(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	4999	u8 fn0C74_4999(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	4DAC	u8 fn0C74_4DAC(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0C74	4FD7	u8 fn0C74_4FD7(u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+0C74	51AA	u16 fn0C74_51AA(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0C74	51B2	u16 fn0C74_51B2(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+0C74	522C	u8 fn0C74_522C(u16 * bpOut, void * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer
+0C74	5258	u8 fn0C74_5258(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	542B	u8 fn0C74_542B(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+0C74	54B1	u8 fn0C74_54B1(u16 * dxOut, u16 * bpOut, void * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; out bpOut -> pointer
+0C74	54F0	u8 fn0C74_54F0(u16 * dxOut, u16 * bpOut, void * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; out bpOut -> pointer
+0C74	552F	void fn0C74_552F(void)	mech	dropped Eq_17 ds
+11C8	0000	void fn11C8_0000(u8 bArg02, u16 wArg04, u8 * ptrArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+11C8	0092	void fn11C8_0092(void)	mech	dropped Eq_17 ds
+11C8	0236	u16 fn11C8_0236(u8 bArg04)	mech	dropped Eq_17 ds
+11C8	0282	void fn11C8_0282(u8 bArg02)	mech	
+11C8	0296	void fn11C8_0296(u8 bArg02)	mech	
+11C8	02AB	void fn11C8_02AB(void)	mech	
+11C8	02CC	void fn11C8_02CC(void)	mech	
+11C8	02DB	void fn11C8_02DB(u8 bArg02, u8 bArg04)	mech	
+11C8	02F0	void fn11C8_02F0(void)	mech	
+11C8	033B	u16 fn11C8_033B(void)	mech	dropped Eq_17 ds
+11C8	0354	void fn11C8_0354(u16 wArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+11C8	0394	void fn11C8_0394(void)	mech	dropped Eq_17 ds
+11C8	03BB	void fn11C8_03BB(void)	mech	dropped Eq_17 ds
+11C8	03CF	void fn11C8_03CF(void)	mech	dropped Eq_17 ds
+1206	0000	u8 fn1206_0000(void)	mech	
+1206	000D	u16 fn1206_000D(u16 * siOut, void * esOut, void * dsOut)	semi	out siOut -> pointer
+1206	0038	u8 fn1206_0038(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out chOut -> pointer; out dxOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+1206	0066	u8 fn1206_0066(void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1206	0094	u8 fn1206_0094(u16 * dxOut, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; out bpOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+1206	00D1	u16 fn1206_00D1(void * ds, u16 * siOut, void * esOut, void * dsOut)	semi	out siOut -> pointer
+1206	00FF	u16 fn1206_00FF(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1206	012D	u16 fn1206_012D(void * ds, void * dsOut)	semi	
+1206	015B	u16 fn1206_015B(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; out chOut -> pointer; out dxOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+1206	01AC	u16 fn1206_01AC(u16 * siOut, void * esOut, u16 * dsOut)	semi	dropped Eq_17 ds; out siOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+1206	0217	u8 * fn1206_0217(u16 * bpOut, void * dsOut)	semi	dropped Eq_17 ds; out bpOut -> pointer
+1229	0000	void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1229	0040	u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1229	039D	void fn1229_039D(void)	mech	dropped Eq_17 ds
+1229	0486	u16 fn1229_0486(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+1229	050A	u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1229	061B	u16 fn1229_061B(s16 * dxOut, u16 * dsOut)	semi	dropped Eq_17 ds; out dxOut -> pointer; Eq_N from name/union width; out dsOut -> pointer
+1229	0735	u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)	semi	out dxOut -> pointer
+1229	09F9	void fn1229_09F9(u8 bArg02, u8 * ptrArg04)	semi	Eq_N from name/union width
+1229	0AA8	u16 fn1229_0AA8(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+1229	0C58	void fn1229_0C58(void)	mech	dropped Eq_17 ds
+1229	0CCE	void fn1229_0CCE(void)	mech	
+1229	0DCC	u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out bpOut -> pointer; out dsOut -> pointer
+133F	0056	u16 fn133F_0056(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+133F	0137	u8 fn133F_0137(u16 * dxOut, u16 * bpOut, void * dsOut)	semi	out dxOut -> pointer; out bpOut -> pointer
+133F	0141	u8 fn133F_0141(s16 * dxOut, u16 * bpOut, void * dsOut)	semi	out dxOut -> pointer; out bpOut -> pointer
+133F	014B	u8 fn133F_014B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u16 * dxOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer; out dsOut -> pointer
+133F	0200	void fn133F_0200(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+133F	021F	u8 fn133F_021F(u16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+133F	0256	void fn133F_0256(u16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+133F	026B	u8 fn133F_026B(u16 wArg04, u16 wArg06, u16 * dxOut, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+133F	02DF	void fn133F_02DF(u8 * ptrArg04, u8 bArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+133F	0352	u16 fn133F_0352(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 bArg10)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+133F	04A7	void fn133F_04A7(void)	mech	dropped Eq_17 ds
+133F	04B1	u16 fn133F_04B1(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, void * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width
+133F	04DE	u16 fn133F_04DE(u8 * ptrArg04)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+133F	0528	u16 fn133F_0528(s16 dx, u8 * ptrArg06, u8 * ptrArg0A, u8 * ptrArg0E, s16 * dxOut, u16 * bpOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer; out bpOut -> pointer; out dsOut -> pointer
+133F	0816	u16 fn133F_0816(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+13C1	0000	u16 fn13C1_0000(void * dsOut)	semi	
+13C1	0036	void fn13C1_0036(u32 dwArg04, u8 * ptrArg08)	semi	Eq_N from name/union width
+13C1	0067	void * fn13C1_0067(void)	mech	
+13C8	0000	u8 fn13C8_0000(void)	mech	
+13C8	000D	u16 fn13C8_000D(u16 * ptrArg06, u16 * ptrArg0A, void * dsOut)	semi	asm slices/13C8/13C8_000D.asm: far out-ptr args [bp+6]->BX, [bp+0Ah]->AX (retf 8); Reko dropped both. Callers pass ds:0B6B0 / ds:0B6AE.
+13C8	0038	u8 fn13C8_0038(u16 * dxOut, u16 * bpOut, void * dsOut)	semi	out dxOut -> pointer; out bpOut -> pointer
+13C8	004F	u8 fn13C8_004F(u16 * dxOut, u16 * bpOut, void * dsOut)	semi	out dxOut -> pointer; out bpOut -> pointer
+13C8	0066	u16 fn13C8_0066(u16 * ptrArg06, u16 * ptrArg0A, u16 * ptrArg0E, void * bpOut, void * dsOut)	semi	asm slices/13C8/13C8_0066.asm: far out-ptr args [bp+6]->DX, [bp+0Ah]->CX, [bp+0Eh]->BX (retf 0Ch); Reko dropped all three. Callers disagree on targets (fn13C8_0139 0B6B8/0B6B6/0B6B4; fn133F_0528 62D2/62CE/62D0).
+13C8	009A	u16 fn13C8_009A(u16 wArg06, u16 wArg08, void * bpOut, void * dsOut)	semi	asm slices/13C8/13C8_009A.asm: stack words [bp+6]->frame DX, [bp+8]->frame CX before INT 33h fn4 (retf 4); Reko dropped them.
+13C8	00BF	u16 fn13C8_00BF(u16 wArg06, u16 wArg08)	semi	asm slices/13C8/13C8_00BF.asm: stack words [bp+6]->frame DX, [bp+8]->frame CX before INT 33h fn7 (retf 4); Reko dropped them.
+13C8	00E4	u16 fn13C8_00E4(u16 wArg06, u16 wArg08, void * dsOut)	semi	asm slices/13C8/13C8_00E4.asm: stack words [bp+6]->frame DX, [bp+8]->frame CX before INT 33h fn8 (retf 4); Reko dropped them.
+13C8	0111	void * fn13C8_0111(u16 wArg06)	semi	asm slices/13C8/13C8_0111.asm: far proc, one word arg at [bp+6] (retf 2); Reko named it wArg04. fn1EDA_04B7's AX is stored to frame DX before INT 33h fn13h.
+13C8	0139	void fn13C8_0139(void * ds)	mech	
+13E2	0001	u8 fn13E2_0001(u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+13E2	003B	u8 fn13E2_003B(void)	mech	dropped Eq_17 ds
+13E2	0080	u16 fn13E2_0080(void)	mech	dropped Eq_17 ds
+13E2	00FB	void fn13E2_00FB(void)	mech	dropped Eq_17 ds
+13E2	0193	u16 fn13E2_0193(u8 * ptrArg04)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+13E2	0220	u16 fn13E2_0220(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+1AB8	0000	void fn1AB8_0000(u32 dwArg02, u8 * ptrArg06)	semi	Eq_N from name/union width
+1AB8	008B	u16 fn1AB8_008B(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	027E	void fn1AB8_027E(u16 wArg04, u8 * ptrArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	04F3	u16 fn1AB8_04F3(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	0569	u16 fn1AB8_0569(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * dxOut)	semi	Eq_N from name/union width; out dxOut -> pointer
+1AB8	05D3	u16 fn1AB8_05D3(u8 * ptrArg04)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1AB8	06CA	u16 fn1AB8_06CA(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	0813	u16 fn1AB8_0813(void * dxOut)	semi	dropped Eq_17 ds
+1AB8	0887	u8 fn1AB8_0887(u16 wArg02, u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1AB8	097B	u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1AB8	0AEE	u16 fn1AB8_0AEE(void)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+1AB8	0BAE	u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1AB8	0E88	void fn1AB8_0E88(void)	mech	dropped Eq_17 ds
+1AB8	0EB5	void fn1AB8_0EB5(void)	mech	dropped Eq_17 ds
+1AB8	0F80	void fn1AB8_0F80(void)	mech	dropped Eq_17 ds
+1AB8	0F93	u16 fn1AB8_0F93(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1028	void fn1AB8_1028(void)	mech	dropped Eq_17 ds
+1AB8	108B	void fn1AB8_108B(u16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	10A8	u16 fn1AB8_10A8(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	10BB	u16 fn1AB8_10BB(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	10CE	u16 fn1AB8_10CE(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	10E1	u16 fn1AB8_10E1(void)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	10F4	void fn1AB8_10F4(u16 wArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	112E	u8 fn1AB8_112E(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1175	void fn1AB8_1175(u16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	11A0	void fn1AB8_11A0(u16 wArg04, u8 * ptrArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	11FB	u16 fn1AB8_11FB(u16 wArg02, void * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds
+1AB8	122E	u16 fn1AB8_122E(u16 wArg04, u16 wArg06, u16 wArg08)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds
+1AB8	1250	void fn1AB8_1250(u16 wArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1285	void fn1AB8_1285(void)	mech	
+1AB8	129A	void fn1AB8_129A(void * ptrArg04)	mech	dropped Eq_17 ds
+1AB8	1342	u8 fn1AB8_1342(u8 bArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1384	void fn1AB8_1384(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	13A3	u16 fn1AB8_13A3(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	13D7	u16 fn1AB8_13D7(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1492	void fn1AB8_1492(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	14F4	void fn1AB8_14F4(u16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1536	void * fn1AB8_1536(u16 wArg04, u16 wArg06, u16 wArg08, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1AB8	1783	u16 fn1AB8_1783(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	17AE	void fn1AB8_17AE(void)	mech	dropped Eq_17 ds
+1AB8	1807	void fn1AB8_1807(void)	mech	
+1AB8	180A	void fn1AB8_180A(void)	mech	dropped Eq_17 ds
+1AB8	1855	void fn1AB8_1855(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1895	u16 fn1AB8_1895(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	18E3	void fn1AB8_18E3(void)	mech	dropped Eq_17 ds
+1AB8	194E	void fn1AB8_194E(u8 bArg04)	mech	dropped Eq_17 ds
+1AB8	1968	void fn1AB8_1968(u8 bArg04, u8 * ptrArg06)	mech	dropped Eq_17 ds
+1AB8	1992	void fn1AB8_1992(u8 bArg04, u8 bArg06)	mech	dropped Eq_17 ds
+1AB8	19A6	u16 fn1AB8_19A6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	19EE	void fn1AB8_19EE(u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1A62	void fn1AB8_1A62(void * ss_bp)	mech	dropped Eq_17 ds
+1AB8	1A84	void fn1AB8_1A84(void)	mech	dropped Eq_17 ds
+1AB8	1AA6	void fn1AB8_1AA6(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1AC2	void fn1AB8_1AC2(void)	mech	dropped Eq_17 ds
+1AB8	1ACE	void fn1AB8_1ACE(u16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1AF6	u8 fn1AB8_1AF6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1AB8	1B3E	void fn1AB8_1B3E(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1B90	void fn1AB8_1B90(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)	mech	dropped Eq_17 ds
+1AB8	1C32	u8 fn1AB8_1C32(u8 bArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1C4A	u16 fn1AB8_1C4A(void)	mech	dropped Eq_17 ds
+1AB8	1C5A	u16 fn1AB8_1C5A(void)	mech	dropped Eq_17 ds
+1AB8	1C6A	u8 * fn1AB8_1C6A(void)	semi	dropped Eq_17 ds
+1AB8	1C93	u16 fn1AB8_1C93(void)	mech	dropped Eq_17 ds
+1AB8	1CA4	void fn1AB8_1CA4(u8 bArg04)	mech	dropped Eq_17 ds
+1AB8	1CBA	u16 fn1AB8_1CBA(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1CD7	u8 fn1AB8_1CD7(s16 wArg04, u16 wArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1CED	void fn1AB8_1CED(u8 * ptrArg04)	mech	dropped Eq_17 ds
+1AB8	1CFF	void fn1AB8_1CFF(u8 bArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1D5B	void fn1AB8_1D5B(u8 bArg04, u8 bArg06)	mech	dropped Eq_17 ds
+1AB8	1D82	u8 fn1AB8_1D82(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out chOut -> pointer
+1AB8	1DA6	u16 fn1AB8_1DA6(u8 bArg04, u8 bArg06, u8 bArg08)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1E0B	u16 fn1AB8_1E0B(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1E26	u16 fn1AB8_1E26(void)	mech	dropped Eq_17 ds
+1AB8	1E3C	u16 fn1AB8_1E3C(u16 wArg04, u16 wArg06, u8 * dlOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dlOut -> pointer
+1AB8	1E54	u8 fn1AB8_1E54(u8 bArg04, u16 wArg06, u16 wArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1E6B	void fn1AB8_1E6B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1E9F	u16 fn1AB8_1E9F(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1AB8	1EE3	void fn1AB8_1EE3(void)	mech	dropped Eq_17 ds
+1AB8	1F19	void fn1AB8_1F19(void)	mech	dropped Eq_17 ds
+1AB8	1F80	u8 fn1AB8_1F80(u8 * clOut, u16 * bxOut)	semi	Reko FlagGroup bool return -> u8; out clOut -> pointer; Eq_N from name/union width; out bxOut -> pointer
+1AB8	1F9E	void fn1AB8_1F9E(u8 cl, u16 bx)	mech	dropped Eq_17 ds
+1AB8	1FDE	u8 fn1AB8_1FDE(u8 cl)	semi	Reko FlagGroup bool return -> u8
+1AB8	1FED	u8 fn1AB8_1FED(void)	semi	Reko FlagGroup bool return -> u8
+1AB8	200E	u8 fn1AB8_200E(void)	semi	Reko FlagGroup bool return -> u8
+1AB8	2011	u8 fn1AB8_2011(void)	mech	
+1AB8	2043	u16 fn1AB8_2043(void)	mech	
+1E5F	000B	void fn1E5F_000B(u8 * ptrArg04, u16 wArg06)	semi	asm slices/1E5F/1E5F_000B.asm: [bp+8]=frame off, [bp+0Ah]=frame seg, [bp+0Ch]=INT vector (retf 6). Reko dropped the vector; C order is (frame ptr, vec).
+1E5F	00A2	void fn1E5F_00A2(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10)	mech	
+1E5F	00DE	u8 * fn1E5F_00DE(char * ptrArg04, u16 wArg08, u8 * ptrArg0A)	semi	member pointer return -> u8 *; dropped Eq_17 ds
+1E5F	0136	void fn1E5F_0136(u16 ax, u16 di, void * es)	mech	dropped Eq_17 ds
+1E5F	0159	void fn1E5F_0159(u32 * ptrArg04, u8 bArg08)	mech	
+1E5F	0171	u8 fn1E5F_0171(void * ptrArg04, u8 bArg08, u16 * dxOut)	mech	out dxOut -> pointer
+1E78	0000	void fn1E78_0000(void)	mech	dropped Eq_17 ds
+1E78	002E	void fn1E78_002E(void)	mech	dropped Eq_17 ds
+1E78	0097	void fn1E78_0097(u16 ax)	semi	Eq_N from name/union width
+1E78	00E5	u8 fn1E78_00E5(u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1E78	0143	u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1E78	016B	u16 fn1E78_016B(u16 wArg04, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1E78	01C0	void fn1E78_01C0(void)	mech	
+1E78	029C	u8 fn1E78_029C(u16 wArg04, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1E78	02BF	u16 fn1E78_02BF(u8 * es_di, u8 al, u16 cx)	mech	
+1E78	02C7	void fn1E78_02C7(u16 wArg04)	semi	Eq_N from name/union width
+1E78	02F4	u8 fn1E78_02F4(void)	mech	
+1E78	02FB	u8 fn1E78_02FB(void)	mech	dropped Eq_17 ds
+1E78	030D	u16 fn1E78_030D(s16 dx, u16 wArg02, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1E78	032F	void fn1E78_032F(void * ptrArg04)	mech	
+1E78	0475	void fn1E78_0475(u8 ah, s16 dx)	mech	dropped Eq_17 ds
+1E78	047C	u8 fn1E78_047C(u8 al, s16 dx)	mech	dropped Eq_17 ds
+1E78	04D5	void fn1E78_04D5(u8 dh)	mech	dropped Eq_17 ds
+1E78	04F6	void fn1E78_04F6(void)	mech	
+1E78	04FD	u16 fn1E78_04FD(void)	semi	Eq_N return -> u16
+1E78	0609	u16 fn1E78_0609(void)	semi	Eq_N return -> u16
+1EDA	0000	u16 fn1EDA_0000(void * es)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16
+1EDA	00E2	u16 fn1EDA_00E2(u16 ax, u16 wArg00, u16 wArg02, u16 * cxOut, u16 * dxOut, u16 * bxOut, void * dsOut)	semi	Eq_N return -> u16; Eq_N from name/union width; out cxOut -> pointer; out dxOut -> pointer; out bxOut -> pointer
+1EDA	00E9	void * fn1EDA_00E9(u16 ax)	semi	Eq_N from name/union width
+1EDA	00ED	void * fn1EDA_00ED(u16 ax, u16 cx, u16 bx)	semi	Eq_N from name/union width
+1EDA	00FC	void fn1EDA_00FC(u16 cx, u16 bx)	semi	Eq_N from name/union width; dropped Eq_17 ds
+1EDA	011B	void fn1EDA_011B(u16 cx, u16 bx)	semi	Eq_N from name/union width; dropped Eq_17 ds
+1EDA	01A5	void fn1EDA_01A5(u8 * bx)	semi	
+1EDA	01B3	void fn1EDA_01B3(u8 al)	mech	
+1EDA	01BF	u8 fn1EDA_01BF(u8 al, u8 cl)	mech	
+1EDA	01CD	void fn1EDA_01CD(u16 ax)	semi	Eq_N from name/union width
+1EDA	01D4	void fn1EDA_01D4(u8 al)	mech	
+1EDA	01DF	void fn1EDA_01DF(u8 al)	mech	
+1EDA	01E7	void fn1EDA_01E7(u8 al)	semi	Eq_N from name/union width
+1EDA	023F	u32 fn1EDA_023F(u16 wArg00, u16 wArg02, u16 wArg04, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1EDA	0254	s16 fn1EDA_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06, u16 * dxOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer; out dsOut -> pointer
+1EDA	0308	u8 fn1EDA_0308(u16 ax, u16 * axOut, u16 * dxOut)	semi	Reko FlagGroup bool return -> u8; Eq_N from name/union width; dropped Eq_17 ds; out axOut -> pointer; out dxOut -> pointer
+1EDA	03D3	u8 fn1EDA_03D3(u32 bx_cx, u16 ax, u16 * axOut, void * dxOut)	semi	Reko FlagGroup bool return -> u8; Eq_N from name/union width; dropped Eq_17 ds; out axOut -> pointer
+1EDA	0432	u16 fn1EDA_0432(u32 bx_cx, u8 * es_di, u16 * axOut, u16 * dxOut)	semi	Eq_N return -> u16; Eq_N from name/union width; dropped Eq_17 ds; out axOut -> pointer; out dxOut -> pointer
+1EDA	0491	u16 fn1EDA_0491(u16 ax)	semi	Eq_N return -> u16; Eq_N from name/union width
+1EDA	04A2	u8 fn1EDA_04A2(void)	semi	Eq_N return resolved to u8 (AL); dropped Eq_17 ds
+1EDA	04A9	u32 fn1EDA_04A9(u16 wArg00, u16 wArg02, u8 * chOut, u16 * dsOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out chOut -> pointer; out dsOut -> pointer
+1EDA	04B7	u16 fn1EDA_04B7(u16 ax, s16 dx, u8 * di, u16 wArg00, u16 psegArg02)	semi	asm slices/1EDA/1EDA_04B7.asm: returns AX (in-range retf at 04D8 leaves it; out-of-range sets 00C9h). Caller fn13C8_0111 captures AX.
+1EDA	04F5	void fn1EDA_04F5(u8 * ptrArg04, u8 * ptrArg08)	semi	Eq_N from name/union width
+1EDA	0565	u16 fn1EDA_0565(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	056A	void fn1EDA_056A(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	0572	void fn1EDA_0572(u16 dx, u8 * ptrArg04)	semi	Eq_N from name/union width; dropped Eq_17 ds
+1EDA	05BF	u16 fn1EDA_05BF(u8 * ptrArg04)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1EDA	05FB	u8 fn1EDA_05FB(u8 * es_bx, u16 di)	semi	Reko FlagGroup bool return -> u8; dropped Eq_17 ds
+1EDA	0776	u8 fn1EDA_0776(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)	semi	Reko FlagGroup bool return -> u8; Eq_N from name/union width; dropped Eq_17 ds; out dxOut -> pointer; out diOut -> pointer
+1EDA	079A	u8 * fn1EDA_079A(u8 * es_bx, u16 cx, u8 * dx, u16 di, u8 * ptrArg02, u8 * alOut, u16 * cxOut, void * dxOut, void * bxOut, u16 * diOut, void * esOut)	manual	Eq_N from name/union width; out alOut -> pointer; out cxOut -> pointer; <unknown> -> void *; out diOut -> pointer
+1EDA	07B6	u8 fn1EDA_07B6(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)	semi	Reko FlagGroup bool return -> u8; Eq_N from name/union width; dropped Eq_17 ds; out dxOut -> pointer; out diOut -> pointer
+1EDA	07DA	u8 * fn1EDA_07DA(u8 * es_bx, u8 al, u16 cx, u16 dx, u16 di, u8 * ptrArg02, u8 * es_bxOut, u8 * ahOut, u16 * cxOut, u16 * dxOut, u16 * diOut)	semi	Eq_N from name/union width; out ahOut -> pointer; out cxOut -> pointer; out dxOut -> pointer; out diOut -> pointer
+1EDA	07E9	u8 * fn1EDA_07E9(u8 * es_di, u16 cx, u8 * bx, u16 * axOut, u16 * cxOut, u16 * siOut, u16 * diOut, void * dsOut)	semi	Eq_N from name/union width; out axOut -> pointer; out cxOut -> pointer; out siOut -> pointer; out diOut -> pointer
+1EDA	0801	u16 fn1EDA_0801(u16 ax, u32 dwArg00, u16 * cxOut, u16 * dxOut, void * bxOut, u16 * siOut, u16 * diOut, void * esOut, void * dsOut)	manual	Eq_N return -> u16; Eq_N from name/union width; dropped Eq_17 ds; out cxOut -> pointer; out dxOut -> pointer; <unknown> -> void *; out siOut -> pointer; out diOut -> pointer
+1EDA	081A	u16 fn1EDA_081A(u16 cx, u8 * ptrArg04)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1EDA	0848	u16 fn1EDA_0848(u8 ah, u16 cx, u8 * ptrArg04)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; Eq_N from name/union width; dropped Eq_17 ds
+1EDA	086C	void fn1EDA_086C(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	0879	void fn1EDA_0879(u8 * es_di)	semi	Eq_N from name/union width; dropped Eq_17 ds
+1EDA	0896	u16 fn1EDA_0896(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	08CE	u8 fn1EDA_08CE(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A, u16 * cxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out cxOut -> pointer
+1EDA	0918	u16 fn1EDA_0918(u8 ch, u8 * ptrArg04)	semi	returns DGROUP selector (dropped in flat model); Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1EDA	0953	void fn1EDA_0953(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	semi	Eq_N from name/union width
+1EDA	096F	u32 fn1EDA_096F(u16 ax, u16 cx, u16 dx, u16 bx)	semi	Eq_N from name/union width
+1EDA	098A	s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 * dxOut, s16 * bxOut, void * dsOut)	semi	Eq_N from name/union width; out cxOut -> pointer; out dxOut -> pointer; out bxOut -> pointer
+1EDA	0A1F	void fn1EDA_0A1F(u8 * ptrArg04, u8 * ptrArg08)	semi	Eq_N from name/union width
+1EDA	0A39	u8 fn1EDA_0A39(u8 bArg04, u8 * ptrArg06, u8 * ptrArg0A, void * dxOut)	semi	Eq_N return resolved to u8 (AL); Eq_N from name/union width
+1EDA	0A6B	void fn1EDA_0A6B(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)	semi	Eq_N from name/union width
+1EDA	0AAC	void fn1EDA_0AAC(u8 * ptrArg04, u8 * ptrArg08)	semi	Eq_N from name/union width
+1EDA	0AD8	u8 * fn1EDA_0AD8(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut)	semi	Eq_N from name/union width; out axOut -> pointer
+1EDA	0B24	u8 fn1EDA_0B24(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut, void * dxOut)	semi	Reko FlagGroup bool return -> u8; Eq_N from name/union width; out axOut -> pointer
+1EDA	0B4F	void fn1EDA_0B4F(u8 bArg04, u8 * ptrArg06)	semi	Eq_N from name/union width
+1EDA	0B61	void fn1EDA_0B61(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	semi	Eq_N from name/union width
+1EDA	0B7C	void fn1EDA_0B7C(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)	semi	Eq_N from name/union width
+1EDA	0BD0	void fn1EDA_0BD0(s16 wArg04, u16 wArg06, u8 * ptrArg08)	semi	Eq_N from name/union width
+1EDA	0CD4	u8 fn1EDA_0CD4(u8 * ptrArg04, u8 bArg08, void * esOut)	semi	Reko FlagGroup bool return -> u8; Eq_N from name/union width
+1EDA	0D80	u16 fn1EDA_0D80(u16 wArg04, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1EDA	0DCF	u16 fn1EDA_0DCF(void)	mech	dropped Eq_17 ds
+1EDA	0E07	void fn1EDA_0E07(void)	mech	dropped Eq_17 ds
+1EDA	0E14	u8 * fn1EDA_0E14(u32 dx_ax, u16 di, void * es)	semi	member pointer return -> u8 *; Eq_N from name/union width
+1EDA	0E8E	u8 fn1EDA_0E8E(u16 cx, u8 * di, void * es, u16 * axOut, u16 * cxOut, u16 * siOut, u8 * diOut)	semi	Reko FlagGroup bool return -> u8; out axOut -> pointer; out cxOut -> pointer; out siOut -> pointer; out diOut -> pointer
+1EDA	0F26	void fn1EDA_0F26(s16 wArg04, u8 * ptrArg06, s16 wArg0A, u32 dwArg0C)	semi	Eq_N from name/union width
+1EDA	0F71	u16 fn1EDA_0F71(u8 * ptrArg04, u8 * ptrArg08, u16 * siOut, void * esOut)	semi	Eq_N from name/union width; out siOut -> pointer
+1EDA	0FA2	void fn1EDA_0FA2(u8 * ptrArg04, u8 * ptrArg08)	semi	Eq_N from name/union width
+1EDA	0FD0	u8 fn1EDA_0FD0(u16 wArg04, u8 * ptrArg06, u16 * dxOut)	semi	dropped Eq_17 ds; Eq_N from name/union width; out dxOut -> pointer
+1EDA	1051	u16 fn1EDA_1051(u8 al, u8 * ptrArg04)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1EDA	1076	u32 fn1EDA_1076(u8 * es_di)	semi	Eq_N from name/union width; dropped Eq_17 ds
+1EDA	1085	u16 fn1EDA_1085(u8 al, u8 * ptrArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	108C	void fn1EDA_108C(u8 al, u8 * ptrArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	1091	u16 fn1EDA_1091(u16 ax, u16 dx, u8 * ptrArg08)	semi	Eq_N return -> u16; Eq_N from name/union width; dropped Eq_17 ds
+1EDA	10BB	u16 fn1EDA_10BB(u8 * ptrArg04, u16 wArg08, u8 * ptrArg0E)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width
+1EDA	1123	u8 fn1EDA_1123(u16 wArg04, u16 wArg06, u8 * ptrArg08)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	116A	u16 fn1EDA_116A(u8 * ptrArg04, u16 * dsOut)	semi	Eq_N return -> u16; dropped Eq_17 ds; Eq_N from name/union width; out dsOut -> pointer
+1EDA	1185	u16 fn1EDA_1185(u8 * ptrArg04)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	119A	u8 fn1EDA_119A(u8 * ptrArg06, u32 * bx_cxOut, s32 * dx_axOut, u8 * es_diOut)	semi	Reko FlagGroup bool return -> u8; dropped Eq_17 ds; Eq_N from name/union width; out bx_cxOut -> pointer; out dx_axOut -> pointer
+1EDA	11DF	void fn1EDA_11DF(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	semi	Eq_N from name/union width
+1EDA	1202	void fn1EDA_1202(u8 bArg04, u16 wArg06, u8 * ptrArg08)	semi	Eq_N from name/union width
+1EDA	1216	void fn1EDA_1216(void * es_si, u16 wArg04, u8 * ptrArg06)	semi	dropped Eq_17 ds; Eq_N from name/union width
+1EDA	1265	void * fn1EDA_1265(u16 * axOut)	mech	dropped Eq_17 ds; out axOut -> pointer
+1EDA	126C	u8 * fn1EDA_126C(u16 dx, u16 * axOut, u16 * bxOut)	semi	Eq_N from name/union width; dropped Eq_17 ds; out axOut -> pointer; out bxOut -> pointer
+1EDA	129E	u8 fn1EDA_129E(u8 dh, u16 wArg04, u8 * ptrArg06, u8 bArg0A)	semi	Eq_N from name/union width
+1EDA	1384	u8 fn1EDA_1384(u8 bArg04)	semi	Eq_N return resolved to u8 (AL); Eq_N from name/union width

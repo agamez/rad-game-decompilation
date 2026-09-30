@@ -1,0 +1,7 @@
+seg	off	kind	prototype	c_lines
+13E2	0001	fn	u8 fn13E2_0001(u16 * dsOut)	16
+13E2	003B	fn	u8 fn13E2_003B(void)	25
+13E2	0080	fn	u16 fn13E2_0080(void)	22
+13E2	00FB	fn	void fn13E2_00FB(void)	23
+13E2	0193	fn	u16 fn13E2_0193(u8 * ptrArg04)	28
+13E2	0220	fn	u16 fn13E2_0220(void)	20

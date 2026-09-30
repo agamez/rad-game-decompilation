@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+# gen_prototypes.py -- write src/prototypes.h and analysis/summary/complex_sigs.txt.
+#
+# Every RAD_*.c function definition signature is classified.  Signatures whose
+# return type and parameters are expressible with the flat Port type vocabulary
+# (void, u8/u16/u32/s8/s16/s32/char, struct Eq_N * -> void *) become extern
+# prototypes; everything else is listed for manual recovery.  See README.md.
+
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import reko_common as rc  # noqa: E402
+
+BASE_MAP = {
+    "void": "void",
+    "u8": "u8",
+    "u16": "u16",
+    "u32": "u32",
+    "s8": "s8",
+    "s16": "s16",
+    "s32": "s32",
+    "char": "char",
+    # Reko spellings
+    "byte": "u8",
+    "word16": "u16",
+    "word32": "u32",
+    "uint8": "u8",
+    "uint16": "u16",
+    "uint32": "u32",
+    "int8": "s8",
+    "int16": "s16",
+    "int32": "s32",
+}
+
+STRUCT_PTR_RE = re.compile(r"\bstruct\s+\w+\s*[*&]")
+EXOTIC_PATTERNS = [
+    (re.compile(r"\bEq_\d+"), "Eq_N value type"),
+    (re.compile(r"\bMem\d+"), "Mem accessor type"),
+    (re.compile(r"::"), "member-pointer type"),
+    (re.compile(r"\bSegment\b"), "Segment type"),
+    (re.compile(r"<[^>]*>"), "Reko pseudo-type"),
+    (
+        re.compile(
+            r"\b(ptr16|ptr32|segptr32|real32|real64|selector|word24|ci16|cu16|cup16|"
+            r"ci8|cu8|bu8|ui16|ui32|i32)\b"
+        ),
+        "exotic Reko type",
+    ),
+    (re.compile(r"\bbool\b"), "Reko bool"),
+]
+
+
+def split_params(params_str):
+    """Split a parameter list on top-level commas."""
+    out = []
+    depth = 0
+    cur = ""
+    for ch in params_str:
+        if ch in "(<[":
+            depth += 1
+        elif ch in ")>]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    if cur.strip():
+        out.append(cur)
+    return [p.strip() for p in out if p.strip()]
+
+
+def map_type(t):
+    t = re.sub(r"\s+", " ", t).strip()
+    if not t:
+        return None
+    if t == "void":
+        return "void"
+    if re.fullmatch(r"struct \w+ [*&]", t):
+        return "void *"
+    if re.fullmatch(r"union \w+ [*&]", t):
+        return "void *"
+    stars = 0
+    while t.endswith("*") or t.endswith("&"):
+        t = t[:-1].strip()
+        stars += 1
+    if t in BASE_MAP:
+        mapped = BASE_MAP[t]
+        if stars:
+            mapped += " " + ("* " * stars).strip()
+        return mapped
+    return None
+
+
+def classify(sig):
+    """Return (prototype_or_None, reason, unmapped_types)."""
+    m = re.search(r"\bfn([0-9A-F]{4})_([0-9A-F]{4})\s*\(", sig)
+    if not m:
+        return None, "unparseable signature", []
+    ret_raw = sig[: m.start()].strip()
+    params_raw = sig[m.end(): sig.rfind(")")].strip()
+
+    masked = STRUCT_PTR_RE.sub("VOIDP", sig)
+    reason = None
+    for pat, why in EXOTIC_PATTERNS:
+        if pat.search(masked):
+            reason = why
+            break
+
+    ret = map_type(ret_raw)
+    params = split_params(params_raw) if params_raw and params_raw != "void" else []
+    mapped_params = []
+    unmapped = []
+    if ret is None:
+        unmapped.append(ret_raw or "?")
+    for p in params:
+        toks = p.split()
+        typ = " ".join(toks[:-1]) if len(toks) > 1 else toks[0]
+        mp = map_type(typ)
+        if mp is None:
+            unmapped.append(typ)
+        else:
+            name = toks[-1] if len(toks) > 1 else ""
+            mapped_params.append((mp + (" " + name if name else "")).strip())
+
+    if reason is None and unmapped:
+        reason = "unmapped type: " + ",".join(sorted(set(unmapped)))
+    if reason is None and ret is None:
+        reason = "unmapped return type: " + (ret_raw or "?")
+    if reason is not None:
+        return None, reason, unmapped
+
+    if not mapped_params:
+        params_out = "void"
+    else:
+        params_out = ", ".join(mapped_params)
+    proto = "extern %s %s(%s);" % (ret, m.group(0)[: m.group(0).find("(")].strip(), params_out)
+    return proto, None, []
+
+
+def main():
+    rc.ensure_dir(rc.SRC_DIR)
+    rc.ensure_dir(rc.SUMMARY_DIR)
+    cfuncs = rc.parse_c_functions()
+
+    protos = []
+    complex_lines = []
+    n_proto = 0
+    n_complex = 0
+    for seg in rc.segment_ids():
+        for cf in cfuncs.get(seg, []):
+            proto, reason, _ = classify(cf["sig"])
+            if proto is None:
+                complex_lines.append(
+                    "%s\t%s\t%s\tline=%d\t%s"
+                    % (cf["seg"], cf["func"], reason, cf["line"], cf["sig"])
+                )
+                n_complex += 1
+            else:
+                protos.append(proto)
+                n_proto += 1
+
+    header = [
+        "#ifndef RADPROTOTYPES_H",
+        "#define RADPROTOTYPES_H",
+        "",
+        '#include "radtypes.h"',
+        "",
+        "/* Prototypes recovered from analysis/reko/RAD_*.c.",
+        " * Generated by analysis/tools/gen_prototypes.py -- do not edit by hand.",
+        " * Functions with exotic Reko signature types are not declared here;",
+        " * see analysis/summary/complex_sigs.txt for the manual worklist. */",
+        "",
+    ]
+    footer = ["", "#endif /* RADPROTOTYPES_H */", ""]
+    out_path = os.path.join(rc.SRC_DIR, "prototypes.h")
+    with open(out_path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(header + protos + footer))
+
+    cpath = os.path.join(rc.SUMMARY_DIR, "complex_sigs.txt")
+    with open(cpath, "w", encoding="utf-8") as fh:
+        fh.write("# seg\tfunc\treason\tline\tfull_signature\n")
+        for line in complex_lines:
+            fh.write(line + "\n")
+
+    print(
+        "wrote %s (%d prototypes) and %s (%d complex)"
+        % (out_path, n_proto, cpath, n_complex)
+    )
+
+
+if __name__ == "__main__":
+    main()

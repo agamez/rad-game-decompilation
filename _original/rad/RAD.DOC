@@ -1,0 +1,334 @@
+                          DOCUMENTATION de RAD  V.3.1  (Novembre 1999)
+
+MATERIEL NECESSAIRE:
+         - Un PC ou compatible de type AT ( processeur 80286 minimum );
+         - Une carte graphique et un ‚cran VGA ( d‚finition 640*480 ).
+   Recommand‚:
+         - Un ‚cran couleur;
+         - Un disque dur;
+         - Une souris (indispensable pour l'‚diteur seulement).
+   Le programme reconnaŒt normalement la vitesse de votre ordinateur
+   et se rŠgle en cons‚quence. Si vous trouvez la vitesse de jeu
+   inadapt‚e vous pouvez la ralentir ou l'augmenter en lan‡ant le jeu
+   avec, en paramŠtre, un nombre de 1 … 99 (exemple: RAD.exe 12).
+   Sous Windows, ajoutez simplement un espace et le nombre voulu … la
+   fin du champ "ligne de commande" dans l'onglet "programme" des
+   propri‚t‚s du fichier RAD.EXE (pour obtenir le menu des propri‚t‚s,
+   cliquez avec le bouton droit de la souris sur le fichier RAD.EXE).
+
+
+CONTENU DE LA DISQUETTE:
+        - RAD.EXE : ex‚cutable du jeu
+        - RAD.DES : fichier de d‚finition graphique du robot
+        - RAD.STR : fichier de d‚finition des objets de structure
+        - RAD.BUT : fichier de d‚finition graphique des boutons
+        - RAD.DAT : fichier de donn‚es des tableaux
+        - RAD.HLP : fichier de donn‚es de l'aide pr‚enregistr‚e
+        - RAD.DOC : le fichier que vous ˆtes en train de lire
+        - RAD.TIT : l'image de la page de titre
+
+DISTRIBUTION :
+       Ce logiciel est maintenant distribu‚ suivant le principe du freeware.
+       Vous pouvez donc le copier librement, et le donner … des amis.
+
+BUT DU JEU :
+       Il s'agit d'un jeu de r‚flexion qui ne necessite aucune dext‚rit‚
+       particuliŠre .
+
+       A l'aide d'un robot radiocommand‚ vous devez ‚liminer des containers
+       radioactifs plac‚s par une main mal intentionn‚e dans le entrepots
+       de plusieurs villes de la planŠte.
+       Pour cel…, vous devez pousser ces containers, reconnaissables …
+       leur couleur blanche et … leur sigle rouge vers les unit‚s de
+       destruction situ‚es au niveau inf‚rieur de l'entrepot ( couleur
+       grise ).
+
+LES MISSIONS :
+       La touche "F3 : DEMO" vous permet d'avoir une id‚e sur la fa‡on de
+       proc‚der.
+       Le code d'entr‚e dans chaque entrepot est celui du nom de la ville
+       o— il se trouve.
+       Pour entrer dans le premier entrepot, pressez simplement la touche
+       "F1 : JEU".
+       Lorsque vous aurez r‚ussi cette mission vous serez alors conduit
+       dans le second entrepot, dont vous verrez le nom s'afficher en bas
+       et … droite de l'‚cran.
+       Si vous abandonnez la partie en cours vous pourrez ainsi toujours
+       la reprendre en pressant d'abord la touche "F2 : MISSION" et en
+       entrant le nom de la ville. Une pression sur "F1" , qui indiquera
+       alors le nom de la mission vous permettra alors de reprendre la
+       partie l… o— vous en ‚tiez.
+
+       Il y a 100 missions … remplir .
+
+
+DEPLACEMENT DU ROBOT :
+            Vous commandez les d‚placements du robot en pressant avec la
+            souris les boutons qui se trouvent … gauche du panneau de
+            commande, ou en appuyant sur les flŠches du clavier. La barre
+            d'espace permet d'arrˆter le robot et de pauser le jeu.
+            Il y a des situations o— le robot ne pourra pas avancer : soit
+            lorsqu'il se trouvera bloqu‚ par un obstacle qu'il ne peut
+            d‚placer, soit lorsqu'il sera au bord d'un puits de descente.
+            De mŠme, si le robot peut monter ou descendre, sa m‚thode de
+            fonctionnement brŠvet‚e entraine un certain nombre de contreintes
+            que vous ne tarderez pas … d‚couvrir : n‚cessit‚ de disposer
+            d'un point d'appui, limitation de hauteur ( plus importante
+            pour la descente...).
+
+
+
+
+
+
+ACTIONS DU ROBOT :
+            pour chaque mission, le robot dispose d'un nombre limit‚
+            d'‚quipements.
+            Les ‚quipements standard sont les poussoirs, les plaques ou
+            ponts et les explosifs.
+            Le nombre dont il dispose est indiqu‚ au dessus du bouton
+            qui permet d'actionner chacun d'eux dans la partie droite
+            du panneau de commandes ou avec les touches F1 … F3.
+            - Le poussoir permet de d‚placer un obstacle … condition
+            qu'il s'agisse d'un ‚l‚ment isol‚. Il est ainsi impossible
+            de d‚placer deux containers accol‚s ou superpos‚s.
+            - Les plaques permettent de franchir des espaces vides en
+            construisant un pont devant le robot. Elles ne peuvent ˆtre
+            pos‚es que dans le vide.
+            - Les explosifs permettent de d‚truire tout ‚l‚ment situ‚
+            imm‚diatement devant le robot, … la hauteur qu'il peut
+            atteindre avec son bras. Le champs de d‚flagration de
+            l'explosif est de deux ‚l‚ments verticalement et horizontalement.
+            Certains ‚l‚ments, toutefois, sont blind‚s et r‚sistent aux
+            explosions . On les reconnait … leur couleur de diable enrhum‚.
+DIVERS :
+            Le bouton EXIT ou la touche "Escape"(ou Echap) permet de mettre
+            fin pr‚matur‚ment … une mission mal engag‚e.
+            Le temps restant avant la d‚sint‚gration des containers
+            radioactifs s'affiche sur la droite du panneau de commande.
+            Si les containers n'ont pu ˆtre d‚sactiv‚s … temps, ce pauvre
+            robot se trouve d‚sint‚gr‚ … son tour et vous devrez recommencer
+            la mission avec un nouveau.
+
+
+
+
+
+
+
+
+
+
+
+
+TRUCS ET ASTUCES :
+
+      les ‚quipements:
+            Avec un peu (parfois beaucoup) de r‚flexion, toutes les missions
+            de RAD sont r‚alisables avec l'‚quipement donn‚ au d‚part
+            (plaques , explosifs, ect). Le nombre et la nature de ces
+            ‚quipements peuvent vous donner un indice sur la fa‡on de r‚soudre
+            le tableau, car ils ont, le plus souvent, ‚t‚ calcul‚s au plus
+            juste. Certains tableaux,qui comportent des ‚quipements inutiles,
+            t‚moigent seulement du caractŠre sournois de l'auteur, qui a ainsi
+            voulu brouiller les pistes. Ils sont peu nombreux.
+
+
+      Les sous-titres :
+            Mentionn‚s … gauche du tableau de commande, ils constituent
+            le plus souvent un indice vous indiquant le moyen de r‚soudre
+            le problŠme pos‚. Bien s–r, ils sont un peu sybilins, mais sinon,
+            o— serait l'int‚rˆt ?
+
+
+      Les missions:
+            En frappant la touche F2 du menu, vous pouvez entrer le nom d'une
+            mission, et recommencer l… o— vous en ‚tiez. Mais remarquez bien
+            que ces codes de mission sont tous le nom d'une ville en six
+            lettres. A part une ou deux, vous les connaissez surement. Alors
+            essayez au hasard, au besoin avec  l'aide d'un atlas, et il serait
+            bien surprenant que vous n'en trouviez pas une qui soit r‚f‚renc‚e
+            comme l'un des nombreux codes.
+
+      La strat‚gie:
+            Pour parvenir … votre but, il faut parfois emprunter des
+            cheminements tortueux, et la m‚thode directe n'est pas toujours
+            la meilleure;
+            r‚fl‚chissez … ces quelques trucs:
+               - si l'on n'a pas de dynamite, on peut faire exploser un
+               ‚l‚ment en poussant dessus un container, pourvu qu'il tombe
+               d'assez haut.
+               - Il n'est pas interdit de poser de la dynamite … mŠme le sol.
+               - En posant de la dynamite au pied d'une pile de containers,
+               seul le premier va exploser, et les autres descendre; apr‚s,
+               cel… d‚pend de la hauteur de la chute ...
+               - Pourvu que le "plafond" soit assez haut, le robot peut passer
+               par dessus un container, en choisissant les actions monter,
+               puis descendre. Ils peuvent aussi lui servir de marche-pied.
+               - Lorsque le robot est dans une position o— il ne peut pas
+               approcher les containers radioactifs (exemple :venise) ,
+               r‚fl‚chissez … la meilleure fa‡on d'utiliser les explosifs …
+               distance.
+               - Ne posez jamais d'explosif si vous ne disposez pas d'un recul
+               suffisant pour vous mettre … l'abri ( mais ‡a, vous devez vous
+               en ˆtre rendu compte, pas vrai ?).
+               - Saviez-vous que l'on peut pousser un ‚l‚ment de structure
+               sous les mŠmes conditions qu'un container ?
+               - Si jamais vous voyez un container flottant dans l'espace,
+               souvenez-vous qu'une simple pouss‚e suffit … le faire
+               d‚gringoler .
+
+
+
+
+
+      Le temps accord‚:
+            Le d‚lai avant l'explosion du robot a ‚t‚ fix‚ pour vous donner
+            largement le temps de remplir la mission, sans dext‚rit‚
+            particuliŠre , … condition de faire les bons choix. Un d‚lai de
+            jeu r‚duit indique donc une solution du type "Il suffisait d'y
+            penser".
+
+
+      Si vraiment vous ˆtes bloqu‚:
+            Lorsque vous ˆtes dans l'‚cran de jeu, pressez la touche point
+            d'interrogation (?). Un panneau vous indique alors que vous
+            allez passer en mode AIDE. Pressez une touche: l'‚cran de jeu
+            se trouve r‚initialis‚ au d‚part. A partir de maintenant, chaque
+            fois que vous presserez une touche quelconque (la barre d'espace,
+            par exemple), le robot acomplira l'action correcte. Lorsque vous
+            vous estimerez suffisament aid‚, pressez la touche ESC ou ECHAP
+            pour reprendre la main et finir le tableau par vous mˆme.
+                  
+
+L'EDITEUR DE TABLEAUX : ( version enregistr‚e seulement)
+
+       Si vous disposez d'une souris et de beaucoup de patience, vous allez
+       pouvoir cr‚er vos propres tableaux de jeu , qui seront sauvegard‚s
+       … la suite des tableaux livr‚s en standard (jusqu'… 250).
+                              Cet ‚diteur, destin‚ … l'origine … mon
+       propre usage, pour la cr‚ation du jeu, n'est pas d'une convivialit‚
+       exemplaire, ni totalement exempt de bugs, mais je sais que les
+       bricoleurs appr‚cieront...
+
+    Pour lancer l'‚diteur :
+       positionnez-vous sur l'‚cran de titre (Menu),et frappez la touche
+       "F5: EDIT" (elle figure dans la version enregistr‚e).
+       Apr‚s une fraction de seconde, vous voici dans l'‚diteur de tableaux.
+       L'‚cran se pr‚sente en 3 zones :
+
+          - la plus grande, en haut, correspond … l'‚cran de jeu que vous
+            connaissez. Si aucune mission n'‚tait s‚lectionn‚e, elle est vide,
+            sinon, elle contient le tableau de la mission.
+
+          - en bas, … gauche, se trouvent les boutons qui peuvent ˆtre
+            actionn‚s … la souris: nous verrons plus loin en d‚tail.
+
+          - en bas, … droite, se trouve la premiŠre page de motifs, qui,
+            associ‚s, permettent de composer les tableaux et tout ce que vous
+            verrez … l'‚cran de jeu, sauf le robot, ce dernier ‚tant
+            positionn‚ lors de la sauvegarde.
+
+          - Positionnez maintenant le curseur de la souris sur le bouton
+            marqu‚ [Swap] et cliquez une fois: vous devez voir apparaitre la
+            seconde page de motifs. Cliquez … nouveau sur le bouton [sWap]
+            pour revenir … la premiŠre page.
+
+          - Cliquez ensuite, plusieurs fois , sur le bouton marqu‚ [<<-] .
+            Vous devez voir d‚filer des tableaux dans la partie sup‚rieure
+            de l'‚cran: ce sont les tableau pr‚c‚dant votre position de tout
+            … l'heure.
+
+
+
+          - Cliquez maintenant sur le bouton [+>>] autant de fois qu'il le
+            faut pour revenir au premier ‚cran vierge. Vous allez maintenant
+            pouvoir cr‚er un nouveau tableau.
+
+          - Positionnez le curseur de la souris dans la zone en bas … droite
+             de l'‚cran, et , en cliquant, s‚lectionnez le motif de votre
+             choix - cel… doit faire un bruit vaguement d‚sagr‚able qui
+             essaie de ressembler … un "Bip".
+
+          - Maintenant, allez avec la souris vers le bas de l'ecran de jeu,
+            et cliquez sur les ‚l‚ments de cadre gris. Vous venez de d‚poser
+            un exemplaire du motif. Recommencez autant de fois que necessaire,
+            ‚ventuellement en changeant de motif, jusqu'… couvrir tous les
+            ‚l‚ments du bas du cadre. Si vous vous trompez, ou pour effacer le
+            reste du cadre, cliquez avec le bouton DROIT sur l'‚l‚ment …
+            supprimer: le voici effac‚ .
+
+
+
+
+          - Pour que le tableau fonctionne, il faut obligatoirement
+            qu'il comporte deux autres ‚l‚ments: un container radioactif et
+            un ‚l‚ment d‚sactivateur.
+            S‚lectionnez le motif du d‚sactivateur ( en bas, vers la droite
+            de la premiŠre page de motifs), et posez le avec la souris sur la
+            DERNIERE ligne de l'‚cran de jeu, … la place d'un des motifs que
+            vous y avez pr‚cedemment pos‚s ( vers la droite, par exemple).
+            Ensuite, s‚lectionnez le fut radioactif (premiere page, dernier
+            motif), et posez le sur le sol que vous avez cr‚‚, vers le milieu,
+            par exemple.
+
+          - Ce ne sera pas un tableau tr‚s difficile, mais c'est suffisant 
+            pour commencer ... Vous pouvez maintenant cliquer avec la souris
+            sur le bouton [Test], … gauche de l'‚cran. Il va alors falloir
+            utiliser le clavier pour r‚pondre aux questions qui vont vous ˆtre
+            pos‚es (eh oui..):
+                   Commencez par r‚pondre O … la question sauver (O/N)
+                   Nom : indiquez le code d'acc‚s, puis pressez RETURN ou
+                       ENTREE ( ceci pour ceux qui ont r‚ussi … arriver jusqu'
+                       ici sans savoir ce que fait cette touche sur un clavier).
+                   Aide : Mettez ce que vous voulez, mais … ce niveau, ce
+                       n'est pas vraiment crucial.
+                   Nombre de PUSH : indiquez le nombre de pouss‚es auxquelles
+                       aura droit le robot (99 par d‚faut, c'est … dire si
+                       vous n'inscrivez rien)
+                   Nombre de PONTS : indiquez le nombre de plaques de
+                       franchissement.
+                   Nombre de BLAST : indiquez le nombre de batons de dynamite.
+                       Coordonn‚es en X du robot : indiquez la distance
+                       horizontale s‚parant le point d'apparition du robot du
+                       bord gauche de l'‚cran, exprim‚e en nombre de motifs
+                       ( ici, la valeur 6 devrait aller).
+                   Coordonn‚es en Y du robot : mŠme chose pour la distance
+                       verticale compt‚e depuis le haut de l'‚cran ( la valeur
+                       6 devrait aller aussi, le robot descendant lentement
+                       vers le sol).
+                   D‚lai de jeu : indiquez le temps accord‚, en minutes, pour
+                       r‚soudre le tableau ( mettons 5, parceque c'est vous...).
+
+
+          - prenez votre temps pour tester le fonctionnement du tableau ou
+            bien pressez Escape pour revenir dans l'‚diteur.
+          - Rajoutez des ‚l‚ments au tableau, modifiez, et testez jusqu'…
+            ce que vous en soyez satisfait, et, pour sortir et revenir au
+            menu de jeu, pressez le bouton Quit... Voici un tableau de plus.
+
+Quelques conseils pour des tableaux plus ‚labor‚s:
+
+      A moins que vous ne vouliez utiliser l'‚diteur comme logiciel de dessin, 
+      ne vous souciez pas des motifs dans un premier temps: prenez le plus
+      neutre et utilisez le pour toute la structure ( sauf pour les containers
+      qui devront ˆtre choisis en tant que tels).
+
+      Gardez toujours … l'esprit les limitations du robot et commencez par un 
+      "brouillon " pas trop difficile.
+
+      Une fois le brouillon termin‚, testez le tel qu'il est, avec les 
+      options au niveau maximum, et modifiez-le petit … petit.
+
+
+      Quand vous ˆtes satisfait du problŠme que vous avez ‚labor‚, d‚corez
+      alors le tableau avec des motifs judicieusement choisis, et r‚glez les
+      options au mieux.
+
+
+                                                   BIEN CORDIALEMENT
+
+                                                    Maxime GAILLARD
+                                                    12,Impasse des Ruchoux
+                                                    87100 LIMOGES.
+                                                    Tel: (55) 77 65 22

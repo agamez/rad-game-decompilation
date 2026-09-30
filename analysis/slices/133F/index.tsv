@@ -1,0 +1,16 @@
+seg	off	kind	prototype	c_lines
+133F	0056	fn	u16 fn133F_0056(u16 * dsOut)	66
+133F	0137	fn	u8 fn133F_0137(u16 * dxOut, u16 * bpOut, void * dsOut)	18
+133F	0141	fn	u8 fn133F_0141(s16 * dxOut, u16 * bpOut, void * dsOut)	18
+133F	014B	fn	u8 fn133F_014B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u16 * dxOut, u16 * dsOut)	21
+133F	0200	fn	void fn133F_0200(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	11
+133F	021F	fn	u8 fn133F_021F(u16 wArg04, u16 wArg06)	26
+133F	0256	fn	void fn133F_0256(u16 wArg04, u16 wArg06)	8
+133F	026B	fn	u8 fn133F_026B(u16 wArg04, u16 wArg06, u16 * dxOut, void * dsOut)	21
+133F	02DF	fn	void fn133F_02DF(u8 * ptrArg04, u8 bArg08)	20
+133F	0352	fn	u16 fn133F_0352(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 bArg10)	31
+133F	04A7	fn	void fn133F_04A7(void)	8
+133F	04B1	fn	u16 fn133F_04B1(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, void * dsOut)	18
+133F	04DE	fn	u16 fn133F_04DE(u8 * ptrArg04)	26
+133F	0528	fn	u16 fn133F_0528(s16 dx, u8 * ptrArg06, u8 * ptrArg0A, u8 * ptrArg0E, s16 * dxOut, u16 * bpOut, u16 * dsOut)	201
+133F	0816	fn	u16 fn133F_0816(void)	9

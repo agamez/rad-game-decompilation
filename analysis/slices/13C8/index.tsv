@@ -1,0 +1,11 @@
+seg	off	kind	prototype	c_lines
+13C8	0000	fn	u8 fn13C8_0000(void)	8
+13C8	000D	fn	u16 fn13C8_000D(void * dsOut)	21
+13C8	0038	fn	u8 fn13C8_0038(u16 * dxOut, u16 * bpOut, void * dsOut)	20
+13C8	004F	fn	u8 fn13C8_004F(u16 * dxOut, u16 * bpOut, void * dsOut)	20
+13C8	0066	fn	u16 fn13C8_0066(void * bpOut, void * dsOut)	22
+13C8	009A	fn	u16 fn13C8_009A(void * bpOut, void * dsOut)	19
+13C8	00BF	fn	u16 fn13C8_00BF(void)	18
+13C8	00E4	fn	u16 fn13C8_00E4(void * dsOut)	20
+13C8	0111	fn	void * fn13C8_0111(u16 wArg04)	18
+13C8	0139	fn	void fn13C8_0139(void * ds)	40

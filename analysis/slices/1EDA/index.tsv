@@ -1,0 +1,82 @@
+seg	off	kind	prototype	c_lines
+1EDA	0000	fn	u16 fn1EDA_0000(void * es)	40
+1EDA	00E2	fn	u16 fn1EDA_00E2(u16 ax, u16 wArg00, u16 wArg02, u16 * cxOut, u16 * dxOut, u16 * bxOut, void * dsOut)	19
+1EDA	00E9	fn	void * fn1EDA_00E9(u16 ax)	12
+1EDA	00ED	fn	void * fn1EDA_00ED(u16 ax, u16 cx, u16 bx)	20
+1EDA	00FC	fn	void fn1EDA_00FC(u16 cx, u16 bx)	19
+1EDA	011B	fn	void fn1EDA_011B(u16 cx, u16 bx)	42
+1EDA	01A5	fn	void fn1EDA_01A5(u8 * bx)	14
+1EDA	01B3	fn	void fn1EDA_01B3(u8 al)	8
+1EDA	01BF	fn	u8 fn1EDA_01BF(u8 al, u8 cl)	11
+1EDA	01CD	fn	void fn1EDA_01CD(u16 ax)	9
+1EDA	01D4	fn	void fn1EDA_01D4(u8 al)	11
+1EDA	01DF	fn	void fn1EDA_01DF(u8 al)	10
+1EDA	01E7	fn	void fn1EDA_01E7(u8 al)	15
+1EDA	023F	fn	u32 fn1EDA_023F(u16 wArg00, u16 wArg02, u16 wArg04, u16 * dsOut)	41
+1EDA	0254	fn	s16 fn1EDA_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06, u16 * dxOut, u16 * dsOut)	42
+1EDA	0308	fn	u8 fn1EDA_0308(u16 ax, u16 * axOut, u16 * dxOut)	99
+1EDA	03D3	fn	u8 fn1EDA_03D3(u32 bx_cx, u16 ax, u16 * axOut, void * dxOut)	57
+1EDA	0432	fn	u16 fn1EDA_0432(u32 bx_cx, u8 * es_di, u16 * axOut, u16 * dxOut)	46
+1EDA	0491	fn	u16 fn1EDA_0491(u16 ax)	8
+1EDA	04A2	fn	u8 fn1EDA_04A2(void)	16
+1EDA	04A9	fn	u32 fn1EDA_04A9(u16 wArg00, u16 wArg02, u8 * chOut, u16 * dsOut)	33
+1EDA	04B7	fn	void fn1EDA_04B7(u16 ax, s16 dx, u8 * di, u16 wArg00, u16 psegArg02)	13
+1EDA	04F5	fn	void fn1EDA_04F5(u8 * ptrArg04, u8 * ptrArg08)	37
+1EDA	0565	fn	u16 fn1EDA_0565(u8 * ptrArg04)	11
+1EDA	056A	fn	void fn1EDA_056A(u8 * ptrArg04)	9
+1EDA	0572	fn	void fn1EDA_0572(u16 dx, u8 * ptrArg04)	26
+1EDA	05BF	fn	u16 fn1EDA_05BF(u8 * ptrArg04)	27
+1EDA	05FB	fn	u8 fn1EDA_05FB(u8 * es_bx, u16 di)	14
+1EDA	0776	fn	u8 fn1EDA_0776(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)	23
+1EDA	079A	fn	u8 * fn1EDA_079A(u8 * es_bx, u16 cx, u8 * dx, u16 di, u8 * ptrArg02, u8 * alOut, u16 * cxOut, void * dxOut, void * bxOut, u16 * diOut, void * esOut)	41
+1EDA	07B6	fn	u8 fn1EDA_07B6(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)	22
+1EDA	07DA	fn	u8 * fn1EDA_07DA(u8 * es_bx, u8 al, u16 cx, u16 dx, u16 di, u8 * ptrArg02, u8 * es_bxOut, u8 * ahOut, u16 * cxOut, u16 * dxOut, u16 * diOut)	66
+1EDA	07E9	fn	u8 * fn1EDA_07E9(u8 * es_di, u16 cx, u8 * bx, u16 * axOut, u16 * cxOut, u16 * siOut, u16 * diOut, void * dsOut)	39
+1EDA	0801	fn	u16 fn1EDA_0801(u16 ax, u32 dwArg00, u16 * cxOut, u16 * dxOut, void * bxOut, u16 * siOut, u16 * diOut, void * esOut, void * dsOut)	26
+1EDA	081A	fn	u16 fn1EDA_081A(u16 cx, u8 * ptrArg04)	41
+1EDA	0848	fn	u16 fn1EDA_0848(u8 ah, u16 cx, u8 * ptrArg04)	33
+1EDA	086C	fn	void fn1EDA_086C(u8 * ptrArg04)	8
+1EDA	0879	fn	void fn1EDA_0879(u8 * es_di)	17
+1EDA	0896	fn	u16 fn1EDA_0896(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	39
+1EDA	08CE	fn	u8 fn1EDA_08CE(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A, u16 * cxOut)	59
+1EDA	0918	fn	u16 fn1EDA_0918(u8 ch, u8 * ptrArg04)	38
+1EDA	0953	fn	void fn1EDA_0953(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	9
+1EDA	096F	fn	u32 fn1EDA_096F(u16 ax, u16 cx, u16 dx, u16 bx)	14
+1EDA	098A	fn	s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 * dxOut, s16 * bxOut, void * dsOut)	92
+1EDA	0A1F	fn	void fn1EDA_0A1F(u8 * ptrArg04, u8 * ptrArg08)	29
+1EDA	0A39	fn	u8 fn1EDA_0A39(u8 bArg04, u8 * ptrArg06, u8 * ptrArg0A, void * dxOut)	59
+1EDA	0A6B	fn	void fn1EDA_0A6B(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)	31
+1EDA	0AAC	fn	void fn1EDA_0AAC(u8 * ptrArg04, u8 * ptrArg08)	45
+1EDA	0AD8	fn	u8 * fn1EDA_0AD8(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut)	74
+1EDA	0B24	fn	u8 fn1EDA_0B24(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut, void * dxOut)	39
+1EDA	0B4F	fn	void fn1EDA_0B4F(u8 bArg04, u8 * ptrArg06)	12
+1EDA	0B61	fn	void fn1EDA_0B61(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	9
+1EDA	0B7C	fn	void fn1EDA_0B7C(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)	17
+1EDA	0BD0	fn	void fn1EDA_0BD0(s16 wArg04, u16 wArg06, u8 * ptrArg08)	20
+1EDA	0CD4	fn	u8 fn1EDA_0CD4(u8 * ptrArg04, u8 bArg08, void * esOut)	20
+1EDA	0D80	fn	u16 fn1EDA_0D80(u16 wArg04, u16 * dxOut)	19
+1EDA	0DCF	fn	u16 fn1EDA_0DCF(void)	19
+1EDA	0E07	fn	void fn1EDA_0E07(void)	12
+1EDA	0E14	fn	u8 * fn1EDA_0E14(u32 dx_ax, u16 di, void * es)	54
+1EDA	0E8E	fn	u8 fn1EDA_0E8E(u16 cx, u8 * di, void * es, u16 * axOut, u16 * cxOut, u16 * siOut, u8 * diOut)	105
+1EDA	0F26	fn	void fn1EDA_0F26(s16 wArg04, u8 * ptrArg06, s16 wArg0A, u32 dwArg0C)	35
+1EDA	0F71	fn	u16 fn1EDA_0F71(u8 * ptrArg04, u8 * ptrArg08, u16 * siOut, void * esOut)	34
+1EDA	0FA2	fn	void fn1EDA_0FA2(u8 * ptrArg04, u8 * ptrArg08)	37
+1EDA	0FD0	fn	u8 fn1EDA_0FD0(u16 wArg04, u8 * ptrArg06, u16 * dxOut)	56
+1EDA	1051	fn	u16 fn1EDA_1051(u8 al, u8 * ptrArg04)	40
+1EDA	1076	fn	u32 fn1EDA_1076(u8 * es_di)	13
+1EDA	1085	fn	u16 fn1EDA_1085(u8 al, u8 * ptrArg08)	13
+1EDA	108C	fn	void fn1EDA_108C(u8 al, u8 * ptrArg08)	9
+1EDA	1091	fn	u16 fn1EDA_1091(u16 ax, u16 dx, u8 * ptrArg08)	25
+1EDA	10BB	fn	u16 fn1EDA_10BB(u8 * ptrArg04, u16 wArg08, u8 * ptrArg0E)	43
+1EDA	1123	fn	u8 fn1EDA_1123(u16 wArg04, u16 wArg06, u8 * ptrArg08)	25
+1EDA	116A	fn	u16 fn1EDA_116A(u8 * ptrArg04, u16 * dsOut)	30
+1EDA	1185	fn	u16 fn1EDA_1185(u8 * ptrArg04)	20
+1EDA	119A	fn	u8 fn1EDA_119A(u8 * ptrArg06, u32 * bx_cxOut, s32 * dx_axOut, u8 * es_diOut)	28
+1EDA	11DF	fn	void fn1EDA_11DF(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)	18
+1EDA	1202	fn	void fn1EDA_1202(u8 bArg04, u16 wArg06, u8 * ptrArg08)	15
+1EDA	1216	fn	void fn1EDA_1216(void * es_si, u16 wArg04, u8 * ptrArg06)	42
+1EDA	1265	fn	void * fn1EDA_1265(u16 * axOut)	11
+1EDA	126C	fn	u8 * fn1EDA_126C(u16 dx, u16 * axOut, u16 * bxOut)	44
+1EDA	129E	fn	u8 fn1EDA_129E(u8 dh, u16 wArg04, u8 * ptrArg06, u8 bArg0A)	27
+1EDA	1384	fn	u8 fn1EDA_1384(u8 bArg04)	14

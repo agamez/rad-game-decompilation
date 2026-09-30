@@ -1,0 +1,87 @@
+seg	off	kind	prototype	c_lines
+1AB8	0000	fn	void fn1AB8_0000(u32 dwArg02, u8 * ptrArg06)	10
+1AB8	008B	fn	u16 fn1AB8_008B(void)	26
+1AB8	027E	fn	void fn1AB8_027E(u16 wArg04, u8 * ptrArg06)	107
+1AB8	04F3	fn	u16 fn1AB8_04F3(void)	10
+1AB8	0569	fn	u16 fn1AB8_0569(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * dxOut)	17
+1AB8	05D3	fn	u16 fn1AB8_05D3(u8 * ptrArg04)	54
+1AB8	06CA	fn	u16 fn1AB8_06CA(u8 * ptrArg04)	74
+1AB8	0813	fn	u16 fn1AB8_0813(void * dxOut)	34
+1AB8	0887	fn	u8 fn1AB8_0887(u16 wArg02, u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C, u16 * dsOut)	47
+1AB8	097B	fn	u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)	80
+1AB8	0AEE	fn	u16 fn1AB8_0AEE(void)	26
+1AB8	0BAE	fn	u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)	195
+1AB8	0E88	fn	void fn1AB8_0E88(void)	18
+1AB8	0EB5	fn	void fn1AB8_0EB5(void)	52
+1AB8	0F80	fn	void fn1AB8_0F80(void)	13
+1AB8	0F93	fn	u16 fn1AB8_0F93(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)	35
+1AB8	1028	fn	void fn1AB8_1028(void)	19
+1AB8	108B	fn	void fn1AB8_108B(u16 wArg04, u16 wArg06)	15
+1AB8	10A8	fn	u16 fn1AB8_10A8(void)	8
+1AB8	10BB	fn	u16 fn1AB8_10BB(void)	8
+1AB8	10CE	fn	u16 fn1AB8_10CE(void)	22
+1AB8	10E1	fn	u16 fn1AB8_10E1(void)	18
+1AB8	10F4	fn	void fn1AB8_10F4(u16 wArg04, u16 wArg06, u16 wArg08)	31
+1AB8	112E	fn	u8 fn1AB8_112E(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	23
+1AB8	1175	fn	void fn1AB8_1175(u16 wArg04, u16 wArg06)	23
+1AB8	11A0	fn	void fn1AB8_11A0(u16 wArg04, u8 * ptrArg06)	18
+1AB8	11FB	fn	u16 fn1AB8_11FB(u16 wArg02, void * dsOut)	14
+1AB8	122E	fn	u16 fn1AB8_122E(u16 wArg04, u16 wArg06, u16 wArg08)	9
+1AB8	1250	fn	void fn1AB8_1250(u16 wArg04)	17
+1AB8	1285	fn	void fn1AB8_1285(void)	7
+1AB8	129A	fn	void fn1AB8_129A(void * ptrArg04)	34
+1AB8	1342	fn	u8 fn1AB8_1342(u8 bArg04, u16 wArg06)	25
+1AB8	1384	fn	void fn1AB8_1384(u8 * ptrArg04)	7
+1AB8	13A3	fn	u16 fn1AB8_13A3(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	27
+1AB8	13D7	fn	u16 fn1AB8_13D7(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)	54
+1AB8	1492	fn	void fn1AB8_1492(u8 * ptrArg04)	17
+1AB8	14F4	fn	void fn1AB8_14F4(u16 wArg04, u16 wArg06)	34
+1AB8	1536	fn	void * fn1AB8_1536(u16 wArg04, u16 wArg06, u16 wArg08, u16 * dsOut)	177
+1AB8	1783	fn	u16 fn1AB8_1783(u8 * ptrArg04)	13
+1AB8	17AE	fn	void fn1AB8_17AE(void)	22
+1AB8	1807	fn	void fn1AB8_1807(void)	7
+1AB8	180A	fn	void fn1AB8_180A(void)	20
+1AB8	1855	fn	void fn1AB8_1855(u8 * ptrArg04)	15
+1AB8	1895	fn	u16 fn1AB8_1895(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)	9
+1AB8	18E3	fn	void fn1AB8_18E3(void)	16
+1AB8	194E	fn	void fn1AB8_194E(u8 bArg04)	9
+1AB8	1968	fn	void fn1AB8_1968(u8 bArg04, u8 * ptrArg06)	10
+1AB8	1992	fn	void fn1AB8_1992(u8 bArg04, u8 bArg06)	7
+1AB8	19A6	fn	u16 fn1AB8_19A6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	24
+1AB8	19EE	fn	void fn1AB8_19EE(u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C)	39
+1AB8	1A62	fn	void fn1AB8_1A62(void * ss_bp)	14
+1AB8	1A84	fn	void fn1AB8_1A84(void)	15
+1AB8	1AA6	fn	void fn1AB8_1AA6(u8 * ptrArg04)	9
+1AB8	1AC2	fn	void fn1AB8_1AC2(void)	7
+1AB8	1ACE	fn	void fn1AB8_1ACE(u16 wArg04, u16 wArg06)	7
+1AB8	1AF6	fn	u8 fn1AB8_1AF6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 * dxOut)	29
+1AB8	1B3E	fn	void fn1AB8_1B3E(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	15
+1AB8	1B90	fn	void fn1AB8_1B90(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)	8
+1AB8	1C32	fn	u8 fn1AB8_1C32(u8 bArg04)	53
+1AB8	1C4A	fn	u16 fn1AB8_1C4A(void)	10
+1AB8	1C5A	fn	u16 fn1AB8_1C5A(void)	9
+1AB8	1C6A	fn	u8 * fn1AB8_1C6A(void)	9
+1AB8	1C93	fn	u16 fn1AB8_1C93(void)	9
+1AB8	1CA4	fn	void fn1AB8_1CA4(u8 bArg04)	7
+1AB8	1CBA	fn	u16 fn1AB8_1CBA(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	14
+1AB8	1CD7	fn	u8 fn1AB8_1CD7(s16 wArg04, u16 wArg06)	9
+1AB8	1CED	fn	void fn1AB8_1CED(u8 * ptrArg04)	7
+1AB8	1CFF	fn	void fn1AB8_1CFF(u8 bArg04, u16 wArg06, u16 wArg08)	9
+1AB8	1D5B	fn	void fn1AB8_1D5B(u8 bArg04, u8 bArg06)	10
+1AB8	1D82	fn	u8 fn1AB8_1D82(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)	38
+1AB8	1DA6	fn	u16 fn1AB8_1DA6(u8 bArg04, u8 bArg06, u8 bArg08)	15
+1AB8	1E0B	fn	u16 fn1AB8_1E0B(u8 * ptrArg04)	13
+1AB8	1E26	fn	u16 fn1AB8_1E26(void)	9
+1AB8	1E3C	fn	u16 fn1AB8_1E3C(u16 wArg04, u16 wArg06, u8 * dlOut)	33
+1AB8	1E54	fn	u8 fn1AB8_1E54(u8 bArg04, u16 wArg06, u16 wArg08)	23
+1AB8	1E6B	fn	void fn1AB8_1E6B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)	38
+1AB8	1E9F	fn	u16 fn1AB8_1E9F(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)	9
+1AB8	1EE3	fn	void fn1AB8_1EE3(void)	19
+1AB8	1F19	fn	void fn1AB8_1F19(void)	65
+1AB8	1F80	fn	u8 fn1AB8_1F80(u8 * clOut, u16 * bxOut)	22
+1AB8	1F9E	fn	void fn1AB8_1F9E(u8 cl, u16 bx)	17
+1AB8	1FDE	fn	u8 fn1AB8_1FDE(u8 cl)	14
+1AB8	1FED	fn	u8 fn1AB8_1FED(void)	12
+1AB8	200E	fn	u8 fn1AB8_200E(void)	7
+1AB8	2011	fn	u8 fn1AB8_2011(void)	27
+1AB8	2043	fn	u16 fn1AB8_2043(void)	14

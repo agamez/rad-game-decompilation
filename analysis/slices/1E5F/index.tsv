@@ -1,0 +1,7 @@
+seg	off	kind	prototype	c_lines
+1E5F	000B	fn	u16 fn1E5F_000B(u8 * ptrArg04, u8 * chOut, u16 * dxOut, void * bpOut, u16 * siOut, void * esOut, void * dsOut)	37
+1E5F	00A2	fn	void fn1E5F_00A2(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10)	15
+1E5F	00DE	fn	u8 * fn1E5F_00DE(char * ptrArg04, u16 wArg08, u8 * ptrArg0A)	19
+1E5F	0136	fn	void fn1E5F_0136(u16 ax, u16 di, void * es)	38
+1E5F	0159	fn	void fn1E5F_0159(u32 * ptrArg04, u8 bArg08)	7
+1E5F	0171	fn	u8 fn1E5F_0171(void * ptrArg04, u8 bArg08, u16 * dxOut)	10

@@ -1,0 +1,16 @@
+// 11C8:02F0: void fn11C8_02F0()
+// Called from:
+//      fn11C8_0394
+void fn11C8_02F0()
+{
+	fn11C8_02DB(0x01, 0x20);
+	fn11C8_02DB(0x10, 0x40);
+	fn11C8_02DB(0xF0, 0x60);
+	fn11C8_02DB(0x77, 0x80);
+	fn11C8_02DB(0x98, 0xA0);
+	fn11C8_02DB(0x01, 0x23);
+	fn11C8_02DB(0x00, 0x43);
+	fn11C8_02DB(0xF0, 99);
+	fn11C8_02DB(0x77, 131);
+	fn11C8_02DB(0x31, 0xB0);
+}

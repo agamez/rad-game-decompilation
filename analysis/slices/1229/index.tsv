@@ -1,0 +1,13 @@
+seg	off	kind	prototype	c_lines
+1229	0000	fn	void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	9
+1229	0040	fn	u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)	104
+1229	039D	fn	void fn1229_039D(void)	51
+1229	0486	fn	u16 fn1229_0486(void)	28
+1229	050A	fn	u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)	42
+1229	061B	fn	u16 fn1229_061B(s16 * dxOut, u16 * dsOut)	36
+1229	0735	fn	u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)	225
+1229	09F9	fn	void fn1229_09F9(u8 bArg02, u8 * ptrArg04)	29
+1229	0AA8	fn	u16 fn1229_0AA8(void)	67
+1229	0C58	fn	void fn1229_0C58(void)	24
+1229	0CCE	fn	void fn1229_0CCE(void)	97
+1229	0DCC	fn	u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)	314

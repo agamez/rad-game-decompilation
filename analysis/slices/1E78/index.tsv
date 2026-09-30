@@ -1,0 +1,21 @@
+seg	off	kind	prototype	c_lines
+1E78	0000	fn	void fn1E78_0000(void)	11
+1E78	002E	fn	void fn1E78_002E(void)	24
+1E78	0097	fn	void fn1E78_0097(u16 ax)	29
+1E78	00E5	fn	u8 fn1E78_00E5(u16 * dxOut)	32
+1E78	0143	fn	u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut)	31
+1E78	016B	fn	u16 fn1E78_016B(u16 wArg04, u16 * dxOut)	17
+1E78	01C0	fn	void fn1E78_01C0(void)	8
+1E78	029C	fn	u8 fn1E78_029C(u16 wArg04, u16 * dxOut)	34
+1E78	02BF	fn	u16 fn1E78_02BF(u8 * es_di, u8 al, u16 cx)	14
+1E78	02C7	fn	void fn1E78_02C7(u16 wArg04)	22
+1E78	02F4	fn	u8 fn1E78_02F4(void)	11
+1E78	02FB	fn	u8 fn1E78_02FB(void)	35
+1E78	030D	fn	u16 fn1E78_030D(s16 dx, u16 wArg02, u16 * dxOut)	34
+1E78	032F	fn	void fn1E78_032F(void * ptrArg04)	14
+1E78	0475	fn	void fn1E78_0475(u8 ah, s16 dx)	8
+1E78	047C	fn	u8 fn1E78_047C(u8 al, s16 dx)	35
+1E78	04D5	fn	void fn1E78_04D5(u8 dh)	10
+1E78	04F6	fn	void fn1E78_04F6(void)	7
+1E78	04FD	fn	u16 fn1E78_04FD(void)	8
+1E78	0609	fn	u16 fn1E78_0609(void)	17

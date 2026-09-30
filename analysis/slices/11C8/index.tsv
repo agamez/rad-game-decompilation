@@ -1,0 +1,15 @@
+seg	off	kind	prototype	c_lines
+11C8	0000	fn	void fn11C8_0000(u8 bArg02, u16 wArg04, u8 * ptrArg06)	24
+11C8	0092	fn	void fn11C8_0092(void)	78
+11C8	0236	fn	u16 fn11C8_0236(u8 bArg04)	15
+11C8	0282	fn	void fn11C8_0282(u8 bArg02)	12
+11C8	0296	fn	void fn11C8_0296(u8 bArg02)	12
+11C8	02AB	fn	void fn11C8_02AB(void)	16
+11C8	02CC	fn	void fn11C8_02CC(void)	8
+11C8	02DB	fn	void fn11C8_02DB(u8 bArg02, u8 bArg04)	10
+11C8	02F0	fn	void fn11C8_02F0(void)	16
+11C8	033B	fn	u16 fn11C8_033B(void)	23
+11C8	0354	fn	void fn11C8_0354(u16 wArg04)	26
+11C8	0394	fn	void fn11C8_0394(void)	15
+11C8	03BB	fn	void fn11C8_03BB(void)	11
+11C8	03CF	fn	void fn11C8_03CF(void)	7

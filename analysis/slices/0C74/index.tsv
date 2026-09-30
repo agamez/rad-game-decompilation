@@ -1,0 +1,44 @@
+seg	off	kind	prototype	c_lines
+0C74	0000	fn	u8 fn0C74_0000(u8 * ptrArg04, u16 * dxOut)	23
+0C74	004B	fn	void fn0C74_004B(u32 dwArg04, u8 * ptrArg08)	16
+0C74	007C	fn	void fn0C74_007C(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	9
+0C74	00B2	fn	void fn0C74_00B2(u8 bArg04)	10
+0C74	00DB	fn	void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	9
+0C74	011E	fn	u16 fn0C74_011E(u16 * dsOut)	73
+0C74	020C	fn	u16 fn0C74_020C(u16 * dsOut)	69
+0C74	02D8	fn	u16 fn0C74_02D8(u16 wArg02, u16 * dsOut)	95
+0C74	03D4	fn	u16 fn0C74_03D4(void)	80
+0C74	05B8	fn	u8 * fn0C74_05B8(u16 * dsOut)	65
+0C74	06B7	fn	u16 fn0C74_06B7(u16 wArg04, u16 wArg06)	23
+0C74	070D	fn	u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)	38
+0C74	076B	fn	u16 fn0C74_076B(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)	125
+0C74	0A35	fn	u16 fn0C74_0A35(void)	128
+0C74	0CFA	fn	u16 fn0C74_0CFA(u8 bArg02, void * bpOut, u16 * dsOut)	40
+0C74	0D43	fn	u16 fn0C74_0D43(u8 bArg02, void * bpOut, u16 * dsOut)	40
+0C74	0D94	fn	u8 * fn0C74_0D94(u8 bArg02, u16 * dsOut)	38
+0C74	0DE5	fn	u8 * fn0C74_0DE5(u8 bArg02, u16 * dsOut)	38
+0C74	0E2E	fn	u8 * fn0C74_0E2E(u16 wArg02, void * dsOut)	64
+0C74	0FA1	fn	u8 fn0C74_0FA1(void * bpOut, u16 * dsOut)	857
+0C74	1B3B	fn	u16 fn0C74_1B3B(void * dsOut)	241
+0C74	1D95	fn	u16 fn0C74_1D95(u16 wArg02, void * dsOut)	64
+0C74	1F08	fn	u8 fn0C74_1F08(u16 * bpOut, u16 * dsOut)	860
+0C74	2AD9	fn	u16 fn0C74_2AD9(u16 * dsOut)	121
+0C74	2BBD	fn	u16 fn0C74_2BBD(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	95
+0C74	2E5A	fn	u8 fn0C74_2E5A(u16 * bpOut, u16 * dsOut)	198
+0C74	3236	fn	u8 fn0C74_3236(u16 * bpOut, u16 * dsOut)	198
+0C74	3615	fn	u8 fn0C74_3615(u16 * dxOut, u16 * bpOut, u16 * dsOut)	144
+0C74	37C3	fn	u8 fn0C74_37C3(u16 * dxOut, u16 * bpOut, u16 * dsOut)	144
+0C74	396E	fn	u8 fn0C74_396E(void * bpOut, u16 * dsOut)	362
+0C74	3F74	fn	u8 fn0C74_3F74(void * bpOut, u16 * dsOut)	367
+0C74	45CE	fn	u8 fn0C74_45CE(void * bpOut, u16 * dsOut)	291
+0C74	4999	fn	u8 fn0C74_4999(void * bpOut, u16 * dsOut)	296
+0C74	4DAC	fn	u8 fn0C74_4DAC(u16 * bpOut, u16 * dsOut)	157
+0C74	4FD7	fn	u8 fn0C74_4FD7(u16 * bpOut, u16 * dsOut)	152
+0C74	51AA	fn	u16 fn0C74_51AA(void)	13
+0C74	51B2	fn	u16 fn0C74_51B2(void)	32
+0C74	522C	fn	u8 fn0C74_522C(u16 * bpOut, void * dsOut)	29
+0C74	5258	fn	u8 fn0C74_5258(u16 * dsOut)	155
+0C74	542B	fn	u8 fn0C74_542B(u16 * dsOut)	43
+0C74	54B1	fn	u8 fn0C74_54B1(u16 * dxOut, u16 * bpOut, void * dsOut)	26
+0C74	54F0	fn	u8 fn0C74_54F0(u16 * dxOut, u16 * bpOut, void * dsOut)	26
+0C74	552F	fn	void fn0C74_552F(void)	7

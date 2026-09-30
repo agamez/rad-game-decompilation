@@ -1,0 +1,47 @@
+seg	off	kind	prototype	c_lines
+0800	0000	fn	u16 fn0800_0000(void)	14
+0800	0024	fn	void fn0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	13
+0800	005A	fn	void fn0800_005A(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	17
+0800	007B	data		1
+0800	00C1	fn	u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)	24
+0800	0103	fn	void fn0800_0103(void)	15
+0800	0147	fn	u16 fn0800_0147(void)	33
+0800	01FE	fn	void fn0800_01FE(void)	41
+0800	031B	fn	u16 fn0800_031B(u16 * bpOut, u16 * dsOut)	68
+0800	03F8	fn	u16 fn0800_03F8(void)	45
+0800	04CC	fn	s16 fn0800_04CC(u8 bArg02)	13
+0800	04E3	fn	u8 fn0800_04E3(u16 * dsOut)	68
+0800	0619	fn	u16 fn0800_0619(void)	68
+0800	0768	fn	s16 fn0800_0768(u16 * bpOut, u16 * dsOut)	96
+0800	0877	fn	u8 fn0800_0877(void)	22
+0800	08C0	fn	u16 fn0800_08C0(void)	17
+0800	08E9	fn	s16 fn0800_08E9(s16 dx)	45
+0800	09C2	fn	u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)	62
+0800	0AA1	fn	u16 fn0800_0AA1(u16 * dsOut)	61
+0800	0B42	fn	u16 fn0800_0B42(void * dsOut)	59
+0800	0BEC	fn	u16 fn0800_0BEC(void)	35
+0800	0C71	fn	s16 fn0800_0C71(void * bpOut, u16 * dsOut)	49
+0800	0D20	fn	u16 fn0800_0D20(u8 * ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C, u8 * ptrArg0E)	146
+0800	11EF	fn	u16 fn0800_11EF(void)	111
+0800	1315	fn	u8 fn0800_1315(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	44
+0800	149F	fn	u16 fn0800_149F(void)	67
+0800	166D	fn	u16 fn0800_166D(void)	74
+0800	184C	fn	u16 fn0800_184C(void * dsOut)	166
+0800	19E1	fn	u8 fn0800_19E1(u8 * ptrArg04, u16 * dxOut, void * bpOut, void * dsOut)	201
+0800	1D55	fn	u8 fn0800_1D55(u16 * dxOut, void * bpOut, u16 * dsOut)	41
+0800	1E3F	fn	u16 fn0800_1E3F(s16 dx, u16 * dsOut)	133
+0800	2004	fn	u16 fn0800_2004(void)	82
+0800	21E7	fn	u16 fn0800_21E7(void)	167
+0800	2401	fn	u16 fn0800_2401(void)	393
+0800	2827	fn	u16 fn0800_2827(u16 * dsOut)	336
+0800	2C0C	fn	u16 fn0800_2C0C(s16 dx, u16 * dsOut)	576
+0800	31B7	fn	u16 fn0800_31B7(s16 dx, u16 * dsOut)	612
+0800	36E6	fn	void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)	35
+0800	3850	fn	u8 fn0800_3850(u8 * chOut, u16 * bpOut, u16 * dsOut)	41
+0800	391E	fn	u16 fn0800_391E(void)	259
+0800	3BF2	fn	void fn0800_3BF2(void * ptrArg04)	8
+0800	3C72	fn	u16 fn0800_3C72(void * ptrArg04, s16 * dxOut)	16
+0800	3CFA	fn	u16 fn0800_3CFA(void)	24
+0800	3D9D	fn	u16 fn0800_3D9D(void)	404
+0800	4168	fn	u16 fn0800_4168(void)	29
+0800	4255	fn	void fn0800_4255(void * es)	160

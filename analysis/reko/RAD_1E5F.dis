@@ -1,0 +1,167 @@
+word16 fn1E5F_000B(segptr32 ptrArg04, byte & chOut, word16 & dxOut, word16 & bpOut, word16 & siOut, selector & esOut, selector & dsOut)
+// stackDelta: 4; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0C43_0000
+//      fn0C43_001E
+//      fn1206_000D
+//      fn1206_0038
+//      fn1206_0066
+//      fn1206_0094
+//      fn1206_00D1
+//      fn1206_00FF
+//      fn1206_012D
+//      fn13C1_0000
+//      fn13C8_000D
+//      fn13C8_0038
+//      fn13C8_004F
+//      fn13C8_0066
+//      fn13C8_009A
+//      fn13C8_00BF
+//      fn13C8_00E4
+//      fn13C8_0111
+// MayUse:  Stack +0004:[0..31]
+// LiveOut: ax:[0..15]-fn0C43_001E bp:[0..15]-fn13C8_000D cx:[8..15]-fn1206_0094 ds:[0..15]-fn13C8_000D dx:[0..15]-fn13C8_0066 es:[0..15]-fn1206_00D1 si:[0..15]-fn1206_000D sp:[0..15]-fn13C1_0000
+// Trashed: SCZDO ax bp bx cx di ds dx es si sp Top
+// Preserved:
+fn1E5F_000B_entry:
+l1E5F_000B:
+	ax_41 = Mem36[ptrArg04:word16]
+	ax_51 = Mem44[ptrArg04 + 6<i16>:word16]
+	ax_54 = Mem44[ptrArg04 + 8<i16>:word16]
+	ax_57 = Mem44[ptrArg04 + 10<i16>:word16]
+	ax_64 = Mem60[ptrArg04 + 14<i16>:word16]
+	ax_68 = Mem67[ptrArg04 + 16<i16>:word16]
+	__cli()
+	chOut = <invalid>
+	dxOut = ax_51
+	bpOut = ax_54
+	siOut = ax_57
+	esOut = ax_68
+	dsOut = ax_64
+	return ax_41
+fn1E5F_000B_exit:
+
+
+void fn1E5F_00A2(segptr32 ptrArg04, segptr32 ptrArg08, segptr32 ptrArg0C, segptr32 ptrArg10)
+// stackDelta: 20; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_3BF2
+//      fn0800_3C72
+// MayUse:  Stack +0004:[0..31] Stack +0008:[0..31] Stack +000C:[0..31] Stack +0010:[0..31]
+// LiveOut:
+// Trashed: SCZO ax ch cl dh di dl es Top
+// Preserved: bp sp
+fn1E5F_00A2_entry:
+l1E5F_00A2:
+	cl_13 = msdos_get_system_time(out ch_10, out dh_11, out dl_12)
+	Mem23[ptrArg04:word16] = CONVERT(dl_12, uint8, uint16)
+	Mem29[ptrArg08:word16] = CONVERT(dh_11, uint8, uint16)
+	Mem35[ptrArg0C:word16] = CONVERT(cl_13, uint8, uint16)
+	Mem41[ptrArg10:word16] = CONVERT(ch_10, uint8, uint16)
+	return
+fn1E5F_00A2_exit:
+
+
+word16 fn1E5F_00DE(selector ds, segptr32 ptrArg04, word16 wArg08, segptr32 ptrArg0A)
+// stackDelta: 14; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0C74_0000
+// MayUse:  ds:[0..15] ss:[0..15] Stack +0004:[0..31] Stack +0008:[0..15] Stack +000A:[0..31]
+// LiveOut: dx:[0..15]-fn0C74_0000
+// Trashed: SCZDO ax cx di dx es si Top
+// Preserved: bp ds sp
+fn1E5F_00DE_entry:
+l1E5F_00DE:
+	al_22 = Mem16[ptrArg0A:byte]
+	branch al_22 <u 0x4F<8> l1E5F_00F5
+l1E5F_00F3:
+	al_22 = 0x4F<8>
+l1E5F_00F5:
+	ax_28 = CONVERT(al_22, int8, int16)
+	memcpy(ss:fp - 82<i16>, ptrArg0A + 1<i16>, CONVERT(ax_28, word16, uint32))
+	Mem44[ss:fp - 82<i16> + ax_28:byte] = 0<8>
+	msdos_set_DTA(ptrArg04)
+	msdos_find_first_file(wArg08, SEQ(ss, fp - 82<i16>))
+	fn1E5F_0136(0x4E00<16>, SLICE(ptrArg04, word16, 0), SLICE(ptrArg04, selector, 16), ds)
+	return fp - 82<i16>
+fn1E5F_00DE_exit:
+
+
+void fn1E5F_0136(word16 ax, word16 di, selector es, selector ds)
+// stackDelta: 2; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn1E5F_00DE
+// MayUse:  ax:[0..15] di:[0..15] ds:[0..15] es:[0..15]
+// LiveOut:
+// Trashed: SCZDO ax cx di si Top
+// Preserved: ds sp
+fn1E5F_0136_entry:
+l1E5F_0136:
+	branch C l1E5F_0155
+l1E5F_0138:
+	di_107 = di + 0x1E<16>
+	cx_20 = 0x100<16>
+l1E5F_0144:
+	cl_31 = SLICE(cx_20, byte, 0) (alias)
+	ch_68 = SLICE(cx_20, byte, 8) (alias)
+	branch cx_20 == 0<16> l1E5F_0146
+l1E5F_0144_1:
+	cx_20 = cx_20 - 1<16>
+	di_107 = di_107 + 1<i16>
+	cl_31 = SLICE(cx_20, byte, 0) (alias)
+	ch_68 = SLICE(cx_20, byte, 8) (alias)
+	branch Mem13[es:di_107:byte] == 0<8> l1E5F_0144
+l1E5F_0146:
+	di_37 = di_107 - 1<16>
+	cl_34 = ~cl_31
+	si_39 = di_37 - 1<16>
+	cx_42 = SEQ(ch_68, cl_34) (alias)
+l1E5F_014F:
+	branch cx_42 == 0<16> l1E5F_0151
+l1E5F_014F_2:
+	Mem64[es:di_37:byte] = Mem62[es:si_39:byte]
+	si_39 = si_39 - 1<i16>
+	di_37 = di_37 - 1<i16>
+	cx_42 = cx_42 - 1<16>
+	goto l1E5F_014F
+l1E5F_0151:
+	Mem46[es:di_37:byte] = cl_34
+	ax = 0<16>
+l1E5F_0155:
+	Mem59[ds:0xB8A6<16>:word16] = ax
+	return
+fn1E5F_0136_exit:
+
+
+void fn1E5F_0159(segptr32 ptrArg04, byte bArg08)
+// stackDelta: 10; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_00C1
+// MayUse:  Stack +0004:[0..31] Stack +0008:[0..7]
+// LiveOut:
+// Trashed: D ax bx di es Top
+// Preserved: bp sp
+fn1E5F_0159_entry:
+l1E5F_0159:
+	Mem27[ptrArg04:word32] = msdos_get_interrupt_vector(bArg08)
+	return
+fn1E5F_0159_exit:
+
+
+byte fn1E5F_0171(segptr32 ptrArg04, byte bArg08, word16 & dxOut)
+// stackDelta: 10; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_00C1
+//      fn0800_0103
+// MayUse:  Stack +0004:[0..31] Stack +0008:[0..7]
+// LiveOut: ax:[8..15]-fn0800_00C1 dx:[0..15]-fn0800_00C1
+// Trashed: ah al dx Top
+// Preserved: bp ds sp
+fn1E5F_0171_entry:
+l1E5F_0171:
+	msdos_set_interrupt_vector(bArg08, ptrArg04)
+	dxOut = SLICE(ptrArg04, word16, 0)
+	return 0x25<8>
+fn1E5F_0171_exit:
+
+

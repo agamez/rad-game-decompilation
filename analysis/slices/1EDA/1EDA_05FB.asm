@@ -1,0 +1,45 @@
+;; fn1EDA_05FB: 1EDA:05FB
+;;   Called from:
+;;     1EDA:05AC (in fn1EDA_0572)
+;;     1EDA:05E3 (in fn1EDA_05BF)
+;;     1EDA:05EE (in fn1EDA_05BF)
+fn1EDA_05FB proc
+	push	es
+	push	di
+	push	es
+	push	di
+	call	dword ptr es:[bx+di]
+	or	ax,ax
+	jz	0609h
+
+l1EDA_0606:
+	mov	[5380h],ax
+
+l1EDA_0609:
+	pop	di
+	pop	es
+	ret
+1EDA:060C                                     8B DC 1E 36             ...6
+1EDA:0610 C5 7F 04 33 C9 89 0D B8 00 3D 81 7D 02 B1 D7 74 ...3.....=.}...t
+1EDA:0620 0D B0 02 FF 05 81 7D 02 B3 D7 74 02 B4 3C 80 7D ......}...t..<.}
+1EDA:0630 30 00 74 09 8D 55 30 CD 21 72 4F 89 05 B8 E8 06 0.t..U0.!rO.....
+1EDA:0640 33 C9 8B D9 81 7D 02 B1 D7 74 29 8B 1D B8 00 44 3....}...t)....D
+1EDA:0650 CD 21 B8 3D 07 8B C8 8C CB F6 C2 80 75 11 81 7D .!.=........u..}
+1EDA:0660 02 B3 D7 75 03 E8 26 00 B8 18 07 33 C9 8B D9 C7 ...u..&....3....
+1EDA:0670 45 02 B2 D7 89 45 14 8C 4D 16 89 4D 18 89 5D 1A E....E..M..M..].
+1EDA:0680 C7 45 1C 5D 07 8C 4D 1E 33 C0 1F CA 04 00 33 D2 .E.]..M.3.....3.
+1EDA:0690 33 C9 8B 1D B8 02 42 CD 21 2D 80 00 83 DA 00 73 3.....B.!-.....s
+1EDA:06A0 04 33 C0 33 D2 8B CA 8B D0 8B 1D B8 00 42 CD 21 .3.3.........B.!
+1EDA:06B0 8D 95 80 00 B9 80 00 8B 1D B4 3F CD 21 73 02 33 ..........?.!s.3
+1EDA:06C0 C0 33 DB 3B D8 74 20 80 B9 80 00 1A 74 03 43 EB .3.;.t .....t.C.
+1EDA:06D0 F2 8B D3 2B D0 B9 FF FF 8B 1D B8 02 42 CD 21 33 ...+........B.!3
+1EDA:06E0 C9 8B 1D B4 40 CD 21 C3 8B DC 1E 36 C4 7F 04 26 ....@.!....6...&
+1EDA:06F0 C5 55 0C 26 8B 4D 04 26 8B 1D B4 3F CD 21 72 10 .U.&.M.&...?.!r.
+1EDA:0700 26 89 45 0A 33 C0 26 C7 45 08 00 00 1F CA 04 00 &.E.3.&.E.......
+1EDA:0710 26 C7 45 0A 00 00 EB EE 8B DC 1E 36 C4 7F 04 26 &.E........6...&
+1EDA:0720 C5 55 0C 33 C9 26 87 4D 08 26 8B 1D B4 40 CD 21 .U.3.&.M.&...@.!
+1EDA:0730 72 07 2B C1 74 03 B8 65 00 1F CA 04 00 8B DC 1E r.+.t..e........
+1EDA:0740 36 C4 7F 04 26 C5 55 0C 33 C9 26 87 4D 08 26 8B 6...&.U.3.&.M.&.
+1EDA:0750 1D B4 40 CD 21 72 02 33 C0 1F CA 04 00 8B DC 36 ..@.!r.3.......6
+1EDA:0760 C4 7F 04 26 8B 1D 83 FB 04 76 06 B4 3E CD 21 72 ...&.....v..>.!r
+1EDA:0770 02 33 C0 CA 04 00                               .3....

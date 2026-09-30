@@ -1,0 +1,352 @@
+byte fn1206_0000()
+// stackDelta: 4; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn1206_01AC
+// MayUse: 
+// LiveOut: al:[0..7]-fn1206_01AC
+// Trashed: al Top
+// Preserved: bp sp
+fn1206_0000_entry:
+l1206_0000:
+	return 1<8>
+fn1206_0000_exit:
+
+
+word16 fn1206_000D(word16 & siOut, selector & esOut, selector & dsOut)
+// stackDelta: 12; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn1206_01AC
+// MayUse:  ss:[0..15]
+// LiveOut: bp:[0..15]-fn1206_01AC ds:[0..15]-fn1206_01AC es:[0..15]-fn1206_01AC si:[0..15]-fn1206_01AC sp:[0..15]-fn1206_01AC
+// Trashed: SCZDO ax bp bx cx di ds dx es si sp Top
+// Preserved:
+fn1206_000D_entry:
+l1206_000D:
+	fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_60, out dx_61, out bp_23, out si_30, out es_62, out ds_27)
+	Mem41[Mem21[ss:bp_23 + 10<i16>:segptr32]:word16] = Mem21[ss:bp_23 - 20<i16>:word16]
+	es_di_43 = Mem41[ss:bp_23 + 6<i16>:segptr32]
+	Mem46[es_di_43:word16] = Mem41[ss:bp_23 - 18<i16>:word16]
+	bp_48 = Mem46[ss:bp_23:word16]
+	siOut = si_30
+	esOut = SLICE(es_di_43, selector, 16)
+	dsOut = ds_27
+	return bp_48
+fn1206_000D_exit:
+
+
+byte fn1206_0038(selector ds, byte & chOut, word16 & dxOut, word16 & bpOut, selector & dsOut)
+// stackDelta: 4; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_09C2
+//      fn0800_0AA1
+//      fn0800_0B42
+//      fn0800_11EF
+//      fn0800_184C
+//      fn0800_19E1
+//      fn0800_2401
+//      fn0800_2827
+//      fn0800_2C0C
+//      fn0800_391E
+//      fn0800_3D9D
+//      fn0C74_011E
+//      fn0C74_020C
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: ax:[8..15]-fn0800_09C2 bp:[0..15]-fn0800_19E1 cx:[8..15]-fn0800_19E1 ds:[0..15]-fn0800_19E1 dx:[0..15]-fn0800_19E1 sp:[0..15]-fn0C74_011E
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_0038_entry:
+l1206_0038:
+	bp_25 = fp - 2<i16>
+	branch Mem7[ds:0x597E<16>:byte] != 0<8> l1206_0045
+l1206_0043:
+	goto l1206_0064
+l1206_0045:
+	branch Mem7[ds:0x598C<16>:byte] == 0<8> l1206_004E
+l1206_004C:
+	goto l1206_0064
+l1206_004E:
+	Mem15[ds:0x598C<16>:byte] = 1<8>
+	ax = fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_84, out dx, out bp_25, out si_85, out es_86, out ds)
+l1206_0064:
+	bp_43 = Mem42[ss:bp_25:word16]
+	chOut = <invalid>
+	dxOut = dx
+	bpOut = bp_43
+	dsOut = ds
+	return SLICE(ax, byte, 8)
+fn1206_0038_exit:
+
+
+byte fn1206_0066(selector ds, word16 & bpOut, selector & dsOut)
+// stackDelta: 4; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_09C2
+//      fn0800_0AA1
+//      fn0800_0B42
+//      fn0800_11EF
+//      fn0800_184C
+//      fn0800_19E1
+//      fn0800_1E3F
+//      fn0800_2004
+//      fn0800_2401
+//      fn0800_2827
+//      fn0800_2C0C
+//      fn0800_31B7
+//      fn0800_391E
+//      fn0800_3D9D
+//      fn0C74_011E
+//      fn0C74_020C
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: ax:[8..15]-fn0800_184C bp:[0..15]-fn0800_19E1 ds:[0..15]-fn0800_3D9D sp:[0..15]-fn0800_19E1
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_0066_entry:
+l1206_0066:
+	bp_25 = fp - 2<i16>
+	branch Mem7[ds:0x597E<16>:byte] != 0<8> l1206_0073
+l1206_0071:
+	goto l1206_0092
+l1206_0073:
+	branch Mem7[ds:0x598C<16>:byte] != 0<8> l1206_007C
+l1206_007A:
+	goto l1206_0092
+l1206_007C:
+	Mem15[ds:0x598C<16>:byte] = 0<8>
+	ax = fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_82, out dx_83, out bp_25, out si_84, out es_85, out ds)
+l1206_0092:
+	bpOut = Mem42[ss:bp_25:word16]
+	dsOut = ds
+	return SLICE(ax, byte, 8)
+fn1206_0066_exit:
+
+
+byte fn1206_0094(selector ds, word16 & dxOut, word16 & bpOut, selector & dsOut)
+// stackDelta: 16; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_1D55
+//      fn0800_3850
+//      fn1206_015B
+//      fn1206_01AC
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: bp:[0..15]-fn1206_01AC cx:[8..15]-fn1206_015B ds:[0..15]-fn1206_01AC dx:[0..15]-fn1206_015B sp:[0..15]-fn1206_01AC
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_0094_entry:
+l1206_0094:
+	bp_22 = fp - 2<i16>
+	branch Mem7[ds:0x597E<16>:byte] != 0<8> l1206_00A1
+l1206_009F:
+	goto l1206_00CD
+l1206_00A1:
+	fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_92, out dx, out bp_22, out si_93, out es_94, out ds)
+	Mem40[Mem20[ss:bp_22 + 10<i16>:segptr32]:word16] = Mem20[ss:bp_22 - 16<i16>:word16]
+	Mem45[Mem40[ss:bp_22 + 6<i16>:segptr32]:word16] = Mem40[ss:bp_22 - 14<i16>:word16]
+	Mem50[Mem45[ss:bp_22 + 14<i16>:segptr32]:word16] = Mem45[ss:bp_22 - 18<i16>:word16]
+	cx = <invalid>
+l1206_00CD:
+	bp_55 = Mem54[ss:bp_22:word16]
+	dxOut = dx
+	bpOut = bp_55
+	dsOut = ds
+	return SLICE(cx, byte, 8)
+fn1206_0094_exit:
+
+
+word16 fn1206_00D1(selector ds, word16 & siOut, selector & esOut, selector & dsOut)
+// stackDelta: 8; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_31B7
+//      fn0800_4255
+//      fn1206_01AC
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: bp:[0..15]-fn1206_01AC ds:[0..15]-fn1206_01AC es:[0..15]-fn1206_01AC si:[0..15]-fn1206_01AC sp:[0..15]-fn0800_31B7
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_00D1_entry:
+l1206_00D1:
+	bp_26 = fp - 2<i16>
+	branch Mem7[ds:0x597E<16>:byte] != 0<8> l1206_00DE
+l1206_00DC:
+	goto l1206_00FB
+l1206_00DE:
+	fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_85, out dx_86, out bp_26, out si, out es, out ds)
+l1206_00FB:
+	bp_44 = Mem43[ss:bp_26:word16]
+	siOut = si
+	esOut = es
+	dsOut = ds
+	return bp_44
+fn1206_00D1_exit:
+
+
+word16 fn1206_00FF(selector ds, selector & dsOut)
+// stackDelta: 8; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_31B7
+//      fn0800_4255
+//      fn1206_01AC
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: bp:[0..15]-fn1206_01AC ds:[0..15]-fn1206_01AC sp:[0..15]-fn1206_01AC
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_00FF_entry:
+l1206_00FF:
+	bp_26 = fp - 2<i16>
+	branch Mem7[ds:0x597E<16>:byte] != 0<8> l1206_010C
+l1206_010A:
+	goto l1206_0129
+l1206_010C:
+	fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_83, out dx_84, out bp_26, out si_85, out es_86, out ds)
+l1206_0129:
+	bp_44 = Mem43[ss:bp_26:word16]
+	dsOut = ds
+	return bp_44
+fn1206_00FF_exit:
+
+
+word16 fn1206_012D(selector ds, selector & dsOut)
+// stackDelta: 8; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_31B7
+//      fn0800_4255
+//      fn1206_01AC
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: bp:[0..15]-fn1206_01AC ds:[0..15]-fn1206_01AC sp:[0..15]-fn1206_01AC
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_012D_entry:
+l1206_012D:
+	bp_26 = fp - 2<i16>
+	branch Mem7[ds:0x597E<16>:byte] != 0<8> l1206_013A
+l1206_0138:
+	goto l1206_0157
+l1206_013A:
+	fn1E5F_000B(SEQ(ss, fp - 22<i16>), out ch_83, out dx_84, out bp_26, out si_85, out es_86, out ds)
+l1206_0157:
+	bp_44 = Mem43[ss:bp_26:word16]
+	dsOut = ds
+	return bp_44
+fn1206_012D_exit:
+
+
+word16 fn1206_015B(selector ds, byte & chOut, word16 & dxOut, word16 & bpOut, selector & dsOut)
+// stackDelta: 6; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_031B
+//      fn0800_0768
+//      fn0800_1E3F
+//      fn0800_2004
+//      fn0800_2401
+//      fn0800_2827
+//      fn0800_2C0C
+//      fn0800_31B7
+//      fn0800_391E
+//      fn0C74_3615
+//      fn0C74_37C3
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: ax:[0..15]-fn0C74_3615 bp:[0..15]-fn0C74_3615 cx:[8..15]-fn0800_391E ds:[0..15]-fn0C74_3615 dx:[0..15]-fn0800_2C0C sp:[0..15]-fn0C74_3615
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved:
+fn1206_015B_entry:
+l1206_015B:
+	bp_30 = fp - 2<i16>
+	branch Mem10[ds:0x597E<16>:byte] != 0<8> l1206_016C
+l1206_016A:
+	goto l1206_01A5
+l1206_016C:
+	fn1206_0094(ds, out dx, out bp_30, out ds)
+	Mem45[ds:0x5982<16>:word16] = Mem28[ss:bp_30 - 6<i16>:word16]
+	ax_46 = Mem45[ss:bp_30 - 8<i16>:word16]
+	Mem47[ds:0x5984<16>:word16] = ax_46
+	ah = SLICE(ax_46, byte, 8) (alias)
+	branch Mem47[ss:bp_30 - 4<i16>:word16] != 0<16> l1206_0193
+l1206_0191:
+	goto l1206_01A5
+l1206_0193:
+	branch Mem47[ss:bp_30 + 6<i16>:word16] == 0<16> l1206_01A1
+l1206_0199:
+	ax_52 = Mem47[ss:bp_30 - 4<i16>:word16]
+	ah = SLICE(ax_52, byte, 8) (alias)
+	branch ax_52 != Mem47[ss:bp_30 + 6<i16>:word16] l1206_01A5
+l1206_01A1:
+	Mem57[ss:bp_30 - 1<i16>:byte] = 1<8>
+l1206_01A5:
+	bp_63 = Mem60[ss:bp_30:word16]
+	ax_78 = SEQ(ah, Mem60[ss:bp_30 - 1<i16>:byte]) (alias)
+	chOut = <invalid>
+	dxOut = dx
+	bpOut = bp_63
+	dsOut = ds
+	return ax_78
+fn1206_015B_exit:
+
+
+word16 fn1206_01AC(selector ds, word16 & siOut, selector & esOut, selector & dsOut)
+// stackDelta: 16; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_184C
+//      fn0800_3D9D
+//      fn1206_0217
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: bp:[0..15]-fn1206_0217 ds:[0..15]-fn1206_0217 es:[0..15]-fn1206_0217 si:[0..15]-fn1206_0217
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved: D
+fn1206_01AC_entry:
+l1206_01AC:
+	Mem10[ds:0x597E<16>:byte] = 0<8>
+	bp_132 = fp - 2<i16>
+	branch fn1206_0000() == 0<8> l1206_0213
+l1206_01BC:
+	bp_132 = fn1206_000D(out si, out es, out ds)
+	sp_36 = <invalid>
+	branch Mem26[ds:0x597A<16>:word16] == 0<16> l1206_01D6
+l1206_01D1:
+	Mem45[ds:0x597E<16>:byte] = 1<8>
+l1206_01D6:
+	branch Mem47[ds:0x597E<16>:byte] == 0<8> l1206_0213
+l1206_01DD:
+	Mem50[ds:0x598C<16>:byte] = 0<8>
+	Mem55[ss:sp_36 + 6<16>:word16] = ds
+	Mem57[ss:sp_36 + 4<16>:word16] = 0x5980<16>
+	Mem60[ss:sp_36 + 2<16>:word16] = ds
+	Mem62[ss:sp_36:word16] = 0x5982<16>
+	Mem65[ss:sp_36 - 2<i16>:word16] = ds
+	Mem67[ss:sp_36 - 4<i16>:word16] = 0x5984<16>
+	fn1206_0094(ds, out dx_197, out bp_69, out ds_73)
+	sp_77 = <invalid>
+	Mem85[ss:sp_77 + 0xA<16>:word16] = Mem67[ss:bp_69 + 16<i16>:word16]
+	Mem88[ss:sp_77 + 8<16>:word16] = Mem85[ss:bp_69 + 12<i16>:word16]
+	bp_90 = fn1206_00FF(ds_73, out ds_94)
+	sp_98 = <invalid>
+	Mem106[ss:sp_98 + 2<16>:word16] = Mem88[ss:bp_90 + 14<i16>:word16]
+	Mem109[ss:sp_98:word16] = Mem106[ss:bp_90 + 10<i16>:word16]
+	bp_111 = fn1206_012D(ds_94, out ds_115)
+	sp_119 = <invalid>
+	Mem127[ss:sp_119 + 2<16>:word16] = Mem109[ss:bp_111 + 8<i16>:word16]
+	Mem130[ss:sp_119:word16] = Mem127[ss:bp_111 + 6<i16>:word16]
+	bp_132 = fn1206_00D1(ds_115, out si, out es, out ds)
+l1206_0213:
+	bp_151 = Mem150[ss:bp_132:word16]
+	siOut = si
+	esOut = es
+	dsOut = ds
+	return bp_151
+fn1206_01AC_exit:
+
+
+segptr32 fn1206_0217(selector ds, word16 & bpOut, selector & dsOut)
+// stackDelta: 4; fpuStackDelta: 0; fpuMaxParam: -1
+// Called from:
+//      fn0800_4255
+// MayUse:  ds:[0..15] ss:[0..15]
+// LiveOut: bp:[0..15]-fn0800_4255 ds:[0..15]-fn0800_4255 Sequence es:si:[0..31]-fn0800_4255 sp:[0..15]-fn0800_4255
+// Trashed: SCZO ax bp bx cx di ds dx es si sp Top
+// Preserved:
+fn1206_0217_entry:
+l1206_0217:
+	bpOut = Mem20[ss:fn1206_01AC(ds, out si_30, out es_29, out ds_27):word16]
+	dsOut = ds_27
+	return SEQ(es_29, si_30)
+fn1206_0217_exit:
+
+

@@ -1,0 +1,7 @@
+seg	off	kind	prototype	c_lines
+0C43	0000	fn	u16 fn0C43_0000(u8 bArg02, void * dsOut)	19
+0C43	001E	fn	u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut)	23
+0C43	0056	fn	void fn0C43_0056(void)	43
+0C43	0095	fn	u16 fn0C43_0095(u16 ax, u16 wArg02, void * dsOut)	14
+0C43	00B9	fn	u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)	181
+0C43	02FB	fn	void fn0C43_02FB(void)	7

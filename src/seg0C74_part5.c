@@ -1,0 +1,205 @@
+/* seg0C74_part5.c -- RAD V3.1 preservation port, segment 0C74 (GAME CORE),
+ * part 5a of N: function 0C74:1B3B (the rocket/explosion trajectory animation).
+ *
+ * Literal recovery from analysis/slices/0C74/0C74_1B3B.asm (ground truth) and
+ * the Reko slice 0C74_1B3B.c; frozen prototype from src/seg0C74.h
+ * (analysis/summary/iface.tsv) adopted exactly:
+ *
+ *   u16 fn0C74_1B3B(void * dsOut)
+ *
+ * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 5a").
+ *
+ * Hardware / DOS services replaced (CONVENTIONS.md rule 4):
+ *   NONE directly.  No `int 10h/16h/21h`, no raw `in`/`out` port instruction,
+ *   no __cli/__sti and no int 23h occur in 1B3B.  Every hardware-touching
+ *   operation is reached indirectly through already-ported callees
+ *   (fn1AB8_*, fn0C74_02D8/070D, fn1EDA_096F/098A/023F/0254).
+ *
+ * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 5a"):
+ *   - Reko's `bp_139`/`bp_240` frame-pointer locals (re-bound after each call
+ *     to fn0C74_070D / 02D8 / 0FA1, whose AX return is the caller's saved BP)
+ *     are this function's own frame.  They are folded back onto the literal
+ *     stack locals below ([bp-01h] counter, [bp-06h]/[bp-04h] far block), per
+ *     the notes-0C74.md part 1 convention.
+ *   - The 16:16 far block allocated by fn1EDA_023F is carried as a `u32`
+ *     (offset | segment<<16, low word at the lower address, matching
+ *     `[bp-06h]/[bp-04h]`) and materialised with `far_ptr(dw)` at the
+ *     call sites, the same convention as seg0800_part3.c / seg1229_part1.c.
+ *   - fn1EDA_098A's frozen `void * dsOut` receives a `void *` local (`dsv`)
+ *     because the callee stores a full pointer; fn0C74_070D's `void * dsOut`
+ *     receives the `u16` scratch (`dsTmp`), matching seg0C74_part2.c.
+ *   - fn1EDA_023F / 0254 / 098A require stack words the original never pushes
+ *     (leftover-stack / far-return-address words read only on the fatal
+ *     dispatcher path); they are seeded 0 (part 1 / part 4 convention).
+ *   - Saved-BP / DGROUP-selector register outputs have no flat-C equivalent:
+ *     the out pointers receive 0 and the artifact return is 0.
+ */
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "radtypes.h"
+#include "globals.h"
+#include "seg0C74.h"
+#include "seg1AB8.h"
+#include "seg1EDA.h"
+
+// 0C74:1B3B: u16 fn0C74_1B3B(void * dsOut)
+//
+// Animate the window at DGROUP 0x58B4/0x58B6/0x58B8/0x58BA one row at a time,
+// bouncing the frame block between the two row bounds, then run the
+// direction-dependent column sweeps and hand off to fn0C74_0FA1.
+u16 fn0C74_1B3B(void *dsOut)
+{
+	u8  bCount = 0x00;         /* [bp-01h] loop counter (Reko [bp_139-1]) */
+	u32 dwBlock = 0x00000000;  /* [bp-06h]/[bp-04h] far block, off|seg<<16 */
+	u8  dlTmp = 0x00;          /* fn1AB8_1E3C dlOut scratch */
+	void *dsv = NULL;          /* fn0C74_070D / fn1EDA_098A dsOut scratch */
+	u16 dsTmp = 0x0000;        /* fn0C74_02D8 / fn1EDA_023F/0254 dsOut (u16) */
+	u16 dxTmp = 0x0000;        /* fn1EDA_0254 dxOut */
+	u16 bpTmp = 0x0000;        /* fn0C74_0CFA/0D43 bpOut, fn0C74_0FA1 bpOut */
+	s16 cxT = 0;               /* fn1EDA_098A cxOut */
+	s16 dxT = 0;               /* fn1EDA_098A dxOut */
+	s16 bxT = 0;               /* fn1EDA_098A bxOut */
+
+	/* --- 0C74:1B3B prologue: three pixels (colors 3,1,1) ---------------- */
+	(void)fn1AB8_1E54(0x03, (u16)(LG16(0x58B8) + 0x001C),
+	                  (u16)(LG16(0x58B4) + 0x0017));
+	(void)fn1AB8_1E54(0x01, (u16)(LG16(0x58B8) + 0x001C),
+	                  (u16)(LG16(0x58B4) + 0x0018));
+	(void)fn1AB8_1E54(0x01, (u16)(LG16(0x58B8) + 0x001C),
+	                  (u16)(LG16(0x58B4) + 0x0019));
+
+	/* --- 0C74:1B99: size and allocate the backing block, paint it ------- */
+	LG16(0x595E) = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001C),
+	                           (u16)(LG16(0x58B4) + 0x002B),
+	                           LG16(0x58B8), LG16(0x58B4));
+	dwBlock = fn1EDA_023F(LG16(0x595E), 0x0000, 0x0000, &dsTmp);
+	fn1AB8_1E6B(far_ptr(dwBlock),
+	            (u16)(LG16(0x58B8) + 0x001C),
+	            (u16)(LG16(0x58B4) + 0x002B),
+	            LG16(0x58B8), LG16(0x58B4));
+
+	/* --- 0C74:1BCF: loop A: descend while the probes are clear ---------- */
+	bCount = 0x00;
+	while (bCount < 0x58)
+	{
+		if (fn1AB8_1E3C((u16)(LG16(0x58B8) - 0x0001), LG16(0x58B4),
+		                &dlTmp) != 0x00)
+			break;
+		if (fn1AB8_1E3C((u16)(LG16(0x58B8) - 0x0001), LG16(0x58B6),
+		                &dlTmp) != 0x00)
+			break;
+		(void)fn0C74_070D(0x000A, 0x00C8, &dsTmp);
+		LG16(0x58B8) = (u16)(LG16(0x58B8) - 0x0001);
+		fn1AB8_13D7(0x00, far_ptr(dwBlock), LG16(0x58B8),
+		            LG16(0x58B4));
+		++bCount;
+	}
+	{
+		static int tr = -1;
+		if (tr < 0) tr = (getenv("RAD_ROBOT_TRACE") != NULL);
+		if (tr) fprintf(stderr, "ROBOT 1B3B after rise: bCount=%u B4=%u B8=%u 5968=%d\n",
+		                bCount, LG16(0x58B4), LG16(0x58B8), (int)LG16(0x5968));
+	}
+
+	/* --- 0C74:1C1E: tick (098A(4, 096F(...)) -> 02D8) ------------------- */
+	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
+	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
+	                    (u16)(s16)LG16(0x58E6)),
+	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
+
+	/* --- 0C74:1C3E: loop B: rise back while the counter is positive ----- */
+	while (bCount > 0x00)
+	{
+		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x002C),
+		                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0x00)
+			break;
+		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x002C),
+		                (u16)(LG16(0x58B6) + 0x0001), &dlTmp) != 0x00)
+			break;
+		(void)fn0C74_070D(0x000A, 0x00C8, &dsTmp);
+		LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
+		fn1AB8_13D7(0x00, far_ptr(dwBlock), LG16(0x58B8),
+		            LG16(0x58B4));
+		--bCount;
+	}
+
+	/* --- 0C74:1C93: counter exhausted? free; else run the sweeps -------- */
+	if (bCount == 0x00)
+	{
+		/* 1C99: nothing left to animate; release the block. */
+		(void)fn1EDA_0254(LG16(0x595E), (u16)((dwBlock) & 0xFFFFu), (u16)((dwBlock) >> 16), 0, &dxTmp, &dsTmp);
+	}
+	else
+	{
+		/* 1CAB: direction-dependent column sweep. */
+		if (LG16(0x5968) == 0x0001)
+		{
+			/* 1CB2 */
+			(void)fn0C74_02D8(0x00C8, &dsTmp);
+			(void)fn0C74_0D43(0x15, &bpTmp, &dsTmp);
+			(void)fn0C74_02D8(0x00C8, &dsTmp);
+			(void)fn0C74_0CFA(0x15, &bpTmp, &dsTmp);
+			(void)fn0C74_02D8(0x00C8, &dsTmp);
+			(void)fn0C74_0D43(0x0B, &bpTmp, &dsTmp);
+		}
+		else
+		{
+			/* 1CD5 */
+			(void)fn0C74_02D8(0x00C8, &dsTmp);
+			(void)fn0C74_0CFA(0x15, &bpTmp, &dsTmp);
+			(void)fn0C74_02D8(0x00C8, &dsTmp);
+			(void)fn0C74_0D43(0x15, &bpTmp, &dsTmp);
+			(void)fn0C74_02D8(0x00C8, &dsTmp);
+			(void)fn0C74_0D94(0x0B, &dsTmp);
+		}
+
+		/* 1CF6: repaint the window, then hand back to the frame engine. */
+		fn1AB8_1E6B(far_ptr(dwBlock),
+		            (u16)(LG16(0x58B8) + 0x001C),
+		            (u16)(LG16(0x58B4) + 0x002B),
+		            LG16(0x58B8), LG16(0x58B4));
+		if (fn0C74_0FA1(&bpTmp, &dsTmp) == 0x00)
+		{
+			/* 1D1D: rise once more while the counter is positive. */
+			while (bCount > 0x00)
+			{
+				(void)fn0C74_070D(0x000A, 0x00C8, &dsTmp);
+				LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
+				fn1AB8_13D7(0x00, far_ptr(dwBlock),
+				            LG16(0x58B8), LG16(0x58B4));
+				--bCount;
+			}
+		}
+
+	/* 1D48: release the block. */
+		(void)fn1EDA_0254(LG16(0x595E), (u16)((dwBlock) & 0xFFFFu), (u16)((dwBlock) >> 16), 0, &dxTmp, &dsTmp);
+
+		if (LG8(0x58B3) == 0x00)
+		{
+			static int tr2 = -1;
+			if (tr2 < 0) tr2 = (getenv("RAD_ROBOT_TRACE") != NULL);
+			if (tr2) fprintf(stderr, "ROBOT 1B3B after 0FA1: B4=%u B8=%u 5968=%d 58B3=%d\n",
+			                 LG16(0x58B4), LG16(0x58B8), (int)LG16(0x5968), (int)LG8(0x58B3));
+			/* 1D60: final tick and direction-dependent sweep. */
+			cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
+			(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+			        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
+			                    (u16)(s16)LG16(0x58E6)),
+			        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
+			if (LG16(0x5968) == 0x0001)
+				(void)fn0C74_0DE5(0x0B, &dsTmp);
+			else
+				(void)fn0C74_0CFA(0x0B, &bpTmp, &dsTmp);
+		}
+	}
+
+	/* 0C74:1D93: epilogue.  The original leaves AX = the saved-BP frame word
+	 * (Reko `(ss->*bp_240.u3).t0000.u2`); the flat model writes 0. */
+	*(u16 *)dsOut = 0x0000;
+	return 0x0000;
+}
