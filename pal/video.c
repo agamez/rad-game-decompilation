@@ -186,7 +186,9 @@ static const u8 g_ega_dac[16][3] = {
 static const u8 g_lvl_dac[16][3] = {
     {0x00,0x00,0x00},  /*  0 black          (measured) */
     {0x00,0x00,0x2A},  /*  1 blue           (measured) */
-    {0x00,0x2A,0x00},  /*  2 green EGA      (measured: slot icon) */
+    {0x00,0x3F,0x00},  /*  2 bright green   (measured: level map sends logical 2
+                           to VRAM 1 = (0,255,0); the old dim value came from
+                           the MENU's identity map slot icon) */
     {0x00,0x2A,0x2A},  /*  3 cyan           (measured) */
     {0x2A,0x00,0x00},  /*  4 red            (measured) */
     {0x0A,0x1A,0x1B},  /*  5 blend 40,105,109 (measured) */
@@ -194,7 +196,8 @@ static const u8 g_lvl_dac[16][3] = {
     {0x2A,0x2A,0x2A},  /*  7 light grey     (measured) */
     {0x00,0x00,0x00},  /*  8 black          (measured: no grey in level) */
     {0x00,0x15,0x3F},  /*  9 bright blue    (measured) */
-    {0x00,0x3F,0x00},  /* 10 bright green   (measured: TIME digits) */
+    {0x00,0x2A,0x00},  /* 10 green          (measured: level map sends logical
+                           10 to VRAM 5 = (0,170,0); swapped with 2 above) */
     {0x00,0x3F,0x3F},  /* 11 bright cyan    (measured) */
     {0x3F,0x15,0x15},  /* 12 bright red     (measured) */
     {0x21,0x2C,0x30},  /* 13 blend 134,178,195 (measured) */

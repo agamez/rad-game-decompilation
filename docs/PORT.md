@@ -1029,3 +1029,36 @@ port writes them raw); or the tile-variant selection in the 1229 field
 renderer diverges.  Approach: dump the op stream around a known
 (0,0,0)->(0,255,255) pixel cluster from bgi_down.log and compare against the
 asm of the drawing routine.
+
+### Session 9 round 5: the level colour map decoded; g_lvl_dac[2]<->[10] swapped
+
+Same-pixel window forensics (the port's canvas attr vs the DOSBox VRAM attr at
+identical coordinates) yielded the game's LEVEL colour map, logical -> VRAM:
+  1->7, 2->1, 3->3, 4->12, 5->14, 6->6, 7->9, 9->4, 11->2, 12->11, 14->8,
+  0/8->0 (background).  Composing g_lvl_dac[a] = capture_pal[map(a)] proves
+the author's measured table was correct for every entry EXCEPT 2 and 10,
+which are swapped: the level sends logical 2 to VRAM 1 (bright green) and
+logical 10 to VRAM 5 (dim green); the old values came from the MENU's
+identity-map measurements (2 = "slot icon", 10 = "TIME digits").
+
+- FIX: pal/video.c g_lvl_dac[2] = (0,3F,0) bright green, g_lvl_dac[10] =
+  (0,2A,0) green.  Pure display change (the canvas attrs are untouched, so
+  the probes and the recorded replay are unaffected).  fullrun.py re-verified:
+  rec=2.0 goalpix=6.  The composed-RGB field diff improves by ~4k px.
+- REMAINING full-canvas diff (~78k px), now fully characterized:
+  1. ~40k px cyan dim/bright inversion, CONTENT-DEPENDENT (the port's attr-11
+     pixels match ref attr 2 in some regions and ref attr 3 in others): the
+     port's tile/variant render path assigns the wrong cyan variant per tile.
+     NOT a palette issue -- next deep dive (the 1229 tile loader / the wire
+     drawing routines).
+  2. ~10k px HUD-region (y>=374, above the probe area): the port's status
+     panel interiors stay background black where the reference fills them
+     blue (the game's fill = logical 1 -> VRAM 7), a 2px bright-cyan strip at
+     y378-379 is missing (the port's strip is half-height), and the HUD text
+     colours differ.  Cosmetic; no gameplay impact.
+  3. ~10k px scattered singles = 1px-off content noise.
+- Probe relevance: every field-region (y<374) diff above is display-only
+  (the canvas attrs are identical), so the mission-002+ desync is NOT caused
+  by any of this.  The desync hunt returns to the engine side (the settle
+  driver, the 1229 decisions), with the tile-variant render path as the
+  visual-fidelity follow-up.
