@@ -902,3 +902,52 @@ flow diverges earlier than assumed.  A scoped fix (only those two lines, or
 the 1F08-local state) is required: global line-colour / probe changes break
 the recorded replay.  The 0-vs-8 background encoding split (129720 px) remains
 a secondary lead for the probe semantics.
+
+### Session 9 round 2: the UP precedent, the transparent-blit experiment, and the narrowed root cause
+
+User lead: "you solved it for going up -- learn from that commit."  Findings:
+
+- There is no separate UP-fix source commit: def4adc is the initial code dump
+  and the three later commits are docs-only.  The UP path (51AA -> 1B3B) was
+  BORN correct: it is a pure save-under (1E6B capture of the 43x28 box, then
+  13D7 re-blits of the same block while B8 bounces) and never uses 1AF6/1C32
+  eraser lines at all.  The analogous UP-path bug that WAS fixed is documented
+  in session 6 (D3): fn0C74_0E2E (arm retraction) consumed a hardcoded 0
+  instead of the caller's [bp-4h] loop index, leaving stale arm sprites on the
+  canvas; the fix was to pass the caller's value.  LESSON: these residues come
+  from transcription-level parameter/flow errors in the erase paths, not from
+  a global driver-convention difference.
+- BGI-trace forensics (bgi_down.log): the 1F08 prologue's 1AF6 eraser lines
+  ARE dispatched -- at x=224 (B4+0x19) and x=216 (B4+0x11), y=146..160, in
+  both the port and (per the same asm) the original.  The earlier "never
+  dispatched / +6 offset" notes were an arithmetic misread (0x19=25, 0x11=17).
+  The six 1E54 clamp putpixels follow at (x=216/224, y=151..153) exactly as
+  the asm says.  The prologue is faithful.
+- Experiment A -- op 0x36 skips payload-zero pixels (transparent) in mode 12h:
+  the two strips VANISH (0 px), but the whole DOWN is then refused (the
+  probes read the colour-8 background as a hit; only 62 px change; the robot
+  never descends).  This proves the strips are the marches painting over live
+  pixels, and that the probe clear/hit distinction is exactly the 0-vs-8
+  background encoding.
+- Experiment B -- op 0x36 lands payload zeroes as index 8 (H1-hard) plus
+  getpixel treats 8 as clear: the background encoding then matches DOSBox,
+  but the strips REMAIN and the slide's erase trail becomes visible in the
+  corridor (1276 px where the reference has 0).  Reverted.
+- Both experiments verified to break/re-break fullrun.py; baseline restored
+  and re-verified (rec=2.0, goalpix=6).
+
+REMAINING CONTRADICTION TO RESOLVE (next session, cheapest first):
+1. The 23EE's first probe reads (210,146) and returns v=0 in the trace, yet
+   the settle canvas there is the wire colour 11.  Something between the
+   settle and that probe erases (210,146) -- dump a small canvas region
+   (x205-215, y144-148) at the moment of the first 23EE probe (the PROBE
+   instrumentation is already in place in git history; re-add temporarily)
+   and identify the erasing op.  In DOSBox the same probe must return a hit
+   (the marches there never run: the band stays clean).
+2. The 0-vs-8 split is real (129720 px) but neither global encoding change
+   is correct: the original's background is 8 in SOME regions and 0 in
+   others, so the split must originate in a specific op (the mission fill,
+   the tile records' own 0/8 pixels, or the 1229 engine), not a convention.
+3. Keep the D3 lesson in mind: check every [bp-4h]/index value the 1F08
+   band phases consume against the asm; the D3 bug was exactly a consumed
+   constant-0 instead of the caller's index.
