@@ -1062,3 +1062,46 @@ identity-map measurements (2 = "slot icon", 10 = "TIME digits").
   by any of this.  The desync hunt returns to the engine side (the settle
   driver, the 1229 decisions), with the tile-variant render path as the
   visual-fidelity follow-up.
+
+### Session 10: the per-level timer (TIME:00.00) -- mechanism verified, display located
+
+User report: "each level starts a timer after the first movement, displayed at
+the right bottom; it only seems to work properly on level 1."
+
+MECHANISM (all verified live with /proc/mem probes + a temporary ARM/DISARM
+trace, since reverted):
+- Arm: fn0800_00C1(minutes*60) -- called at the mission screen (fn0800_2401,
+  after the briefing key), value = [0x53DD]*60.  [0x53DD] = the "Dlai de jeu"
+  (game delay) setting = 4 minutes, a PLAYER-CONFIGURED value (the setup-menu
+  field via fn1229_050A), identical for every level -- NOT a per-level value.
+- Countdown: the emulated int-1Ch handler (lazy-serviced from the host clock)
+  decrements [0x58D8:0x58DA] once per second; fn0800_0C71 (per loop iteration)
+  divides it into minutes/seconds, caches them at 58C8/58CC and repaints the
+  digits via fn0800_0AA1/0B42 only when they change.
+- Display: the "TIME:00.00" label (cs:0BE1) at game (x=563, y=406); the digits
+  repaint over the "00.00" at x=595..640, y=406..414 -- bottom right.
+- SPACE = pause: snapshot 58D8->58D0, DISARM, wait, re-arm from the snapshot.
+- Mission advance: fn0800_2827's outer loop = load -> arm -> execution ->
+  disarm -> win? -> [0x598E]+=1 -> next tableau, all inside one call.
+
+VERIFICATION ON MISSION 002 (won 001 via the F5 demo, rode the transition):
+- The arm fires at the mission-002 screen entry; the clock = 240 (4:00) and
+  counts down 1/s; the seconds cache updates; the digits repaint.  The timer
+  is MECHANICALLY WORKING on mission 002 in the port.
+- DOSBox reference (two scripted runs, 96+76 captures): mission 1 ticks;
+  mission 2 with no movement and no keys = static; mission 2 with keys
+  arriving = ticking between pauses.  Each SPACE = a pause (freeze) in both
+  implementations; a run with 30 queued spaces makes the mission-2 timer look
+  frozen the whole time (arm/disarm thrash) in the port, matching the
+  original's pause semantics.
+- The digits' attr (10) was affected by the session-9 2<->10 swap: the TIMER
+  digits now render dim green.  DOSBox's digit colour is green-family but
+  bright vs dim is not yet discriminated -- the HUD text may need an
+  exception to the field-derived colour map.
+
+NOT YET REPRODUCED: a concrete "does not work properly" failure on level 2+
+-- the mechanism checks out end-to-end.  Candidate remaining differences:
+(a) arm timing (screen entry vs first movement) is the same in both,
+(b) digit colour after the 2<->10 swap, (c) pause semantics on other keys.
+NEEDS USER INPUT: the exact visual symptom on level 2+ (frozen digits? wrong
+value? wrong colour? not visible?).
