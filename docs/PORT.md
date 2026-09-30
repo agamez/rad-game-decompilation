@@ -785,3 +785,66 @@ are original behavior.  The user's exact repro (keys/mission/build)
 is requested; if it predates the presentation fix (the per-step event
 pump in fn1E78_pace_ns), the stale-sprite appearance is explained by
 that earlier defect.
+
+## Session 9 -- the residue root-cause hunt: the driver is 1-based in y (block ops), the 0/8 fill split, and why the full switch breaks the replay
+
+Repro of record (user's exact sequence, mission 001): settle -> LEFT
+(wire extension) -> DOWN.  The port leaves two 4x15 strips on the upper
+floor that DOSBox does not: x199-202 (wire colours 3/9) and, after the
+experiments below, x150-153 (body colours B/7); rows 145-159 with the
+1-based anchors, 146-160 without.
+
+What was established:
+
+- The DOWN path is 51B2 -> 2AD9 -> 1F08.  1F08 (0C74:1F08, 1317 lines)
+  is the "lower through the hole" routine: it captures two 4-wide
+  strips of the robot-box band (rows B8+0Dh..B8+1Bh): blk [bp-10h] =
+  x[B4+0Eh,B4+11h] (body edge colours) and blk [bp-14h] =
+  x[B4+19h,B4+1Ch] (wire colours); stamps them 1 px outward (gap
+  close); re-captures 5-wide versions (x[B4+0Dh,B4+11h] and
+  x[B4+19h,B4+1Dh]); runs the 2153 open-loop (i=1..14h, stamps
+  dwLoc10 at B4+0Dh-i and dwLoc14 at B4+19h+i, six 1E3C probes per
+  step); the 23EE leftward march (5968==1, i up to 41h, probes
+  (B8+1Bh,B4+0Ch-i)/(B8+0Dh,B4+0Ch-i), stamps dwLoc10 at B4+0Dh-i);
+  re-seal loops; then the slide at 2680 (B4 -= 5968 sign-extended, 44
+  stamps of the full-window block captured at (B4,B8) via 13A3/1E6B),
+  gated probes, and finally 2AD9's march.  The port's part6.c is a
+  faithful transcription; the leftovers are the final stamps of the
+  marching loops whose STOP positions differ.
+- The RAD.DES frame 1 block (58E8) is byte-identical to the file
+  record, yet DOSBox renders it exactly 1 px higher than the port's
+  putimage.  Same for the grid: with op 0x36/0x34 anchored at y-1 the
+  crate becomes (331,154)-(352,175) = pixel-identical to DOSBox, the
+  floor edge lands on y=176 = 8*22, and the whole settle scene --
+  robot, crates, walls, floor -- becomes PIXEL-IDENTICAL to the
+  DOSBox reference (only the timer HUD and a 42%-of-screen 0-vs-8
+  encoding difference remain).  The game's grid passes 22*k+1 and the
+  driver renders at 22*k: the EGAVGA driver is 1-BASED IN Y for the
+  block ops.  x is 0-based (putpixel-verified wire column).
+- With block-ops y-1 the descent stop needs the getpixel to be
+  1-based too (probe 1E3C(BA+1,x) must read row BA) to stop at
+  B8=133 like DOSBox; with that the stop and the robot position match
+  exactly and the DOWN path differs from the reference by ONLY 130 px
+  (the two strips above).
+- BUT the full switch (0x34 y-1, 0x36 y-1, 0x2E y-1) BREAKS the
+  mission-001 F5 replay: the crates stop at (397,418) instead of
+  falling over the goal, rec stays 1.0 (fullrun.py END goalpix=0).
+  Reverted; baseline (committed build) still wins (rec=2.0,
+  goalpix=6).
+- The 0-vs-8 encoding split (129720 px at the settle!) is real and
+  probe-relevant: the reference paints palette index 8 (renders
+  black) where the port paints 0 in large background areas (ceiling
+  rows 0-135 match, but the shaft/hole interior and big dither
+  regions differ).  Probes are "!= 0", so every probe result that
+  touches an 8-region differs between the implementations.  THE NEXT
+  SESSION'S #1 LEAD: find why the port's fill/background is 0 where
+  the original is 8 (fill op colour, tile backing, or the 1229
+  engine's empty cells), make the canvases agree INCLUDING 0/8, and
+  only then re-apply the 1-based y model (block ops + getpixel) and
+  re-test the replay.  The strips should then vanish because the
+  marching loops' probes will stop exactly where the original's do.
+- Reference data captured this session: dn_p6_*.bin + dn_p6_log.txt
+  (the strip appears at t=25.71 right before the march), p6/p5 patch
+  dumps, frame_58E8/EC/F0/F4.bin (the robot frame blocks),
+  port_settle.bin (post-fix), full_fixtest.{log,txt} (the broken
+  replay), full_base.txt (the restored win).
