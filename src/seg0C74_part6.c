@@ -192,7 +192,7 @@ l0C74_2153:
 l0C74_2249:
 	if (wLoc04 == 0x0014)
 		goto l0C74_2276;
-	(void)fn0C74_1D95(0x0000, &dsv);
+	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -260,7 +260,7 @@ l0C74_2389:
 
 	/* --- 23B4: abort path of the 0FFh branch -------------------------- */
 	wLoc04 = 0x0014;
-	(void)fn0C74_1D95(0x0000, &dsv);
+	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	(void)fn1EDA_0254(wLoc22, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -329,7 +329,7 @@ l0C74_24E7:
 
 	/* --- 2512: abort path of the 01h branch --------------------------- */
 	wLoc04 = 0x0014;
-	(void)fn0C74_1D95(0x0000, &dsv);
+	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -545,7 +545,7 @@ l0C74_2A41:
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	wLoc04 = 0x0013;
-	(void)fn0C74_1D95(0x0000, &dsv);
+	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
 
 	TICK();
 

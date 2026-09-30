@@ -62,12 +62,13 @@ u16 fn0C74_1D95(u16 wArg02, void * dsOut)
 	u16 dsTmp = 0x0000;      /* reusable u16 dsOut (023F/0254/070D) */
 	u16 dxTmp = 0x0000;      /* fn1EDA_0254 dxOut */
 	/* ss:[wArg02-4]: the original reads the caller's [bp-4] word through the
-	 * pushed BP (`push bp` at every call site).  Flat C has no SS:BP chain and
-	 * the frozen prototype carries only the BP word; the callers seed it 0
-	 * (notes-0C74.md part 4 item 5), so the read is modelled as 0 here. */
-	u16 wCallerL4 = 0x0000;
-
-	(void)wArg02;            /* BP argument is unrecoverable in flat C */
+	 * pushed BP (`push bp` at every call site).  Flat C has no SS:BP chain, so
+	 * -- exactly like the byte-identical twin fn0C74_0E2E (the UP arm
+	 * retraction, fixed in session 6) -- the callers pass their [bp-4] VALUE
+	 * directly in wArg02 and it is consumed here.  1F08's band-seal rects and
+	 * blit-loop count are built from this index; with 0 the seal degenerates
+	 * to a no-op and the marched band keeps the wire/body colour strips. */
+	u16 wCallerL4 = wArg02;
 
 	/* 1D95..1DB4: first rect = [58B8h+1Bh, 58B4h+1Dh+N]-[58B8h+0Dh, 58B4h+19h+N] */
 	wLoc04 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),

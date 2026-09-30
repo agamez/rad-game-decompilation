@@ -951,3 +951,35 @@ REMAINING CONTRADICTION TO RESOLVE (next session, cheapest first):
 3. Keep the D3 lesson in mind: check every [bp-4h]/index value the 1F08
    band phases consume against the asm; the D3 bug was exactly a consumed
    constant-0 instead of the caller's index.
+
+### Session 9 round 3: THE FIX -- 1D95 consumes the caller's [bp-4h] (the D3 lesson applied to DOWN)
+
+User lead: "reread the code that performs the up movement and compare with the
+down. it shouldnt be much different."  That was exactly right.
+
+- The UP arm-retraction twin fn0C74_0E2E (part3.c) was fixed in session 6 (D3)
+  to consume wArg02 = the caller's [bp-4] word.  Its byte-identical DOWN twin
+  fn0C74_1D95 (part5b.c) still modelled it as 0 ("unrecoverable in flat C"),
+  and all four 1F08 call sites passed 0x0000.
+- 1D95 builds the final band seal from that index: capture rects
+  x=[B4+19h+N..B4+1Dh+N] and x=[B4+0Dh-N..B4+11h-N] plus a blit loop of N+1
+  inward stamps.  With N=0 the rects degenerate to zero-width and the loop to
+  one stamp, so the marched band was never resealed -- the wire/body colour
+  strips the user saw.
+- FIX (same shape as the 0E2E fix):
+  * src/seg0C74_part5b.c: u16 wCallerL4 = wArg02; (was 0x0000 + (void)wArg02)
+  * src/seg0C74_part6.c: the four 1D95 call sites (2249/23B4/2512/2A67 paths)
+    now pass wLoc04 -- the port's [bp-4h] -- matching the asm, which stores
+    the abort index / 14h / 14h / 13h into [bp-4] right before each call.
+- VERIFIED:
+  * dn_port4 repro: residue strips 0 px (was 120); settle->post changes in the
+    old-tile region 367 px (reference 370), reposition region 0 px (reference
+    0); strip positions x148-154/x198-204 y144-161 vs DOSBox post-DOWN capture:
+    0 differing pixels.
+  * fullrun.py F5-AUTO replay still wins: END rec=2.0 goalpix=6 (twice).
+- Note (separate, pre-existing, NOT this bug): a full-canvas 0==8 comparison
+  against DOSBox shows ~26% differing pixels dominated by full-width rows
+  (y=0, 352-354, 374-381, 473) where the reference has index 10/11 bars and
+  the port 0/8 -- present identically at settle and post-DOWN, so untouched
+  by this fix.  Candidate next investigation: mission HUD/border rendering or
+  a DAC palette nuance in the reference captures.
