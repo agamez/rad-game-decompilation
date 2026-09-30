@@ -983,3 +983,49 @@ down. it shouldnt be much different."  That was exactly right.
   the port 0/8 -- present identically at settle and post-DOWN, so untouched
   by this fix.  Candidate next investigation: mission HUD/border rendering or
   a DAC palette nuance in the reference captures.
+
+### Session 9 round 4: the "26% full-canvas diff" decoded -- colour-space archaeology, NOT a port bug
+
+First-ever full-canvas port-vs-DOSBox comparison of the mission field showed
+~26% differing pixels.  Investigation (all measurements on the post-DOWN and
+settle states, dnz_*.png reference captures):
+
+- The DOSBox PNG palette is a *scrambled* permutation of the EGA colours
+  (pal[1]=bright green, pal[2]=bright cyan, pal[8]=yellow, pal[12]=red...).
+  The game's DAC uploads via BGI op 0x1A (AX=0x8000|idx) are the plain
+  DGROUP 0x50CC table (standard-ish order, 8=black for the level via 00FB)
+  -- both the port and the real game upload the SAME values (verified in the
+  BGI trace).  The scrambled PNG palette is therefore the *effective*
+  per-attribute colour, i.e. the game runs a SetPalette attr->DAC map the
+  port does not model.
+- The map machinery in the original: fn1AB8_1384 copies a 17-byte default
+  from driver op 0x3A/AL=1 (found in EGAVGA.BGI at 0x289:
+  {10,0,1,2,3,4,5,14h,7,38h..3Fh}) into DGROUP 0xB87A; fn1AB8_129A installs
+  it; fn1AB8_1342(dac,attr) rewrites entries at runtime; fn1AB8_1CD7/1CA4
+  are the driver calls.  The port transcribes all of these but (a) stages a
+  "name record" instead of the default palette for op 0x3A/AL=1, (b) ignores
+  the 0x1A AX=attr/BX=entry form, and (c) never applies any map at display.
+- HOWEVER: window-level forensics prove the composed colours are IDENTICAL
+  for the dominant pairs (port 7 <-> ref 9 grey, port 14 <-> ref 8 yellow,
+  port 11 <-> ref 2 bright cyan, port 9 <-> ref 4 bright blue).  The port's
+  canvas lives in the game's LOGICAL colour space and the author's g_lvl_dac
+  composes it correctly for most entries.  A 3-entry "correction" experiment
+  (attrs 3/10/11) made the diff WORSE and was reverted: the port's attr-3
+  content matches ref attr 3 for ~25k px and mismatches for ~17k -- i.e. the
+  residual is CONTENT, not palette.
+- CONCLUSION: the ~26% = (a) a large attribute-space difference that is
+  cosmetically neutral (the composed RGBs agree), plus (b) ~20-30k px of REAL
+  field-rendering differences: the port picks dim/bright colour variants
+  differently for parts of the field, and ~10k px where the port draws black
+  (attrs 0/8) while the reference draws colour ((0,0,0)->(0,255,255) 2982 px,
+  ->(0,170,170) 2319, ->(170,85,0) 1726, ->(0,255,0) 1268, (0,0,0)->(0,85,255)
+  2013).  Category (b) = the port MISSING DRAWS the game performs -- the
+  prime suspect for the mission-002+ autoplay desync (probe-visible).
+- Baseline re-verified after the revert: fullrun.py rec=2.0 goalpix=6.
+
+NEXT SESSION: find the missing draws.  Leading hypotheses: the game's driver
+translates logical colour 0/8 through the palette map for certain ops (the
+port writes them raw); or the tile-variant selection in the 1229 field
+renderer diverges.  Approach: dump the op stream around a known
+(0,0,0)->(0,255,255) pixel cluster from bgi_down.log and compare against the
+asm of the drawing routine.
