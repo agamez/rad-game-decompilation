@@ -1147,3 +1147,30 @@ and correlate the erase op with the caller (09C2 stage vs 05B8 scroll);
 (2) either suppress that erase for the digit rects or re-invoke 0AA1/0B42
 after it, mirroring where the original repaints.
 Baseline re-verified after reverting the trace: fullrun.py rec=2.0 goalpix=6.
+
+### Session 10 round 3: FIXED -- clock digits blanked during moves
+
+ROOT CAUSE: fn0C74_011E/020C (the 02D8 move-animation repaint path's
+seconds/minutes digit painters) passed a C STACK buffer (u8 bLoc06[4]) to
+fn1AB8_1D82, which materializes the record as ES:BX for the driver's 0x26
+text op.  A stack buffer resolves to segment 0 in the flat model, so the op
+read a zeroed arena: length 0, zero glyphs.  The preceding erase-fill (00DB,
+panel cyan 3) still fired, so during every move animation the digits vanished
+(user-visible as "TIME: --.--"), reappearing only when the screen loop's own
+0AA1/0B42 repaint ran with a real value.  The original's tiny model had
+SS==DS, so the stack buffer worked there; the flat port broke it.
+
+The same bug class was already fixed in fn0800_0AA1 (DGROUP 0xF6E0),
+fn0800_0B42 (0xF6F0) and fn0800_04E3 (0xF700) -- 011E/020C were missed
+because their caller (02D8) is engine-side rather than screen-loop-side.
+
+FIX: stage the 2-digit records in DGROUP -- 011E at 0xF800, 020C at 0xF820
+(free space beyond 04E3's 0xF700 scratch), with comments pointing at the
+bug-class note.
+
+VERIFIED:
+- Timer band (x555-620, y400-412) sampled at 5 Hz through mission-001 program
+  execution: BOTH digit pairs now persist with live-changing glyphs through
+  every move animation (previously they alternated blank for 1-5 s).
+- fullrun.py F5-AUTO replay still wins: rec=2.0 goalpix=6 (twice: with the
+  temporary RAD_BGI_LOG trace present and after reverting it).

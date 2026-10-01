@@ -139,10 +139,16 @@ void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 //
 // Local frame: [bp-0106h] abLoc0106 staged scratch (Reko ptrLoc010C_298/308);
 // [bp-0006h] wLoc06 = fn1AB8_1285 AX result; [bp-0004h] bLoc06 record.
+// bLoc06 is staged at DGROUP 0xF800 (like fn0800_0AA1's 0xF6E0 / fn0800_0B42's
+// 0xF6F0): fn1AB8_1D82 materializes the record as ES:BX for the driver's 0x26
+// text op, and a C stack buffer resolves to segment 0 there -- the glyphs drew
+// nothing, leaving the clock digits blanked during move animations (the 02D8
+// repaint path).  The original's tiny model had SS==DS so this only bites the
+// flat port.
 u16 fn0C74_011E(u16 * dsOut)
 {
 	u8  abLoc0106[0x100];   /* [bp-0106h] staged scratch (Reko ptrLoc010C_*) */
-	u8  bLoc06[4];          /* [bp-0004h] 2-digit record (Reko bLoc06) */
+	u8 *bLoc06 = g_dgroup + 0xF800;   /* [bp-0004h] 2-digit record (staged) */
 	u16 wLoc06;             /* [bp-0006h] fn1AB8_1285 AX result */
 	u16 dx_343;
 	u16 dx_345;
@@ -202,7 +208,8 @@ u16 fn0C74_011E(u16 * dsOut)
 u16 fn0C74_020C(u16 * dsOut)
 {
 	u8  abLoc0106[0x100];   /* [bp-0106h] staged scratch (Reko ptrLoc010C_*) */
-	u8  bLoc06[4];          /* [bp-0004h] 2-digit record (Reko bLoc06) */
+	u8 *bLoc06 = g_dgroup + 0xF820;   /* [bp-0004h] 2-digit record (staged,
+	                                   * see the fn0C74_011E note above) */
 	u16 wLoc06;             /* [bp-0006h] fn1AB8_1285 AX result */
 	u16 dx_343;
 	u16 dx_345;
