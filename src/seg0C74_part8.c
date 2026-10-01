@@ -71,47 +71,47 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 	u32 dwLoc1E = 0x00000000; /* [bp-1Eh]/[bp-1Ch] far block #2 (offset at -1Eh) */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut for 023F/0254/02D8 */
 	void *dsv = NULL;       /* reusable void * dsOut for 070D */
-	u16 dxTmp = 0x0000;     /* fn1AB8_1AF6 / fn1EDA_0254 / fn1E78_029C dxOut */
-	u8  dlTmp = 0x00;       /* fn1AB8_1E3C dlOut */
+	u16 dxTmp = 0x0000;     /* bgi_set_pixel / fn1EDA_0254 / fn1E78_029C dxOut */
+	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
 
 	/* cmp word [58B4h],1h ; ja 2E6Ch -- only run when the counter exceeds 1 */
 	if (LG16(0x58B4) > 0x0001 &&
-	    /* 2E6C: fn1AB8_1E3C([58BAh], [58B4h]-1) must be non-zero */
-	    fn1AB8_1E3C(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0 &&
-	    /* 2E7E: fn1AB8_1E3C([58B8h]+16h, [58B4h]-9) must be non-zero */
-	    fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x0016), (u16)(LG16(0x58B4) - 0x0009), &dlTmp) != 0 &&
-	    /* 2E95: fn1AB8_1E3C([58BAh], [58B4h]-17h) must be zero */
-	    fn1AB8_1E3C(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0017), &dlTmp) == 0 &&
-	    /* 2EA9: fn1AB8_1E3C([58B8h], [58B4h]-1) must be zero */
-	    fn1AB8_1E3C(LG16(0x58B8), (u16)(LG16(0x58B4) - 0x0001), &dlTmp) == 0 &&
-	    /* 2EBB: fn1AB8_1E3C([58B8h]+16h, [58B4h]-17h) must be zero */
-	    fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x0016), (u16)(LG16(0x58B4) - 0x0017), &dlTmp) == 0)
+	    /* 2E6C: bgi_draw_line([58BAh], [58B4h]-1) must be non-zero */
+	    bgi_draw_line(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0 &&
+	    /* 2E7E: bgi_draw_line([58B8h]+16h, [58B4h]-9) must be non-zero */
+	    bgi_draw_line((u16)(LG16(0x58B8) + 0x0016), (u16)(LG16(0x58B4) - 0x0009), &dlTmp) != 0 &&
+	    /* 2E95: bgi_draw_line([58BAh], [58B4h]-17h) must be zero */
+	    bgi_draw_line(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0017), &dlTmp) == 0 &&
+	    /* 2EA9: bgi_draw_line([58B8h], [58B4h]-1) must be zero */
+	    bgi_draw_line(LG16(0x58B8), (u16)(LG16(0x58B4) - 0x0001), &dlTmp) == 0 &&
+	    /* 2EBB: bgi_draw_line([58B8h]+16h, [58B4h]-17h) must be zero */
+	    bgi_draw_line((u16)(LG16(0x58B8) + 0x0016), (u16)(LG16(0x58B4) - 0x0017), &dlTmp) == 0)
 	{
 		/* 2ED5: mov byte [bp-1h],1h */
 		bLoc01 = 0x01;
 
 		/* 2ED5..2F00: window size #1, then allocate block #1 into
 		 * [bp-0Eh]/[bp-0Ch]. */
-		wLoc10 = fn1AB8_13A3(LG16(0x58BA), LG16(0x58B4),
+		wLoc10 = bgi_clamp_rectangle_coords(LG16(0x58BA), LG16(0x58B4),
 		                     (u16)(LG16(0x58B8) + 0x0015),
 		                     (u16)(LG16(0x58B4) - 0x0016));
 		dwLoc0E = fn1EDA_023F(wLoc10, 0x0000, 0x0000, &dsTmp);
 
 		/* 2F03..2F47: fill block #1 with the 1Ch x 0Eh rectangle. */
-		fn1AB8_1E6B(far_ptr(dwLoc0E), LG16(0x58BA), LG16(0x58B4),
+		bgi_draw_clip_rectangle(far_ptr(dwLoc0E), LG16(0x58BA), LG16(0x58B4),
 		            (u16)(LG16(0x58B8) + 0x0016),
 		            (u16)(LG16(0x58B4) - 0x0016));
 
 		/* 2F4A..2F7F: window size #2, then allocate block #2 into
 		 * [bp-1Eh]/[bp-1Ch]. */
-		wLoc12 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+		wLoc12 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 		                     (u16)(LG16(0x58B4) + 0x0011),
 		                     (u16)(LG16(0x58B8) + 0x000D),
 		                     (u16)(LG16(0x58B4) + 0x000D));
 		dwLoc1E = fn1EDA_023F(wLoc12, 0x0000, 0x0000, &dsTmp);
 
 		/* 2F82..2FB1: fill block #2 (11h x 0Dh). */
-		fn1AB8_1E6B(far_ptr(dwLoc1E),
+		bgi_draw_clip_rectangle(far_ptr(dwLoc1E),
 		            (u16)(LG16(0x58B8) + 0x001B),
 		            (u16)(LG16(0x58B4) + 0x0011),
 		            (u16)(LG16(0x58B8) + 0x000D),
@@ -121,30 +121,30 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 		 * context, then draw the 0Bh/03h/09h markers. */
 		wLoc0A = (u16)(LG16(0x58B4) + 0x000D);
 		--wLoc0A;
-		fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc1E),
 		            (u16)(LG16(0x58B8) + 0x000D), wLoc0A);
-		fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-		(void)fn1AB8_1C32(0x00);
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x001B),
+		bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+		(void)bgi_get_text_cursor_attributes(0x00);
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x001B),
 		            (u16)(LG16(0x58B4) + 0x0011),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x0011), &dxTmp);
-		fn1AB8_1E54(0x0B, (u16)(LG16(0x58B8) + 0x0012),
+		bgi_get_line_attributes(0x0B, (u16)(LG16(0x58B8) + 0x0012),
 		            (u16)(LG16(0x58B4) + 0x0011));
-		fn1AB8_1E54(0x03, (u16)(LG16(0x58B8) + 0x0013),
+		bgi_get_line_attributes(0x03, (u16)(LG16(0x58B8) + 0x0013),
 		            (u16)(LG16(0x58B4) + 0x0011));
-		fn1AB8_1E54(0x09, (u16)(LG16(0x58B8) + 0x0014),
+		bgi_get_line_attributes(0x09, (u16)(LG16(0x58B8) + 0x0014),
 		            (u16)(LG16(0x58B4) + 0x0011));
 
 		/* 2FE6..2FFB: free block #2, then rebuild it one column left
 		 * (the last 13A3 argument changes from 0Dh to 0Ch). */
 		(void)fn1EDA_0254(wLoc12, (u16)((dwLoc1E) & 0xFFFFu), (u16)((dwLoc1E) >> 16), 0, &dxTmp, &dsTmp);
-		wLoc12 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+		wLoc12 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 		                     (u16)(LG16(0x58B4) + 0x0011),
 		                     (u16)(LG16(0x58B8) + 0x000D),
 		                     (u16)(LG16(0x58B4) + 0x000C));
 		dwLoc1E = fn1EDA_023F(wLoc12, 0x0000, 0x0000, &dsTmp);
-		fn1AB8_1E6B(far_ptr(dwLoc1E),
+		bgi_draw_clip_rectangle(far_ptr(dwLoc1E),
 		            (u16)(LG16(0x58B8) + 0x001B),
 		            (u16)(LG16(0x58B4) + 0x0011),
 		            (u16)(LG16(0x58B8) + 0x000D),
@@ -155,12 +155,12 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 		bLoc02 = 0x01;
 		while (bLoc02 < 0x14)
 		{
-			if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x001B),
+			if (bgi_draw_line((u16)(LG16(0x58B8) + 0x001B),
 			                (u16)(LG16(0x58B4) + 0x000C - bLoc02),
 			                &dlTmp) != 0)
 				break;
 			(void)engine_scale_and_tick_clock(0x000A, 0x00E6, &dsv);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc1E),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(LG16(0x58B4) + 0x000D - bLoc02));
 			++bLoc02;
@@ -179,9 +179,9 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 		{
 			--wLoc14;
 			--wLoc16;
-			fn1AB8_13D7(0x00, far_ptr(dwLoc0E),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc0E),
 			            (u16)(wLoc18 + 0x0001), wLoc14);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc1E),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(wLoc16 + 0x0002));
 			(void)engine_scale_and_tick_clock(0x0014, 0x00E6, &dsv);
@@ -191,7 +191,7 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 		}
 
 		/* 3142..3161: if the latch row is empty, collapse the bar. */
-		if (fn1AB8_1E3C((u16)(wLoc1A + 0x0001), wLoc16, &dlTmp) == 0)
+		if (bgi_draw_line((u16)(wLoc1A + 0x0001), wLoc16, &dlTmp) == 0)
 		{
 			(void)engine_sprite_grow(wLoc1A, wLoc16, wLoc18, wLoc14);
 		}
@@ -204,7 +204,7 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 		while (1)
 		{
 			(void)engine_scale_and_tick_clock(0x0005, 0x00E6, &dsv);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc1E),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(LG16(0x58B4) + 0x000D - (u16)bLoc03));
 			if (bLoc03 == 0x00)
@@ -234,7 +234,7 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 				(void)fn11C8_033B();
 			LG16(0x58B4) = (u16)(LG16(0x58B4) - 0x0001);
 			LG16(0x58B6) = (u16)(LG16(0x58B6) - 0x0001);
-			fn1AB8_13D7(0x00,
+			bgi_signed_rectangle_intersect(0x00,
 			            far_ptr(LG32((u16)(0x58F4 + (u16)(bLoc02 * 4)))),
 			            LG16(0x58B8), LG16(0x58B4));
 			if (bLoc03 == 0x16)

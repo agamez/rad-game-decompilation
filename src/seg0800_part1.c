@@ -46,8 +46,8 @@ u16 fn0800_0000(void)
 {
 	u16 dx_69;
 
-	fn1AB8_0EB5();
-	fn1AB8_0E88();
+	bgi_shutdown_video_driver();
+	bgi_swap_graphics_gateway();
 	/* push word ptr [0B8ACh] ; call far 1E78h:016Bh */
 	fn1E78_016B(LG16(0xB8AC), &dx_69);
 	fn11C8_03BB();
@@ -66,19 +66,19 @@ void fn0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	u16 wLoc10CE;
 	u16 wLoc10E1;
 
-	fn1AB8_0F93(0x01, wArg02, wArg04, wArg06, wArg08);
-	fn1AB8_1028();
-	wLoc10CE = fn1AB8_10CE();
-	wLoc10E1 = fn1AB8_10E1();
-	fn1AB8_0F93(0x01, wLoc10E1, wLoc10CE, 0x00, 0x00);
+	bgi_draw_text_rectangle(0x01, wArg02, wArg04, wArg06, wArg08);
+	bgi_update_text_window_position();
+	wLoc10CE = bgi_get_text_cols();
+	wLoc10E1 = bgi_get_text_rows();
+	bgi_draw_text_rectangle(0x01, wLoc10E1, wLoc10CE, 0x00, 0x00);
 }
 
 // 0800:005A: void fn0800_005A(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 void fn0800_005A(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	/* push 1h ; push 3h ; call far 1AB8h:1175h */
-	fn1AB8_1175(0x03, 0x01);
-	fn1AB8_1B3E(wArg02, wArg04, wArg06, wArg08);
+	bgi_set_text_font_size(0x03, 0x01);
+	bgi_draw_rectangle(wArg02, wArg04, wArg06, wArg08);
 }
 
 // 0800:00C1: u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)
@@ -213,7 +213,7 @@ u16 fn0800_0147(void)
 	u32 dx_ax_272;
 
 	/* push 0 ; push 0 ; push 15h ; push 15h ; call far 1AB8h:13A3h */
-	wLoc84 = fn1AB8_13A3(0x0015, 0x0015, 0x0000, 0x0000);
+	wLoc84 = bgi_clamp_rectangle_coords(0x0015, 0x0015, 0x0000, 0x0000);
 
 	/* cs:0125 = {7,"RAD.STR"}; on failure report via cs:012Dh. */
 	if (engine_probe_file(&g_seg0800[0x0125], &dx_270) == 0x00)
@@ -291,7 +291,7 @@ void fn0800_01FE(void)
 				u8 *blk = far_ptr(
 					(((u32)LG16((u16)(0x5994 + rec * 4)) << 16) |
 					(u32)LG16((u16)(0x5992 + rec * 4))));
-				fn1AB8_13D7(0x00, blk,
+				bgi_signed_rectangle_intersect(0x00, blk,
 				            (u16)((u16)bLoc82 * 0x16 + 0x0001),
 				            (u16)((u16)bLoc81 * 0x16 + 0x0001));
 			}
@@ -394,7 +394,7 @@ u16 fn0800_03F8(void)
 	fn1EDA_0FD0(ax_04, abBuf, &dx_334);
 
 	/* push 0 ; push 0 ; push 2Bh ; push 2Bh ; call far 1AB8h:13A3h */
-	wLoc88 = fn1AB8_13A3(0x002B, 0x002B, 0x0000, 0x0000);
+	wLoc88 = bgi_clamp_rectangle_coords(0x002B, 0x002B, 0x0000, 0x0000);
 
 	/* first scratch allocation (freed after the loop); the asm's one stack
 	 * word is the size, placed in wArg04 per the frozen prototype. */
@@ -448,53 +448,53 @@ u8 fn0800_04E3(u16 * dsOut)
 	                    /* [bp-0100h] number/format scratch (Reko ptrLoc010A).
 	                     * SS-resident, and SS==DS in the tiny model, so stage
 	                     * at DGROUP 0xF700 for the ES:BX materialization that
-	                     * fn1AB8_1D82 does for the driver's 0x26 text op (a C
+	                     * bgi_get_char_size_info does for the driver's 0x26 text op (a C
 	                     * stack buffer resolves to segment 0 and the op reads a
 	                     * zeroed far arena, drawing nothing). */
-	u16 ds_43 = 0x0000; /* dropped DGROUP selector out of fn1AB8_1536 */
+	u16 ds_43 = 0x0000; /* dropped DGROUP selector out of bgi_load_video_driver_file */
 	u8  ch;
 
 	/* push 120h ; push 189h ; push 1A0h ; push 193h ; call 005Ah */
 	fn0800_005A(0x0193, 0x01A0, 0x0189, 0x0120);
-	fn1AB8_1536(0x01, 0x00, 0x00, &ds_43);
-	fn1AB8_14F4(0x01, 0x01);
-	fn1AB8_1C32(0x08);
+	bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_43);
+	bgi_set_text_rectangle(0x01, 0x01);
+	bgi_get_text_cursor_attributes(0x08);
 
 	if (LG8(0x53DB) > 0x00)
 	{
 		engine_format_u32((u32)LG8(0x53DB), abBuf);       /* x=12Fh,y=18Dh dropped */
-		fn1AB8_1D82(abBuf, 0x018D, 0x012F, &ch);
+		bgi_get_char_size_info(abBuf, 0x018D, 0x012F, &ch);
 	}
 	if (LG8(0x53DC) > 0x00)
 	{
 		engine_format_u32((u32)LG8(0x53DC), abBuf);       /* x=163h,y=18Dh dropped */
-		fn1AB8_1D82(abBuf, 0x018D, 0x0163, &ch);
+		bgi_get_char_size_info(abBuf, 0x018D, 0x0163, &ch);
 	}
 	if (LG8(0x53DE) > 0x00)
 	{
 		engine_format_u32((u32)LG8(0x53DE), abBuf);       /* x=197h,y=18Dh dropped */
-		fn1AB8_1D82(abBuf, 0x018D, 0x0197, &ch);
+		bgi_get_char_size_info(abBuf, 0x018D, 0x0197, &ch);
 	}
 
-	fn1AB8_1C32(0x0E);
+	bgi_get_text_cursor_attributes(0x0E);
 
 	if (LG8(0x53DB) > 0x00)
 	{
 		engine_format_u32((u32)LG8(0x53DB), abBuf);       /* x=130h,y=18Eh dropped */
-		fn1AB8_1D82(abBuf, 0x018E, 0x0130, &ch);
+		bgi_get_char_size_info(abBuf, 0x018E, 0x0130, &ch);
 	}
 	if (LG8(0x53DC) > 0x00)
 	{
 		engine_format_u32((u32)LG8(0x53DC), abBuf);       /* x=164h,y=18Eh dropped */
-		fn1AB8_1D82(abBuf, 0x018E, 0x0164, &ch);
+		bgi_get_char_size_info(abBuf, 0x018E, 0x0164, &ch);
 	}
 	if (LG8(0x53DE) > 0x00)
 	{
 		engine_format_u32((u32)LG8(0x53DE), abBuf);       /* x=198h,y=18Eh dropped */
-		fn1AB8_1D82(abBuf, 0x018E, 0x0198, &ch);
+		bgi_get_char_size_info(abBuf, 0x018E, 0x0198, &ch);
 	}
 
-	fn1AB8_1C32(0x00);
+	bgi_get_text_cursor_attributes(0x00);
 	*dsOut = ds_43;
 	return 0x00;
 }

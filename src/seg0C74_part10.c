@@ -60,7 +60,7 @@ u8 engine_bar_retract /* was fn0C74_37C3 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 	u8  bLoc01 = 0x00;      /* [bp-01h] result flag */
 	u8  bLoc02 = 0x00;      /* [bp-02h] animation counter (5..1) / sprite index */
 	u8  bLoc03 = 0x00;      /* [bp-03h] row counter (1..16h) */
-	u8  dlTmp = 0x00;       /* fn1AB8_1E3C dlOut */
+	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
 	u8  chTmp = 0x00;       /* fn1206_015B chOut */
 	u16 dxTmp = 0x0000;     /* fn1206_015B dxOut */
 	u16 bpScratch = 0x0000; /* engine_redraw_bars_up / fn1206_015B bpOut artifact */
@@ -85,16 +85,16 @@ u8 engine_bar_retract /* was fn0C74_37C3 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 	/* 37ED..383E: four edge probes.  Each of the first three must be zero;
 	 * the fourth must be non-zero to fall into the main march.  Any other
 	 * result jumps to 383C (jmp 3969). */
-	if (fn1AB8_1E3C(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0001),
+	if (bgi_draw_line(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0001),
 	                &dlTmp) != 0x00)
 		goto l0C74_3969;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0015),
+	if (bgi_draw_line((u16)(LG16(0x58BA) - 0x0015),
 	                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0x00)
 		goto l0C74_3969;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0029),
+	if (bgi_draw_line((u16)(LG16(0x58BA) - 0x0029),
 	                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0x00)
 		goto l0C74_3969;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 	                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) == 0x00)
 		goto l0C74_3969;
 
@@ -158,15 +158,15 @@ l0C74_3850:
 
 	/* 38D0..392B: four edge probes; any of the first three non-zero (or the
 	 * fourth zero) advances the position one step and stops. */
-	if (fn1AB8_1E3C(LG16(0x58BA), LG16(0x58B4), &dlTmp) != 0x00)
+	if (bgi_draw_line(LG16(0x58BA), LG16(0x58B4), &dlTmp) != 0x00)
 		goto l0C74_391B;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0015), LG16(0x58B4),
+	if (bgi_draw_line((u16)(LG16(0x58BA) - 0x0015), LG16(0x58B4),
 	                &dlTmp) != 0x00)
 		goto l0C74_391B;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0029), LG16(0x58B4),
+	if (bgi_draw_line((u16)(LG16(0x58BA) - 0x0029), LG16(0x58B4),
 	                &dlTmp) != 0x00)
 		goto l0C74_391B;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4),
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4),
 	                &dlTmp) != 0x00)
 		goto l0C74_392C;
 
@@ -181,7 +181,7 @@ l0C74_392C:
 	/* push [58B4h] ; push [58B8h] ; mov al,[bp-2h] ; xor ah,ah ; mov di,ax ;
 	 * shl di,2h ; les di,[di+58F4h] ; push es ; push di ; push 0h ;
 	 * call 1AB8:13D7h */
-	(void)fn1AB8_13D7(0x00,
+	(void)bgi_signed_rectangle_intersect(0x00,
 	    far_ptr(LG32((u16)(0x58F4 +
 	                                (u16)((u16)bLoc02 << 2)))),
 	    LG16(0x58B8), LG16(0x58B4));

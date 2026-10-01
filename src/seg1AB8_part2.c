@@ -24,7 +24,7 @@
 #include "seg1EDA.h"
 
 /* Original 1AB8:051F.  It is the target of the DGROUP far code pointer at
- * [0xB6C2]/[0xB6C4], assigned by fn1AB8_17AE (`mov ax,51Fh; mov dx,1AB8h`).
+ * [0xB6C2]/[0xB6C4], assigned by bgi_init_graphics_driver (`mov ax,51Fh; mov dx,1AB8h`).
  * The original thunk is:
  *
  *     push bp / mov bp,sp
@@ -39,7 +39,7 @@
  * slot, so fn1EDA_023F's u32 return is stored directly.  The extra
  * wArg02/wArg04/dsOut parameters are the iface.tsv artifact for
  * fn1EDA_023F (the .asm pops only the one argument). */
-static void fn1AB8_051F(u16 wArg06, u32 * ptrArg08)
+static void bgi_alloc_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_051F */
 {
 	u16 dsOut_051F = 0x0000;
 
@@ -47,7 +47,7 @@ static void fn1AB8_051F(u16 wArg06, u32 * ptrArg08)
 }
 
 /* Original 1AB8:0538.  It is the target of the DGROUP far code pointer at
- * [0xB6C6]/[0xB6C8], assigned by fn1AB8_17AE (`mov ax,538h; mov dx,1AB8h`).
+ * [0xB6C6]/[0xB6C8], assigned by bgi_init_graphics_driver (`mov ax,538h; mov dx,1AB8h`).
  * The original thunk is:
  *
  *     push bp / mov bp,sp
@@ -68,7 +68,7 @@ static void fn1AB8_051F(u16 wArg06, u32 * ptrArg08)
  *
  * fn1EDA_0254's ptrArg06/dxOut/dsOut parameters are the iface.tsv artifact
  * (the .asm pops only wArg00/wArg02/wArg04). */
-static void fn1AB8_0538(u16 wArg06, u32 * ptrArg08)
+static void bgi_free_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_0538 */
 {
 	u16 dxOut_0538 = 0x0000;
 	u16 dsOut_0538 = 0x0000;
@@ -83,12 +83,12 @@ static void fn1AB8_0538(u16 wArg06, u32 * ptrArg08)
 /* The 1AB8:0C39 indirect call goes through the DGROUP far code-pointer slot
  * [0xB896]/[0xB898], which is loaded from the display-driver record fields
  * +0x12/+0x14 (records at 0x50FC + n*0x1A).  The shipped image leaves every
- * one of those callbacks zero, so the guard in fn1AB8_0BAE skips the call.
+ * one of those callbacks zero, so the guard in bgi_load_bgi_driver skips the call.
  * A 16:16 code pointer cannot be called from flat C and no record callback
  * maps to a recovered function, so this stands in for the call: it reads the
  * staged selector pair and returns the AX value (0) the caller consumes.
  * See docs/notes-1AB8.md ("## chunk 2"). */
-static u16 fn1AB8_call_0B896(void)
+static u16 bgi_call_display_driver_cb(void)  /* was fn1AB8_call_0B896 */
 {
 	u16 off_0B896 = LG16(0xB896);
 	u16 seg_0B896 = LG16(0xB898);
@@ -98,7 +98,7 @@ static u16 fn1AB8_call_0B896(void)
 	return 0x0000;
 }
 
-/* Video-driver record used by fn1AB8_0EB5: 0x0F-byte stride starting at
+/* Video-driver record used by bgi_shutdown_video_driver: 0x0F-byte stride starting at
  * DGROUP 0x520B.  Word fields at +0,+2,+4,+6,+8 and a byte at +0x0A. */
 typedef struct {
 	u16 w0000;
@@ -109,8 +109,8 @@ typedef struct {
 	u8  b000A;
 } TRec520B;
 
-// 1AB8:097B: u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)
-u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)
+// 1AB8:097B: u8 bgi_install_video_driver(u8 * ptrArg02, u16 wArg06, u16 * dsOut)
+u8 bgi_install_video_driver(u8 * ptrArg02, u16 wArg06, u16 * dsOut)  /* was fn1AB8_097B */
 {
 	u8 abBuf20E[0x10C];   /* [bp-020Eh] name scratch; original word at [bp-010Ah] overlapped this buffer */
 	u8 abBuf102[0x100];   /* [bp-0102h] path scratch */
@@ -141,8 +141,8 @@ u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)
 		goto l1AB8_0AE5;
 	}
 
-	/* original: fn1AB8_0887(0FFFCh, ds:0B82Ch, ds:0B756h, ss:bp-0102h) */
-	if (fn1AB8_0887(0xFFFC, &g_dgroup[0xB82C], &g_dgroup[0xB756],
+	/* original: bgi_open_video_driver_file(0FFFCh, ds:0B82Ch, ds:0B756h, ss:bp-0102h) */
+	if (bgi_open_video_driver_file(0xFFFC, &g_dgroup[0xB82C], &g_dgroup[0xB756],
 	                abBuf102, &ds_097B) == 0x00)
 		goto l1AB8_0AE5;
 
@@ -154,7 +154,7 @@ u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)
 		LG16(0x536E) = 0x050B;
 		LG16(0x5370) = 0x1AB8;
 		/* original: call dword ptr [0B6C2h] (1AB8:051F) */
-		fn1AB8_051F(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
+		bgi_alloc_driver_blob(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
 		LG16(0x536E) = LG16(0xB7BC);
 		LG16(0x5370) = LG16(0xB7BE);
 	}
@@ -175,14 +175,14 @@ u8 fn1AB8_097B(u8 * ptrArg02, u16 wArg06, u16 * dsOut)
 	if (wLoc10A != LG16(0xB82C))
 		goto l1AB8_0AB5;
 
-	/* original: fn1AB8_05D3(far pointer held at ds:0B828h) */
-	if (fn1AB8_05D3(far_ptr(LG32(0xB828))) == wArg06)
+	/* original: bgi_find_video_driver_index(far pointer held at ds:0B828h) */
+	if (bgi_find_video_driver_index(far_ptr(LG32(0xB828))) == wArg06)
 		goto l1AB8_0ACA;
 
 l1AB8_0AB5:
 	LG16(0xB818) = 0xFFFC;
 	/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-	fn1AB8_0538(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
+	bgi_free_driver_blob(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
 	goto l1AB8_0AE5;
 
 l1AB8_0ACA:
@@ -199,34 +199,34 @@ l1AB8_0AE5:
 	return bLoc03;
 }
 
-// 1AB8:0AEE: u16 fn1AB8_0AEE(void)
-u16 fn1AB8_0AEE(void)
+// 1AB8:0AEE: u16 bgi_init_graphics_system(void)
+u16 bgi_init_graphics_system(void)  /* was fn1AB8_0AEE */
 {
 	u8 abLoc08[8];       /* [bp-0008h] */
 	u16 ds_244 = 0x0000;
 
 	if (LG8(0xB84E) == 0x00)
-		fn1AB8_008B();
-	fn1AB8_0F93(0x01, LG16(0xB7C4), LG16(0xB7C2), 0x00, 0x00);
-	fn1AB8_1384(&g_dgroup[0xB87A]);
-	fn1AB8_129A(&g_dgroup[0xB87A]);
-	if (fn1AB8_1C5A() != 0x01)
-		fn1AB8_1250(0x00);
+		bgi_error_not_initialized();
+	bgi_draw_text_rectangle(0x01, LG16(0xB7C4), LG16(0xB7C2), 0x00, 0x00);
+	bgi_load_font_info(&g_dgroup[0xB87A]);
+	bgi_install_text_font(&g_dgroup[0xB87A]);
+	if (bgi_get_char_cell_height() != 0x01)
+		bgi_set_text_color_attribute(0x00);
 	LG8(0xB840) = 0x00;
-	fn1AB8_1C32((u8)fn1AB8_1C4A());
+	bgi_get_text_cursor_attributes((u8)bgi_get_char_width());
 	fn1EDA_1202(0xFF, 0x08, abLoc08);
-	fn1AB8_11A0(fn1AB8_1C4A(), abLoc08);
-	fn1AB8_1175(fn1AB8_1C4A(), 0x01);
-	fn1AB8_10F4(0x01, 0x00, 0x00);
-	fn1AB8_1536(0x01, 0x00, 0x00, &ds_244);
-	fn1AB8_14F4(0x02, 0x00);
-	fn1AB8_194E(0x00);
-	fn1AB8_108B(0x00, 0x00);
+	bgi_load_font_file(bgi_get_char_width(), abLoc08);
+	bgi_set_text_font_size(bgi_get_char_width(), 0x01);
+	bgi_set_text_background_color(0x01, 0x00, 0x00);
+	bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_244);
+	bgi_set_text_rectangle(0x02, 0x00);
+	bgi_set_text_style(0x00);
+	bgi_set_text_color(0x00, 0x00);
 	return 0x0000;   /* DGROUP selector dropped in the flat model */
 }
 
-// 1AB8:0BAE: u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)
-u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)
+// 1AB8:0BAE: u16 bgi_load_bgi_driver(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)
+u16 bgi_load_bgi_driver(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)  /* was fn1AB8_0BAE */
 {
 	u8  abLoc208[0x100];   /* [bp-0208h] */
 	u8  abLoc100[0x100];   /* [bp-0100h] */
@@ -244,9 +244,9 @@ u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)
 	fn1EDA_0A39(0xFF, abLoc100, ptrArg04, &dx_695);
 	LG16(0xB820) = 0x2073;
 	LG16(0xB822) = 0x1AB8;
-	/* original: fn1AB8_0569 with the far pointer 1AB8:2073 twice
+	/* original: bgi_reloc_copy_with_alignment with the far pointer 1AB8:2073 twice
 	 * (second one +2) plus its offset/segment words; see notes. */
-	ax_69 = fn1AB8_0569(&g_seg1AB8[0x2075], &g_seg1AB8[0x2073],
+	ax_69 = bgi_reloc_copy_with_alignment(&g_seg1AB8[0x2075], &g_seg1AB8[0x2073],
 	                    0x2073, (void *)(uintptr_t)0x1AB8, &dx_69);
 	LG16(0xB820) = ax_69;
 	LG16(0xB822) = dx_69;
@@ -266,7 +266,7 @@ u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)
 			LG16(0xB896) = *(u16 *)&rec[0];
 			LG16(0xB898) = *(u16 *)&rec[2];
 			/* original: call dword ptr [0B896h] */
-			wLoc0108 = (s16)fn1AB8_call_0B896();
+			wLoc0108 = (s16)bgi_call_display_driver_cb();
 			if (wLoc0108 >= 0x0000)
 			{
 				LG16(0xB814) = wLoc0106;
@@ -280,19 +280,19 @@ u16 fn1AB8_0BAE(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)
 
 l1AB8_0C86:
 	if (bLoc0109 == 0x00)
-		fn1AB8_19EE((u8 *)ptrArg08, ptrArg0C, &g_dgroup[0xB814]);
+		bgi_select_text_mode((u8 *)ptrArg08, ptrArg0C, &g_dgroup[0xB814]);
 	else
 	{
 		wLoc0106 = LG16(0xB814);
 		wLoc0108 = (s16)(*(u16 *)ptrArg0C + 0x80);
-		fn1AB8_19EE((u8 *)ptrArg08, (u8 *)&wLoc0108, (u8 *)&wLoc0106);
+		bgi_select_text_mode((u8 *)ptrArg08, (u8 *)&wLoc0108, (u8 *)&wLoc0106);
 	}
 
 	if ((s16)(*(u16 *)ptrArg0C) < 0x0000)
 	{
 		LG16(0xB818) = 0xFFFE;
 		*(u16 *)ptrArg0C = 0xFFFE;
-		fn1AB8_0813(&dx_695);
+		bgi_init_graphics_error(&dx_695);
 		goto l1AB8_0E82;
 	}
 
@@ -313,10 +313,10 @@ l1AB8_0C86:
 	fn1EDA_0A39(0x50, &g_dgroup[0xB764], abLoc208, &dx_697);
 
 l1AB8_0D52:
-	if (fn1AB8_097B(&g_dgroup[0xB764], LG16(0xB814), &dx_698) == 0x00)
+	if (bgi_install_video_driver(&g_dgroup[0xB764], LG16(0xB814), &dx_698) == 0x00)
 	{
 		*(u16 *)ptrArg0C = LG16(0xB818);
-		fn1AB8_0813(&dx_695);
+		bgi_init_graphics_error(&dx_695);
 		goto l1AB8_0E82;
 	}
 
@@ -326,7 +326,7 @@ l1AB8_0D52:
 	LG16(0x536E) = 0x050B;
 	LG16(0x5370) = 0x1AB8;
 	/* original: call dword ptr [0B6C2h] (1AB8:051F) */
-	fn1AB8_051F(LG16(0xB7B6), (u32 *)&g_dgroup[0xB7E0]);
+	bgi_alloc_driver_blob(LG16(0xB7B6), (u32 *)&g_dgroup[0xB7E0]);
 	LG16(0x536E) = LG16(0xB7BC);
 	LG16(0x5370) = LG16(0xB7BE);
 
@@ -335,8 +335,8 @@ l1AB8_0D52:
 		LG16(0xB818) = 0xFFFB;
 		*(u16 *)ptrArg0C = 0xFFFB;
 		/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-		fn1AB8_0538(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
-		fn1AB8_0813(&dx_695);
+		bgi_free_driver_blob(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
+		bgi_init_graphics_error(&dx_695);
 		goto l1AB8_0E82;
 	}
 
@@ -351,33 +351,33 @@ l1AB8_0D52:
 	LG16(0xB7EE) = 0xB818;
 	LG16(0xB7F0) = 0x0000;   /* DS selector dropped in the flat model */
 
-	fn1AB8_1855(&g_dgroup[0xB7D4]);
+	bgi_set_text_cursor_position(&g_dgroup[0xB7D4]);
 	/* original: fn1EDA_11DF(13h, ds:0B7C0h, far pointer held at ds:0B83Ah) */
 	fn1EDA_11DF(0x13, &g_dgroup[0xB7C0], (u8 *)far_ptr(LG32(0xB83A)));
-	fn1AB8_1AA6(&g_dgroup[0xB7D4]);
+	bgi_set_active_font(&g_dgroup[0xB7D4]);
 
 	if (LG8(0xB7C0) != 0x00)
 	{
 		LG16(0xB818) = (u16)LG8(0xB7C0);
-		fn1AB8_0813(&dx_695);
+		bgi_init_graphics_error(&dx_695);
 		goto l1AB8_0E82;
 	}
 
-	LG16(0xB848) = fn1AB8_1C93();
+	LG16(0xB848) = bgi_get_current_page();
 	LG16(0xB84A) = LG16(0xB7CE);
 	LG16(0xB84C) = 0x2710;
 	LG8(0xB84E) = 0x01;
-	fn1AB8_0AEE();
+	bgi_init_graphics_system();
 	LG16(0xB818) = 0x0000;
 
 l1AB8_0E82:
 	return 0x0000;   /* DGROUP selector dropped in the flat model */
 }
 
-// 1AB8:0E88: void fn1AB8_0E88(void)
-void fn1AB8_0E88(void)
+// 1AB8:0E88: void bgi_swap_graphics_gateway(void)
+void bgi_swap_graphics_gateway(void)  /* was fn1AB8_0E88 */
 {
-	fn1AB8_18E3();
+	bgi_set_video_mode();
 	if ((LG16(0xB824) | LG16(0xB826)) == 0x00)
 	{
 		u16 dx_25 = LG16(0xB822);
@@ -389,8 +389,8 @@ void fn1AB8_0E88(void)
 	}
 }
 
-// 1AB8:0EB5: void fn1AB8_0EB5(void)
-void fn1AB8_0EB5(void)
+// 1AB8:0EB5: void bgi_shutdown_video_driver(void)
+void bgi_shutdown_video_driver(void)  /* was fn1AB8_0EB5 */
 {
 	u16 wLoc02;     /* [bp-0002h] loop index */
 	u16 dx_72;
@@ -401,9 +401,9 @@ void fn1AB8_0EB5(void)
 		return;
 	}
 
-	fn1AB8_0E88();
+	bgi_swap_graphics_gateway();
 	/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-	fn1AB8_0538(LG16(0xB7B6), (u32 *)&g_dgroup[0xB82E]);
+	bgi_free_driver_blob(LG16(0xB7B6), (u32 *)&g_dgroup[0xB82E]);
 
 	if ((LG16(0xB828) | LG16(0xB82A)) != 0x00)
 	{
@@ -414,8 +414,8 @@ void fn1AB8_0EB5(void)
 	}
 
 	/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-	fn1AB8_0538(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
-	fn1AB8_0813(&dx_72);
+	bgi_free_driver_blob(LG16(0xB82C), (u32 *)&g_dgroup[0xB828]);
+	bgi_init_graphics_error(&dx_72);
 
 	wLoc02 = 0x0001;
 	for (;;)
@@ -426,7 +426,7 @@ void fn1AB8_0EB5(void)
 		    (ptrLoc08->w0000 | ptrLoc08->w0002) != 0x00)
 		{
 			/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-			fn1AB8_0538(ptrLoc08->w0008, (u32 *)ptrLoc08);
+			bgi_free_driver_blob(ptrLoc08->w0008, (u32 *)ptrLoc08);
 			ptrLoc08->w0008 = 0x0000;
 			ptrLoc08->w0000 = 0x0000;
 			ptrLoc08->w0002 = 0x0000;

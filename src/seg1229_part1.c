@@ -45,12 +45,12 @@ void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 	u16 ax_10E1;
 
 	/* push [bp+0Ch..6h] ; push 1h ; far 1AB8:0F93 */
-	fn1AB8_0F93(0x01, wArg04, wArg06, wArg08, wArg0A);
-	fn1AB8_1028();
+	bgi_draw_text_rectangle(0x01, wArg04, wArg06, wArg08, wArg0A);
+	bgi_update_text_window_position();
 	/* mov ax,[0B7C2h] (10CE), then 10E1, then pop the two staged zeros */
-	ax_10CE = fn1AB8_10CE();
-	ax_10E1 = fn1AB8_10E1();
-	fn1AB8_0F93(0x01, ax_10E1, ax_10CE, 0x00, 0x00);
+	ax_10CE = bgi_get_text_cols();
+	ax_10E1 = bgi_get_text_rows();
+	bgi_draw_text_rectangle(0x01, ax_10E1, ax_10CE, 0x00, 0x00);
 }
 
 // 1229:0040: u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)
@@ -59,12 +59,12 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 	u8  buf410[0x100];   /* [bp-0410h] final assembled string */
 	u8  buf310[0x100];   /* [bp-0310h] field scratch */
 	u16 wLoc212;         /* [bp-0210h] 5000/10000 blink counter */
-	u16 wLoc20E;         /* [bp-020Eh] fn1AB8_10A8() saved for the '8' branch */
+	u16 wLoc20E;         /* [bp-020Eh] bgi_get_text_foreground() saved for the '8' branch */
 	u16 wLoc20C;         /* [bp-020Ch] midpoint of wArg08/wArg0C */
-	u16 wLoc20A;         /* [bp-020Ah] fn1AB8_10A8() latched at loop entry */
+	u16 wLoc20A;         /* [bp-020Ah] bgi_get_text_foreground() latched at loop entry */
 	u8  bLoc207;         /* [bp-0207h] current key */
 	u8  buf206[0x100];   /* [bp-0206h] accumulated length-prefixed text */
-	u16 wLoc106;         /* [bp-0106h] fn1AB8_13A3 result */
+	u16 wLoc106;         /* [bp-0106h] bgi_clamp_rectangle_coords result */
 	u16 wLoc104;         /* [bp-0104h] allocated block offset */
 	u16 wLoc102;         /* [bp-0102h] allocated block segment */
 	u8  buf100[0x100];   /* [bp-0100h] first format buffer */
@@ -86,8 +86,8 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 
 	/* fn1EDA_0A39(0FFh, ss:bp-0100h, ptrArg04) : copy the caller's prompt */
 	fn1EDA_0A39(0xFF, buf100, ptrArg04, &dx_1308);
-	fn1AB8_1C32(0x0B);
-	ax_56 = fn1AB8_13A3(wArg08, wArg0A, wArg0C, wArg0E);
+	bgi_get_text_cursor_attributes(0x0B);
+	ax_56 = bgi_clamp_rectangle_coords(wArg08, wArg0A, wArg0C, wArg0E);
 	wLoc106 = ax_56;
 	/* fn1EDA_023F: allocate ax_56 bytes; DX:AX = far block.  The frozen
 	 * wArg00/wArg02 are the far return-address words (the .asm pushes only
@@ -95,20 +95,20 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 	dx_ax_1306 = fn1EDA_023F(ax_56, 0x0000, 0x0000, &ds_75);
 	wLoc104 = (u16)dx_ax_1306;
 	wLoc102 = (u16)(dx_ax_1306 >> 16);
-	fn1AB8_1E6B(far_ptr(((u32)wLoc102 << 16) | (u32)wLoc104),
+	bgi_draw_clip_rectangle(far_ptr(((u32)wLoc102 << 16) | (u32)wLoc104),
 	            wArg08, wArg0A, wArg0C, wArg0E);
 	fn1229_0000(wArg08, wArg0A, wArg0C, wArg0E);
-	fn1AB8_112E(wArg08, wArg0A, wArg0C, wArg0E);
-	fn1AB8_1536(0x01, 0x00, 0x00, &ds_171);
-	fn1AB8_14F4(0x01, 0x00);
+	bgi_clip_text_rectangle(wArg08, wArg0A, wArg0C, wArg0E);
+	bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_171);
+	bgi_set_text_rectangle(0x01, 0x00);
 	/* mov ax,[bp+0Ah] ; sub ax,[bp+0Eh] ; shr ax,1 ; add ax,[bp+0Eh] */
 	wLoc20C = (u16)(((u16)(wArg08 - wArg0C) >> 0x01) + wArg0C);
-	fn1AB8_1D82(buf100, wLoc20C,
-	            (u16)(fn1AB8_1E0B(&g_seg1229[0x0036]) + wArg0E), &ch_1309);
+	bgi_get_char_size_info(buf100, wLoc20C,
+	            (u16)(bgi_advance_text_pointer(&g_seg1229[0x0036]) + wArg0E), &ch_1309);
 	fn1EDA_0A1F(&g_seg1229[0x0039], buf310);
 	fn1EDA_0AAC(buf100, buf310);
-	fn1AB8_108B(wLoc20C, (u16)(fn1AB8_1E0B(buf310) + wArg0E));
-	wLoc20A = fn1AB8_10A8();
+	bgi_set_text_color(wLoc20C, (u16)(bgi_advance_text_pointer(buf310) + wArg0E));
+	wLoc20A = bgi_get_text_foreground();
 	buf206[0] = 0x00;
 	bLoc207 = 0x25;      /* '%' */
 	wLoc212 = 0x0000;
@@ -121,10 +121,10 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 			u16 ax1;
 			u16 ax2;
 
-			fn1AB8_1C32(0x0B);
-			ax1 = fn1AB8_10A8();
-			ax2 = fn1AB8_10A8();
-			fn1AB8_1AF6((u16)(wLoc20C - 0x0006), ax2,
+			bgi_get_text_cursor_attributes(0x0B);
+			ax1 = bgi_get_text_foreground();
+			ax2 = bgi_get_text_foreground();
+			bgi_set_pixel((u16)(wLoc20C - 0x0006), ax2,
 			            (u16)(wLoc20C + 0x0006), ax1, &dx_1310);
 		}
 		if (wLoc212 == 0x2710)
@@ -133,10 +133,10 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 			u16 ax2;
 
 			wLoc212 = 0x0000;
-			fn1AB8_1C32(0x00);
-			ax1 = fn1AB8_10A8();
-			ax2 = fn1AB8_10A8();
-			fn1AB8_1AF6((u16)(wLoc20C - 0x0006), ax2,
+			bgi_get_text_cursor_attributes(0x00);
+			ax1 = bgi_get_text_foreground();
+			ax2 = bgi_get_text_foreground();
+			bgi_set_pixel((u16)(wLoc20C - 0x0006), ax2,
 			            (u16)(wLoc20C + 0x0006), ax1, &dx_1311);
 		}
 
@@ -145,12 +145,12 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 			u16 ax1;
 			u16 ax2;
 
-			fn1AB8_1C32(0x00);
-			ax1 = fn1AB8_10A8();
-			ax2 = fn1AB8_10A8();
-			fn1AB8_1AF6((u16)(wLoc20C - 0x0006), ax2,
+			bgi_get_text_cursor_attributes(0x00);
+			ax1 = bgi_get_text_foreground();
+			ax2 = bgi_get_text_foreground();
+			bgi_set_pixel((u16)(wLoc20C - 0x0006), ax2,
 			            (u16)(wLoc20C + 0x0006), ax1, &dx_451);
-			fn1AB8_1C32(0x0A);
+			bgi_get_text_cursor_attributes(0x0A);
 			bLoc207 = (u8)fn1EDA_1384(
 				(u8)fn1E78_030D((s16)dx_451, 0x000A, &dx_1312));
 
@@ -162,14 +162,14 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 				s32 v_a;
 				s32 v_b;
 
-				ax_788 = (u16)(wArg0A - fn1AB8_1E0B(&g_seg1229[0x0036]));
-				v_a = (s32)(s16)fn1AB8_10A8();
+				ax_788 = (u16)(wArg0A - bgi_advance_text_pointer(&g_seg1229[0x0036]));
+				v_a = (s32)(s16)bgi_get_text_foreground();
 				v_b = (s32)(u32)ax_788;
 				if (v_a < v_b)
 				{
 					/* l1229_0229 */
 					fn1EDA_0B4F(bLoc207, buf310);
-					fn1AB8_1492(buf310);
+					bgi_draw_text_string(buf310);
 					fn1EDA_0A1F(buf206, buf410);
 					fn1EDA_0B4F(bLoc207, buf310);
 					fn1EDA_0AAC(buf310, buf410);
@@ -195,28 +195,28 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 				u16 sum2;
 				u16 sum4;
 
-				ax_488 = fn1AB8_10A8();
+				ax_488 = bgi_get_text_foreground();
 				v_a = (s32)(u16)wLoc20A;
 				v_b = (s32)(s16)ax_488;
 				if (v_a < v_b)
 				{
-					wLoc20E = fn1AB8_10A8();
-					q1 = fn1AB8_1E0B(&g_seg1229[0x003E]);
-					p2 = fn1AB8_10A8();
+					wLoc20E = bgi_get_text_foreground();
+					q1 = bgi_advance_text_pointer(&g_seg1229[0x003E]);
+					p2 = bgi_get_text_foreground();
 					diff1 = (u16)(p2 - q1);
-					r1 = fn1AB8_1783(&g_seg1229[0x003E]);
-					s1 = fn1AB8_10BB();
+					r1 = bgi_display_error_string(&g_seg1229[0x003E]);
+					s1 = bgi_get_text_background();
 					diff3 = (u16)(s1 - (u16)(r1 >> 0x01));
-					q2 = fn1AB8_1E0B(&g_seg1229[0x003E]);
-					p3 = fn1AB8_10A8();
+					q2 = bgi_advance_text_pointer(&g_seg1229[0x003E]);
+					p3 = bgi_get_text_foreground();
 					sum2 = (u16)(p3 + q2);
-					r2 = fn1AB8_1783(&g_seg1229[0x003E]);
-					s2 = fn1AB8_10BB();
+					r2 = bgi_display_error_string(&g_seg1229[0x003E]);
+					s2 = bgi_get_text_background();
 					sum4 = (u16)(s2 + (u16)(r2 >> 0x01));
 					fn1229_0000(sum4, sum2, diff3, diff1);
-					fn1AB8_108B(wLoc20C,
+					bgi_set_text_color(wLoc20C,
 					            (u16)(wLoc20E -
-					                  fn1AB8_1E0B(&g_seg1229[0x003E])));
+					                  bgi_advance_text_pointer(&g_seg1229[0x003E])));
 					/* l1229_0353: the .asm pushes buf206[0]; Reko's
 					 * `0` constant is shadowed here by the real byte. */
 					fn1EDA_0BD0(0x01, (u16)buf206[0], buf206);
@@ -230,7 +230,7 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 
 	/* l1229_0353: repaint the block, free it, then format the result into
 	 * the caller's persistent pointer ptrArg10 ([bp+12h]). */
-	fn1AB8_13D7(0x00,
+	bgi_signed_rectangle_intersect(0x00,
 	            far_ptr(((u32)wLoc102 << 16) | (u32)wLoc104),
 	            wArg0C, wArg0E);
 	ret_0254 = fn1EDA_0254(wLoc106, wLoc104, wLoc102, 0,
@@ -350,10 +350,10 @@ u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
 
 	/* idiv by 2 is signed (cwd + idiv).  Push order in the .asm is
 	 * ax_55, ax_71, ax_87, ax_103 (so 0040 receives D,C,B,A). */
-	ax_55 = (u16)(((s16)fn1AB8_10CE() / 0x0002) - 0x0068);
-	ax_71 = (u16)(((s16)fn1AB8_10E1() / 0x0002) - 0x0010);
-	ax_87 = (u16)(((s16)fn1AB8_10CE() / 0x0002) + 0x0068);
-	ax_103 = (u16)(((s16)fn1AB8_10E1() / 0x0002) + 0x0010);
+	ax_55 = (u16)(((s16)bgi_get_text_cols() / 0x0002) - 0x0068);
+	ax_71 = (u16)(((s16)bgi_get_text_rows() / 0x0002) - 0x0010);
+	ax_87 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x0068);
+	ax_103 = (u16)(((s16)bgi_get_text_rows() / 0x0002) + 0x0010);
 
 	fn1EDA_0A1F(&g_seg1229[0x0503], buf20A);     /* cs:0503 = {1," "} */
 	fn1EDA_0AAC(buf102, buf20A);
@@ -396,10 +396,10 @@ u16 fn1229_061B(s16 * dxOut, u16 * dsOut)
 
 	bLoc01 = 0x00;
 
-	ax_29 = (u16)(((s16)fn1AB8_10CE() / 0x0002) - 0x00B0);
-	ax_45 = (u16)(((s16)fn1AB8_10E1() / 0x0002) - 0x0010);
-	ax_61 = (u16)(((s16)fn1AB8_10CE() / 0x0002) + 0x00B0);
-	ax_77 = (u16)(((s16)fn1AB8_10E1() / 0x0002) + 0x0010);
+	ax_29 = (u16)(((s16)bgi_get_text_cols() / 0x0002) - 0x00B0);
+	ax_45 = (u16)(((s16)bgi_get_text_rows() / 0x0002) - 0x0010);
+	ax_61 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x00B0);
+	ax_77 = (u16)(((s16)bgi_get_text_rows() / 0x0002) + 0x0010);
 
 	fn1EDA_0A1F(&g_seg1229[0x05F8], buf108);     /* cs:05F8 = {1," "} */
 	fn1EDA_0AAC(&g_dgroup[0x5CB4], buf108);
@@ -412,7 +412,7 @@ u16 fn1229_061B(s16 * dxOut, u16 * dsOut)
 	if (fn1EDA_0B24(&g_seg1229[0x0619], buf4, &ax_290, &dx_191) != 0x00)
 		bLoc01 = 0x01;
 
-	fn1AB8_1C32(0x0F);
+	bgi_get_text_cursor_attributes(0x0F);
 	/* original: wait for the keyboard buffer to drain */
 	while (fn1E78_02FB() != 0x00)
 		;

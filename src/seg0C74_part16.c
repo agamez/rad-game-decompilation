@@ -87,7 +87,7 @@ u8 engine_frame_dispatch /* was fn0C74_522C */(u16 *bpOut, void *dsOut)
 // 0C74:5258: u8 engine_frame_pull_in_extended(u16 * dsOut)
 //
 // Extended "pull-in" frame update.  Dispatches on [5968h] exactly as 522C but
-// runs two edge probes per state (fn1AB8_1E3C) before invoking the state's
+// runs two edge probes per state (bgi_draw_line) before invoking the state's
 // pair of drawing helpers (396E/45CE for state 1, 3F74/4999 for 0FFFFh).  It
 // then sets up the [bp-4h]/[bp-8h] rectangle edges from [596C]/[5970]
 // according to the state, probes the [596Eh]+15h/+14h pixels, picks a start row
@@ -105,11 +105,11 @@ u8 engine_frame_pull_in_extended /* was fn0C74_5258 */(u16 *dsOut)
 	u16 wLoc0A = 0x0000;    /* [bp-0Ah] saved start row */
 	u16 wLoc0C = 0x0000;    /* [bp-0Ch] 023F block segment */
 	u16 wLoc0E = 0x0000;    /* [bp-0Eh] 023F block offset */
-	u16 wLoc10 = 0x0000;    /* [bp-10h] fn1AB8_13A3 size */
+	u16 wLoc10 = 0x0000;    /* [bp-10h] bgi_clamp_rectangle_coords size */
 	u16 bpTmp  = 0x0000;    /* 396E / 45CE / 3F74 / 4999 bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
-	u16 dxTmp  = 0x0000;    /* fn1AB8_1AF6 / fn1EDA_0254 dxOut */
-	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
+	u16 dxTmp  = 0x0000;    /* bgi_set_pixel / fn1EDA_0254 dxOut */
+	u8  dlTmp  = 0x00;      /* bgi_draw_line dlOut */
 	{
 		static int tr = -1;
 		if (tr < 0) tr = (getenv("RAD_ROBOT_TRACE") != NULL);
@@ -122,12 +122,12 @@ u8 engine_frame_pull_in_extended /* was fn0C74_5258 */(u16 *dsOut)
 	switch (LG16(0x5968))
 	{
 	case 0x0001:
-		/* 5268: fn1AB8_1E3C([58BAh], [58B6h]+1) ; jz 5297h */
-		if (fn1AB8_1E3C(LG16(0x58BA), (u16)(LG16(0x58B6) + 0x0001),
+		/* 5268: bgi_draw_line([58BAh], [58B6h]+1) ; jz 5297h */
+		if (bgi_draw_line(LG16(0x58BA), (u16)(LG16(0x58B6) + 0x0001),
 		                &dlTmp) != 0x00)
 		{
-			/* 527A: fn1AB8_1E3C([58BAh]-0Ch, [58B6h]+0Ch) ; jz 5297h */
-			if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x000C),
+			/* 527A: bgi_draw_line([58BAh]-0Ch, [58B6h]+0Ch) ; jz 5297h */
+			if (bgi_draw_line((u16)(LG16(0x58BA) - 0x000C),
 			                (u16)(LG16(0x58B6) + 0x000C), &dlTmp) != 0x00)
 			{
 				/* l0C74_5291: call 396Eh ; mov [bp-2h],al */
@@ -143,12 +143,12 @@ u8 engine_frame_pull_in_extended /* was fn0C74_5258 */(u16 *dsOut)
 		break;
 
 	case 0xFFFF:
-		/* 52AA: fn1AB8_1E3C([58BAh], [58B4h]-1) ; jz 52D9h */
-		if (fn1AB8_1E3C(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0001),
+		/* 52AA: bgi_draw_line([58BAh], [58B4h]-1) ; jz 52D9h */
+		if (bgi_draw_line(LG16(0x58BA), (u16)(LG16(0x58B4) - 0x0001),
 		                &dlTmp) != 0x00)
 		{
-			/* 52BC: fn1AB8_1E3C([58BAh]-0Ch, [58B4h]-0Ch) ; jz 52D9h */
-			if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x000C),
+			/* 52BC: bgi_draw_line([58BAh]-0Ch, [58B4h]-0Ch) ; jz 52D9h */
+			if (bgi_draw_line((u16)(LG16(0x58BA) - 0x000C),
 			                (u16)(LG16(0x58B4) - 0x000C), &dlTmp) != 0x00)
 			{
 				/* l0C74_52D3: call 3F74h ; mov [bp-2h],al */
@@ -179,17 +179,17 @@ u8 engine_frame_pull_in_extended /* was fn0C74_5258 */(u16 *dsOut)
 	else
 		wLoc08 = (u16)(LG16(0x596C) + 0x0015);    /* 5315 */
 
-	/* 531E: fn1AB8_1E3C([596Eh]+15h, [bp-8h]) ; jnz 535Ch */
-	if (fn1AB8_1E3C((u16)(LG16(0x596E) + 0x0015), wLoc08, &dlTmp) == 0x00)
+	/* 531E: bgi_draw_line([596Eh]+15h, [bp-8h]) ; jnz 535Ch */
+	if (bgi_draw_line((u16)(LG16(0x596E) + 0x0015), wLoc08, &dlTmp) == 0x00)
 	{
-		/* 5331: fn1AB8_1E3C([596Eh]+14h, [bp-8h]) ; jz 535Ch */
-		if (fn1AB8_1E3C((u16)(LG16(0x596E) + 0x0014), wLoc08,
+		/* 5331: bgi_draw_line([596Eh]+14h, [bp-8h]) ; jz 535Ch */
+		if (bgi_draw_line((u16)(LG16(0x596E) + 0x0014), wLoc08,
 		                &dlTmp) != 0x00)
 		{
 			/* 5344: mov [bp-6h],[596Eh]+15h ;
-			 *       fn1AB8_1E54(8h, [bp-6h], [bp-8h]) ; jmp 5363h */
+			 *       bgi_get_line_attributes(8h, [bp-6h], [bp-8h]) ; jmp 5363h */
 			wLoc06 = (u16)(LG16(0x596E) + 0x0015);
-			(void)fn1AB8_1E54(0x08, wLoc06, wLoc08);
+			(void)bgi_get_line_attributes(0x08, wLoc06, wLoc08);
 			goto l0C74_5363;
 		}
 	}
@@ -201,11 +201,11 @@ l0C74_5363:
 	wLoc0A = wLoc06;
 
 	/* l0C74_5369: while ([bp-6h] > 2h) {
-	 *   if (fn1AB8_1E3C([bp-6h],[bp-8h]) != 8h) break;
+	 *   if (bgi_draw_line([bp-6h],[bp-8h]) != 8h) break;
 	 *   [bp-6h] -= 16h; } */
 	while (wLoc06 > 0x0002)
 	{
-		if (fn1AB8_1E3C(wLoc06, wLoc08, &dlTmp) != 0x08)
+		if (bgi_draw_line(wLoc06, wLoc08, &dlTmp) != 0x08)
 			break;
 		wLoc06 = (u16)(wLoc06 - 0x0016);
 	}
@@ -216,7 +216,7 @@ l0C74_5363:
 
 	/* 5390: push [bp-4h] ; push [bp-6h]-1 ; push [bp-8h] ; push [bp-6h] ;
 	 *       call far 13A3h ; mov [bp-10h],ax */
-	wLoc10 = fn1AB8_13A3(wLoc06, wLoc08, (u16)(wLoc06 - 0x0001), wLoc04);
+	wLoc10 = bgi_clamp_rectangle_coords(wLoc06, wLoc08, (u16)(wLoc06 - 0x0001), wLoc04);
 
 	/* 53A6: push [bp-10h] ; call far 023Fh ;
 	 *       mov [bp-0Eh],ax ; mov [bp-0Ch],dx */
@@ -228,17 +228,17 @@ l0C74_5363:
 
 	/* 53B3: push [bp-4h] ; push [bp-6h]-1 ; push [bp-8h] ; push [bp-6h] ;
 	 *       les di,[bp-0Eh] ; push es ; push di ; call far 1E6Bh */
-	fn1AB8_1E6B((u8 *)far_ptr(FAR_PTR(wLoc0C, wLoc0E)),
+	bgi_draw_clip_rectangle((u8 *)far_ptr(FAR_PTR(wLoc0C, wLoc0E)),
 	            wLoc06, wLoc08, (u16)(wLoc06 - 0x0001), wLoc04);
 
 	/* 53D0: push 0h ; push 0h ; push 1h ; call far 10F4h */
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
 	/* 53E2: push 0h ; call far 1C32h */
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_text_cursor_attributes(0x00);
 
 	/* 53E9: push [bp-4h] ; push [bp-6h] ; push [bp-8h] ; push [bp-6h] ;
 	 *       call far 1AF6h */
-	(void)fn1AB8_1AF6(wLoc06, wLoc08, wLoc06, wLoc04, &dxTmp);
+	(void)bgi_set_pixel(wLoc06, wLoc08, wLoc06, wLoc04, &dxTmp);
 
 	/* 53FB: push [bp-4h] ; push [bp-6h] ; push [bp-8h] ; push [bp-0Ah] ;
 	 *       call 2BBDh */
@@ -246,7 +246,7 @@ l0C74_5363:
 
 	/* 5405: push [bp-4h] ; push [bp-6h]-1 ; les di,[bp-0Eh] ; push es ;
 	 *       push di ; push 0h ; call far 13D7h */
-	(void)fn1AB8_13D7(0x00,
+	(void)bgi_signed_rectangle_intersect(0x00,
 	                  (u8 *)far_ptr(FAR_PTR(wLoc0C, wLoc0E)),
 	                  (u16)(wLoc06 - 0x0001), wLoc04);
 
@@ -272,21 +272,21 @@ u8 engine_frame_retract /* was fn0C74_542B */(u16 *dsOut)
 	u16 bpTmp  = 0x0000;    /* 4FD7 / 4DAC bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
 	u16 dxTmp  = 0x0000;    /* engine_bar_march / 37C3 dxOut scratch */
-	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
+	u8  dlTmp  = 0x00;      /* bgi_draw_line dlOut */
 
 	/* 542B: mov ax,[5968h] ; cmp ax,1h ; jnz 5472h */
 	switch (LG16(0x5968))
 	{
 	case 0x0001:
-		/* 543B: fn1AB8_1E3C([58BAh]+1, [58B6h]+1) ; jnz 546Ch */
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+		/* 543B: bgi_draw_line([58BAh]+1, [58B6h]+1) ; jnz 546Ch */
+		if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 		                (u16)(LG16(0x58B6) + 0x0001), &dlTmp) != 0x00)
 		{
 			bLoc01 = 0x00;         /* l0C74_546C */
 			break;
 		}
-		/* 544E: fn1AB8_1E3C([58BAh]-1, [58B6h]+1) ; jnz 546Ch */
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0001),
+		/* 544E: bgi_draw_line([58BAh]-1, [58B6h]+1) ; jnz 546Ch */
+		if (bgi_draw_line((u16)(LG16(0x58BA) - 0x0001),
 		                (u16)(LG16(0x58B6) + 0x0001), &dlTmp) != 0x00)
 		{
 			bLoc01 = 0x00;         /* l0C74_546C */
@@ -298,15 +298,15 @@ u8 engine_frame_retract /* was fn0C74_542B */(u16 *dsOut)
 		break;
 
 	case 0xFFFF:
-		/* 5477: fn1AB8_1E3C([58BAh]+1, [58B4h]-1) ; jnz 54A8h */
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+		/* 5477: bgi_draw_line([58BAh]+1, [58B4h]-1) ; jnz 54A8h */
+		if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 		                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0x00)
 		{
 			bLoc01 = 0x00;         /* l0C74_54A8 */
 			break;
 		}
-		/* 548A: fn1AB8_1E3C([58BAh]-1, [58B4h]-1) ; jnz 54A8h */
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0001),
+		/* 548A: bgi_draw_line([58BAh]-1, [58B4h]-1) ; jnz 54A8h */
+		if (bgi_draw_line((u16)(LG16(0x58BA) - 0x0001),
 		                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0x00)
 		{
 			bLoc01 = 0x00;         /* l0C74_54A8 */
@@ -334,17 +334,17 @@ u8 engine_probe_march_right /* was fn0C74_54B1 */(u16 *dxOut, u16 *bpOut, void *
 	u16 bpTmp  = 0x0000;    /* engine_bar_march bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
 	u16 dxTmp  = 0x0000;    /* engine_bar_march dxOut scratch */
-	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
+	u8  dlTmp  = 0x00;      /* bgi_draw_line dlOut */
 
 	/* 54B1: mov byte [58BCh],1h */
 	LG8(0x58BC) = 0x01;
 
-	/* 54B8: fn1AB8_1E3C([58BAh]+1, [58B6h]+1) ; jnz 54E5h */
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+	/* 54B8: bgi_draw_line([58BAh]+1, [58B6h]+1) ; jnz 54E5h */
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 	                (u16)(LG16(0x58B6) + 0x0001), &dlTmp) == 0x00)
 	{
-		/* 54CD: fn1AB8_1E3C([58BAh]+1, [58B6h]+17h) ; jz 54E5h */
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+		/* 54CD: bgi_draw_line([58BAh]+1, [58B6h]+17h) ; jz 54E5h */
+		if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 		                (u16)(LG16(0x58B6) + 0x0017), &dlTmp) != 0x00)
 		{
 			/* l0C74_54E2: call 2AD9h */
@@ -374,17 +374,17 @@ u8 engine_probe_march_left /* was fn0C74_54F0 */(u16 *dxOut, u16 *bpOut, void *d
 	u16 bpTmp  = 0x0000;    /* engine_bar_retract bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
 	u16 dxTmp  = 0x0000;    /* engine_bar_retract dxOut scratch */
-	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
+	u8  dlTmp  = 0x00;      /* bgi_draw_line dlOut */
 
 	/* 54F0: mov byte [58BCh],1h */
 	LG8(0x58BC) = 0x01;
 
-	/* 54F7: fn1AB8_1E3C([58BAh]+1, [58B4h]-1) ; jnz 5524h */
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+	/* 54F7: bgi_draw_line([58BAh]+1, [58B4h]-1) ; jnz 5524h */
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 	                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) == 0x00)
 	{
-		/* 550C: fn1AB8_1E3C([58BAh]+1, [58B4h]-17h) ; jz 5524h */
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001),
+		/* 550C: bgi_draw_line([58BAh]+1, [58B4h]-17h) ; jz 5524h */
+		if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001),
 		                (u16)(LG16(0x58B4) - 0x0017), &dlTmp) != 0x00)
 		{
 			/* l0C74_5521: call 2AD9h */

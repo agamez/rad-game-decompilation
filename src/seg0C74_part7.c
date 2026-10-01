@@ -85,7 +85,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 	}
 
 	/* push 0h ; push 0h ; push 1Ch ; push 2Bh ; call 13A3h */
-	LG16(0x595E) = fn1AB8_13A3(0x002B, 0x001C, 0x0000, 0x0000);
+	LG16(0x595E) = bgi_clamp_rectangle_coords(0x002B, 0x001C, 0x0000, 0x0000);
 
 	/* push [595Eh] ; call 023Fh -> DX:AX block */
 	{
@@ -96,7 +96,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 
 	/* push [58B4h] ; push [58B8h] ; push ([58B4h]+2Bh) ; push ([58B8h]+1Ch) ;
 	 * les di,[bp-6h] ; push es ; push di ; call 1E6Bh */
-	fn1AB8_1E6B(far_ptr(((u32)wLoc04 << 16) | (u32)wLoc06),
+	bgi_draw_clip_rectangle(far_ptr(((u32)wLoc04 << 16) | (u32)wLoc06),
 	            (u16)(LG16(0x58B8) + 0x001C),
 	            (u16)(LG16(0x58B4) + 0x002B),
 	            LG16(0x58B8), LG16(0x58B4));
@@ -113,7 +113,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 			LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
 			/* push [58B4h] ; push [58B8h] ; les di,[bp-6h] ;
 			 * push es ; push di ; push 0h ; call 13D7h */
-			fn1AB8_13D7(0x00,
+			bgi_signed_rectangle_intersect(0x00,
 			            far_ptr(((u32)wLoc04 << 16) | (u32)wLoc06),
 			            LG16(0x58B8), LG16(0x58B4));
 		}
@@ -165,7 +165,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 // 13D7, draws the sprite (block1) with 1E6B, then marches wArg02/wArg06 while
 // the 1E3C attribute probe returns 0.  When wArg02 reaches 0x176 and the first
 // probe returned 0x0F it runs a nested 8x11x21 colour-fade that hammers
-// fn11C8_0354 (sound) and fn1AB8_1E54 (pixel plots), then restores the HUD and
+// fn11C8_0354 (sound) and bgi_get_line_attributes (pixel plots), then restores the HUD and
 // ticks the sound.  It finally frees block1 and, if the counter stayed below
 // DGROUP:4D0Ah and wArg02 < 0x172, calls engine_scatter_starfield.
 u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
@@ -174,21 +174,21 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 	u16 wLoc04 = 0x0000;   /* [bp-04h] block1 offset  (AX of first 023F) */
 	u16 wLoc06 = 0x0000;   /* [bp-06h] block2 segment (DX of second 023F) */
 	u16 wLoc08 = 0x0000;   /* [bp-08h] block2 offset  (AX of second 023F) */
-	u16 wLoc0A = 0x0000;   /* [bp-0Ah] second fn1AB8_13A3 size (block2) */
-	u16 wLoc0C = 0x0000;   /* [bp-0Ch] first  fn1AB8_13A3 size (block1) */
+	u16 wLoc0A = 0x0000;   /* [bp-0Ah] second bgi_clamp_rectangle_coords size (block2) */
+	u16 wLoc0C = 0x0000;   /* [bp-0Ch] first  bgi_clamp_rectangle_coords size (block1) */
 	u16 wLoc0E = 0x0000;   /* [bp-0Eh] loop counter (compared to 4D0Ah) */
-	u8  bLoc0F = 0x00;     /* [bp-0Fh] first fn1AB8_1E3C result (attribute) */
+	u8  bLoc0F = 0x00;     /* [bp-0Fh] first bgi_draw_line result (attribute) */
 	u8  bLoc10 = 0x01;     /* [bp-10h] inner loop index */
 	u8  bLoc11 = 0x00;     /* [bp-11h] middle loop index */
 	u8  bLoc12 = 0x0F;     /* [bp-12h] outer loop index */
 	u16 dsTmp  = 0x0000;   /* dropped DGROUP selector out */
-	u16 dxTmp  = 0x0000;   /* fn1AB8_1AF6 / fn1EDA_0254 dxOut */
-	u8  dlTmp  = 0x00;     /* fn1AB8_1E3C dlOut */
+	u16 dxTmp  = 0x0000;   /* bgi_set_pixel / fn1EDA_0254 dxOut */
+	u8  dlTmp  = 0x00;     /* bgi_draw_line dlOut */
 
 	/* push [bp+0Ah] ; push [bp+8h] ; push [bp+6h] ; push [bp+4h] ; call 13A3h */
-	wLoc0C = fn1AB8_13A3(wArg02, wArg04, wArg06, wArg08);
+	wLoc0C = bgi_clamp_rectangle_coords(wArg02, wArg04, wArg06, wArg08);
 	/* push [bp+0Ah] ; push [bp+8h] ; push [bp+6h] ; push [bp+8h] ; call 13A3h */
-	wLoc0A = fn1AB8_13A3(wArg06, wArg04, wArg06, wArg08);
+	wLoc0A = bgi_clamp_rectangle_coords(wArg06, wArg04, wArg06, wArg08);
 
 	/* push [bp-0Ch] ; call 023Fh  -> block1 */
 	{
@@ -205,23 +205,23 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 
 	/* push wArg08 ; push wArg06 ; push wArg04 ; push wArg06 ;
 	 * les di,[bp-8h] ; push es ; push di ; call 1E6Bh */
-	fn1AB8_1E6B(far_ptr(((u32)wLoc06 << 16) | (u32)wLoc08),
+	bgi_draw_clip_rectangle(far_ptr(((u32)wLoc06 << 16) | (u32)wLoc08),
 	            wArg06, wArg04, wArg06, wArg08);
 
 	/* push 0h ; call 1C32h */
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_text_cursor_attributes(0x00);
 
 	/* push wArg08 ; push wArg06 ; push wArg04 ; push wArg06 ; call 1AF6h */
-	(void)fn1AB8_1AF6(wArg06, wArg04, wArg06, wArg08, &dxTmp);
+	(void)bgi_set_pixel(wArg06, wArg04, wArg06, wArg08, &dxTmp);
 
 	/* push wArg08 ; push wArg06 ; push wArg04 ; push wArg02 ;
 	 * les di,[bp-4h] ; push es ; push di ; call 1E6Bh */
-	fn1AB8_1E6B(far_ptr(((u32)wLoc02 << 16) | (u32)wLoc04),
+	bgi_draw_clip_rectangle(far_ptr(((u32)wLoc02 << 16) | (u32)wLoc04),
 	            wArg02, wArg04, wArg06, wArg08);
 
 	/* push wArg08 ; push wArg06 ; les di,[bp-8h] ; push es ; push di ;
 	 * push 0h ; call 13D7h */
-	fn1AB8_13D7(0x00,
+	bgi_signed_rectangle_intersect(0x00,
 	            far_ptr(((u32)wLoc06 << 16) | (u32)wLoc08),
 	            wArg06, wArg08);
 
@@ -230,12 +230,12 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 	                  &dxTmp, &dsTmp);
 
 	/* push wArg08+0Bh ; push wArg02 ; call 1E3Ch ; mov [bp-0Fh],al */
-	bLoc0F = (u8)fn1AB8_1E3C(wArg02, (u16)(wArg08 + 0x000B), &dlTmp);
+	bLoc0F = (u8)bgi_draw_line(wArg02, (u16)(wArg08 + 0x000B), &dlTmp);
 	/* xor ax,ax ; mov [bp-0Eh],ax */
 	wLoc0E = 0x0000;
 
 	/* 2C80: while (1E3C(wArg02+1, wArg08+0Bh) == 0) { ... } */
-	while (fn1AB8_1E3C((u16)(wArg02 + 0x0001), (u16)(wArg08 + 0x000B),
+	while (bgi_draw_line((u16)(wArg02 + 0x0001), (u16)(wArg08 + 0x000B),
 	                   &dlTmp) == 0x0000)
 	{
 		/* mov ax,[58E6h] ; cwd ; mov cx,4h ; idiv cx ; push ax ; call 029Ch */
@@ -248,7 +248,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 
 		/* push wArg08 ; push wArg06 ; les di,[bp-4h] ; push es ; push di ;
 		 * push 0h ; call 13D7h */
-		fn1AB8_13D7(0x00,
+		bgi_signed_rectangle_intersect(0x00,
 		            far_ptr(((u32)wLoc02 << 16) | (u32)wLoc04),
 		            wArg06, wArg08);
 
@@ -282,26 +282,26 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 						if (((u16)bLoc10 % 0x0003) == 0x0000)
 						{
 							/* 2D2C / 2D7D */
-							(void)fn1AB8_1E54(bLoc12,
+							(void)bgi_get_line_attributes(bLoc12,
 							    (u16)((u16)bLoc10 + 0x0161),
 							    (u16)(wArg08 + (u16)bLoc11));
 						}
 						else
 						{
 							/* 2D4C / 2DA4 */
-							(void)fn1AB8_1E54((u8)(bLoc12 - 0x08),
+							(void)bgi_get_line_attributes((u8)(bLoc12 - 0x08),
 							    (u16)((u16)bLoc10 + 0x0161),
 							    (u16)(wArg08 + (u16)bLoc11));
 						}
 						if (((u16)bLoc10 % 0x0003) == 0x0000)
 						{
-							(void)fn1AB8_1E54(bLoc12,
+							(void)bgi_get_line_attributes(bLoc12,
 							    (u16)((u16)bLoc10 + 0x0161),
 							    (u16)((u16)(wArg08 + 0x0015) - (u16)bLoc11));
 						}
 						else
 						{
-							(void)fn1AB8_1E54((u8)(bLoc12 - 0x08),
+							(void)bgi_get_line_attributes((u8)(bLoc12 - 0x08),
 							    (u16)((u16)bLoc10 + 0x0161),
 							    (u16)((u16)(wArg08 + 0x0015) - (u16)bLoc11));
 						}
@@ -325,13 +325,13 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 			} while (1);
 
 			/* 2DE7: mov al,[bp-0Fh] ; push ax ; call 1C32h */
-			(void)fn1AB8_1C32(bLoc0F);
+			(void)bgi_get_text_cursor_attributes(bLoc0F);
 			/* push wArg08 ; push wArg02 ; push wArg04 ; push wArg02 ; call 1AF6h */
-			(void)fn1AB8_1AF6(wArg02, wArg04, wArg02, wArg08, &dxTmp);
+			(void)bgi_set_pixel(wArg02, wArg04, wArg02, wArg08, &dxTmp);
 			/* push 0Ah ; call 1C32h */
-			(void)fn1AB8_1C32(0x0A);
+			(void)bgi_get_text_cursor_attributes(0x0A);
 			/* push wArg08 ; push 161h ; push wArg04 ; push 161h ; call 1AF6h */
-			(void)fn1AB8_1AF6(0x0161, wArg04, 0x0161, wArg08, &dxTmp);
+			(void)bgi_set_pixel(0x0161, wArg04, 0x0161, wArg08, &dxTmp);
 			/* call 033Bh */
 			(void)fn11C8_033B();
 		}

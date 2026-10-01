@@ -22,7 +22,7 @@
  *     pointer staged for the next call.  Reko recovered the staged values
  *     (ptrLoc010C_*) from the pushed buffer; they are passed explicitly here
  *     (same convention as seg0800 parts 1/3 and seg1229 part 2b).
- *   - fn1AB8_1285 has a `void` frozen prototype but materialises AX =
+ *   - bgi_get_text_color_info has a `void` frozen prototype but materialises AX =
  *     (u16)LG8(0xB83E); its 0C74 callers consume that AX (`mov [bp-6h],ax`),
  *     so it is re-read from DGROUP after the call (see seg1AB8_part4.c).
  *   - Register-output / saved-BP artifacts (fn1206_0066/0038 BP+DS outputs,
@@ -97,26 +97,26 @@ void engine_repaint_rect /* was fn0C74_007C */(u16 wArg02, u16 wArg04, u16 wArg0
 	u16 ax_10E1;
 
 	/* push wArg08 ; push wArg06 ; push wArg04 ; push wArg02 ; push 1h */
-	fn1AB8_0F93(0x01, wArg02, wArg04, wArg06, wArg08);
-	fn1AB8_1028();
+	bgi_draw_text_rectangle(0x01, wArg02, wArg04, wArg06, wArg08);
+	bgi_update_text_window_position();
 
 	/* push 0h ; push 0h ; call 10CEh ; push ax ; call 10E1h ; push ax ;
 	 * push 1h ; call 0F93h  -- 10CE first, then 10E1; the two 0h are the
 	 * staged 0F93 wArg0A/wArg0C. */
-	ax_10CE = fn1AB8_10CE();
-	ax_10E1 = fn1AB8_10E1();
-	fn1AB8_0F93(0x01, ax_10E1, ax_10CE, 0x00, 0x00);
+	ax_10CE = bgi_get_text_cols();
+	ax_10E1 = bgi_get_text_rows();
+	bgi_draw_text_rectangle(0x01, ax_10E1, ax_10CE, 0x00, 0x00);
 }
 
 // 0C74:00B2: void engine_advance_stream_cursor(u8 bArg04)
 // Advance the DGROUP stream cursor at 0x58E2 and write a text run at the old
-// position: fn1AB8_1B3E(0x1DF, bArg04+old, 0x1D5, old); then old += bArg04.
+// position: bgi_draw_rectangle(0x1DF, bArg04+old, 0x1D5, old); then old += bArg04.
 void engine_advance_stream_cursor /* was fn0C74_00B2 */(u8 bArg04)
 {
 	u16 wOld = LG16(0x58E2);
 
 	/* push [58E2h] ; push 1D5h ; push ax(bArg04+[58E2h]) ; push 1DFh */
-	fn1AB8_1B3E(0x01DF, (u16)((u16)bArg04 + wOld), 0x01D5, wOld);
+	bgi_draw_rectangle(0x01DF, (u16)((u16)bArg04 + wOld), 0x01D5, wOld);
 	/* mov al,[bp+6h] ; xor ah,ah ; add [58E2h],ax */
 	LG16(0x58E2) = (u16)(wOld + (u16)bArg04);
 }
@@ -127,9 +127,9 @@ void engine_advance_stream_cursor /* was fn0C74_00B2 */(u8 bArg04)
 void engine_set_attr_and_emit_text /* was fn0C74_00DB */(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 {
 	/* push 1h ; push 3h */
-	fn1AB8_1175(0x03, 0x01);
+	bgi_set_text_font_size(0x03, 0x01);
 	/* push wArg0A ; push wArg08 ; push wArg06 ; push wArg04 */
-	fn1AB8_1B3E(wArg04, wArg06, wArg08, wArg0A);
+	bgi_draw_rectangle(wArg04, wArg06, wArg08, wArg0A);
 }
 
 // 0C74:011E: u16 engine_redraw_clock_seconds(u16 * dsOut)
@@ -138,9 +138,9 @@ void engine_set_attr_and_emit_text /* was fn0C74_00DB */(u16 wArg04, u16 wArg06,
 // then repaint the field and show the mouse cursor.
 //
 // Local frame: [bp-0106h] abLoc0106 staged scratch (Reko ptrLoc010C_298/308);
-// [bp-0006h] wLoc06 = fn1AB8_1285 AX result; [bp-0004h] bLoc06 record.
+// [bp-0006h] wLoc06 = bgi_get_text_color_info AX result; [bp-0004h] bLoc06 record.
 // bLoc06 is staged at DGROUP 0xF800 (like fn0800_0AA1's 0xF6E0 / fn0800_0B42's
-// 0xF6F0): fn1AB8_1D82 materializes the record as ES:BX for the driver's 0x26
+// 0xF6F0): bgi_get_char_size_info materializes the record as ES:BX for the driver's 0x26
 // text op, and a C stack buffer resolves to segment 0 there -- the glyphs drew
 // nothing, leaving the clock digits blanked during move animations (the 02D8
 // repaint path).  The original's tiny model had SS==DS so this only bites the
@@ -149,7 +149,7 @@ u16 engine_redraw_clock_seconds /* was fn0C74_011E */(u16 * dsOut)
 {
 	u8  abLoc0106[0x100];   /* [bp-0106h] staged scratch (Reko ptrLoc010C_*) */
 	u8 *bLoc06 = g_dgroup + 0xF800;   /* [bp-0004h] 2-digit record (staged) */
-	u16 wLoc06;             /* [bp-0006h] fn1AB8_1285 AX result */
+	u16 wLoc06;             /* [bp-0006h] bgi_get_text_color_info AX result */
 	u16 dx_343;
 	u16 dx_345;
 	u16 dx_350;
@@ -173,7 +173,7 @@ u16 engine_redraw_clock_seconds /* was fn0C74_011E */(u16 * dsOut)
 		fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_345);
 	}
 
-	fn1AB8_1285();
+	bgi_get_text_color_info();
 	wLoc06 = (u16)LG8(0xB83E);   /* AX = (u16)LG8(0xB83E) (see seg1AB8) */
 
 	/* mov al,[58E4h] ; fn1EDA_0CD4(cs:00FEh, al) ; jnz 0189h */
@@ -183,19 +183,19 @@ u16 engine_redraw_clock_seconds /* was fn0C74_011E */(u16 * dsOut)
 	/* push 24Bh ; push 192h ; push 25Ch ; push 19Bh ; call 00DBh */
 	engine_set_attr_and_emit_text(0x019B, 0x025C, 0x0192, 0x024B);
 
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 	/* push 253h ; push 196h ; push ss:bp-4h ; call 1D82h */
-	(void)fn1AB8_1D82(bLoc06, 0x0196, 0x0253, &ch_346);
-	(void)fn1AB8_1C32(0x0A);
+	(void)bgi_get_char_size_info(bLoc06, 0x0196, 0x0253, &ch_346);
+	(void)bgi_get_text_cursor_attributes(0x0A);
 	/* push 254h ; push 197h ; push ss:bp-4h ; call 1D82h */
-	(void)fn1AB8_1D82(bLoc06, 0x0197, 0x0254, &ch_347);
+	(void)bgi_get_char_size_info(bLoc06, 0x0197, 0x0254, &ch_347);
 
 	/* mov al,[58E4h] ; fn1EDA_0CD4(cs:00FEh, al) ; jnz 01DEh */
 	if (fn1EDA_0CD4(&g_seg0C74[0x00FE], LG8(0x58E4), &es_348) == 0x00)
 		(void)fn1206_0038(&ch_349, &dx_350, &bp_152, &ds_152);
 
 	/* push word [bp-6h] ; call 1C32h */
-	(void)fn1AB8_1C32((u8)wLoc06);
+	(void)bgi_get_text_cursor_attributes((u8)wLoc06);
 
 	*dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */
 	return 0x0000;     /* BP return artifact: not meaningful in flat C */
@@ -210,7 +210,7 @@ u16 engine_redraw_clock_minutes /* was fn0C74_020C */(u16 * dsOut)
 	u8  abLoc0106[0x100];   /* [bp-0106h] staged scratch (Reko ptrLoc010C_*) */
 	u8 *bLoc06 = g_dgroup + 0xF820;   /* [bp-0004h] 2-digit record (staged,
 	                                   * see the engine_redraw_clock_seconds note above) */
-	u16 wLoc06;             /* [bp-0006h] fn1AB8_1285 AX result */
+	u16 wLoc06;             /* [bp-0006h] bgi_get_text_color_info AX result */
 	u16 dx_343;
 	u16 dx_345;
 	u16 dx_350;
@@ -232,7 +232,7 @@ u16 engine_redraw_clock_minutes /* was fn0C74_020C */(u16 * dsOut)
 		fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_345);
 	}
 
-	fn1AB8_1285();
+	bgi_get_text_color_info();
 	wLoc06 = (u16)LG8(0xB83E);   /* AX = (u16)LG8(0xB83E) (see seg1AB8) */
 
 	if (fn1EDA_0CD4(&g_seg0C74[0x01EC], LG8(0x58E4), &es_344) == 0x00)
@@ -241,15 +241,15 @@ u16 engine_redraw_clock_minutes /* was fn0C74_020C */(u16 * dsOut)
 	/* push 233h ; push 192h ; push 244h ; push 19Bh ; call 00DBh */
 	engine_set_attr_and_emit_text(0x019B, 0x0244, 0x0192, 0x0233);
 
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 	/* push 23Bh ; push 196h ; push ss:bp-4h ; call 1D82h */
-	(void)fn1AB8_1D82(bLoc06, 0x0196, 0x023B, &ch_346);
-	(void)fn1AB8_1C32(0x0A);
+	(void)bgi_get_char_size_info(bLoc06, 0x0196, 0x023B, &ch_346);
+	(void)bgi_get_text_cursor_attributes(0x0A);
 	/* push 23Ch ; push 197h ; push ss:bp-4h ; call 1D82h */
-	(void)fn1AB8_1D82(bLoc06, 0x0197, 0x023C, &ch_347);
+	(void)bgi_get_char_size_info(bLoc06, 0x0197, 0x023C, &ch_347);
 
 	/* push word [bp-6h] ; call 1C32h ; mov al,[58E4h] ; call 0CD4h */
-	(void)fn1AB8_1C32((u8)wLoc06);
+	(void)bgi_get_text_cursor_attributes((u8)wLoc06);
 	if (fn1EDA_0CD4(&g_seg0C74[0x01EC], LG8(0x58E4), &es_348) == 0x00)
 		(void)fn1206_0038(&ch_349, &dx_350, &bp_152, &ds_152);
 

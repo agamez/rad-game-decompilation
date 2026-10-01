@@ -10,7 +10,7 @@
  * 10h/16h/21h, no __cli/__sti and no int 23h, so it references no pal_*
  * entry point.  Every BIOS/DOS service reached from here goes through
  * segment 1EDA (fn1EDA_096F, 098A, 0953, 11DF, 0A39) or through the
- * graphics-driver dispatch helpers fn1AB8_1C6A/1CED/1D82/1E0B (segment
+ * graphics-driver dispatch helpers bgi_get_char_info/1CED/1D82/1E0B (segment
  * 1AB8), all replaced in their own ports, not here.
  *
  * VGA far pointers: no segment-0xA000 literal occurs in this chunk, so
@@ -29,8 +29,8 @@
 #include "seg1EDA.h"
 #include "seg1E78.h"
 
-// 1AB8:11FB: u16 fn1AB8_11FB(u16 wArg02, void * dsOut)
-u16 fn1AB8_11FB(u16 wArg02, void * dsOut)
+// 1AB8:11FB: u16 bgi_get_char_byte_width(u16 wArg02, void * dsOut)
+u16 bgi_get_char_byte_width(u16 wArg02, void * dsOut)  /* was fn1AB8_11FB */
 {
 	s16 cx_69;
 	s16 dx_70;
@@ -51,7 +51,7 @@ u16 fn1AB8_11FB(u16 wArg02, void * dsOut)
 	return ax_43;
 }
 
-// 1AB8:122E: u16 fn1AB8_122E(u16 wArg04, u16 wArg06, u16 wArg08)
+// 1AB8:122E: u16 bgi_draw_scaled_text_number(u16 wArg04, u16 wArg06, u16 wArg08)
 //
 // Draw one scaled number with the BGI text driver.  The ONLY caller in the
 // whole program is fn0800_3CFA's machine-speed calibration poll (0800:3D1E):
@@ -66,19 +66,19 @@ u16 fn1AB8_11FB(u16 wArg02, void * dsOut)
 // each poll the emulated machine's cost, exactly like the calibrated 029Ch
 // busy-wait in seg1E78.  With ~10.5ms per poll the window yields ~95 counts
 // -> 58E6h = 7, the designed and DOSBox-observed value.
-u16 fn1AB8_122E(u16 wArg04, u16 wArg06, u16 wArg08)
+u16 bgi_draw_scaled_text_number(u16 wArg04, u16 wArg06, u16 wArg08)  /* was fn1AB8_122E */
 {
 	void * ds_36 = NULL;
 	u16 ax_11FB;
 
-	ax_11FB = fn1AB8_11FB(wArg04, &ds_36);
-	fn1AB8_1B90(ax_11FB, wArg04, 0x0168, 0x0000, wArg06, wArg08);
+	ax_11FB = bgi_get_char_byte_width(wArg04, &ds_36);
+	bgi_draw_scaled_text(ax_11FB, wArg04, 0x0168, 0x0000, wArg06, wArg08);
 	fn1E78_pace_ns(10500000ull);   /* emulated BGI text-draw cost (3CFA poll) */
 	return 0x0000;   /* DGROUP selector dropped in the flat model */
 }
 
-// 1AB8:1250: void fn1AB8_1250(u16 wArg04)
-void fn1AB8_1250(u16 wArg04)
+// 1AB8:1250: void bgi_set_text_color_attribute(u16 wArg04)
+void bgi_set_text_color_attribute(u16 wArg04)  /* was fn1AB8_1250 */
 {
 	if (wArg04 <= 0x000F)
 	{
@@ -87,12 +87,12 @@ void fn1AB8_1250(u16 wArg04)
 			LG8(0xB87B) = 0x00;
 		else
 			LG8(0xB87B) = LG8((u16)(wArg04 + 0xB87B));
-		fn1AB8_1CA4(LG8(0xB87B));
+		bgi_select_text_font(LG8(0xB87B));
 	}
 }
 
-// 1AB8:1285: void fn1AB8_1285(void)
-void fn1AB8_1285(void)
+// 1AB8:1285: void bgi_get_text_color_info(void)
+void bgi_get_text_color_info(void)  /* was fn1AB8_1285 */
 {
 	/* 1AB8:1285 materialises AX = (u16)LG8(0xB83E) and its fn0C74 callers
 	 * consume it (`call far 1AB8h:1285h ; mov [bp-6h],ax`), but the frozen
@@ -102,8 +102,8 @@ void fn1AB8_1285(void)
 	(void)LG8(0xB83E);
 }
 
-// 1AB8:129A: void fn1AB8_129A(void * ptrArg04)
-void fn1AB8_129A(void * ptrArg04)
+// 1AB8:129A: void bgi_install_text_font(void * ptrArg04)
+void bgi_install_text_font(void * ptrArg04)  /* was fn1AB8_129A */
 {
 	u8 * p = (u8 *)ptrArg04;
 	u8  buf[0x12];       /* [bp-16h]: 0x11 copied bytes + NUL at [bp-5h] */
@@ -142,11 +142,11 @@ void fn1AB8_129A(void * ptrArg04)
 
 	fn1EDA_11DF(0x11, buf, &g_dgroup[0xB87A]);
 	buf[0x11] = 0x00;              /* mov byte ptr [bp-5h],0 */
-	fn1AB8_1CED(buf);
+	bgi_set_text_style_attribute(buf);
 }
 
-// 1AB8:1342: u8 fn1AB8_1342(u8 bArg04, u16 wArg06)
-u8 fn1AB8_1342(u8 bArg04, u16 wArg06)
+// 1AB8:1342: u8 bgi_set_text_character_color(u8 bArg04, u16 wArg06)
+u8 bgi_set_text_character_color(u8 bArg04, u16 wArg06)  /* was fn1AB8_1342 */
 {
 	u16 ax = 0x0000;
 	u16 ax_14;
@@ -162,30 +162,30 @@ u8 fn1AB8_1342(u8 bArg04, u16 wArg06)
 	LG8((u16)(wArg06 + 0xB87B)) = bArg04;
 	if (wArg06 == 0x0000)
 		LG8(0xB840) = 0x00;
-	ax = (u16)fn1AB8_1CD7((s16)bArg04, wArg06);
+	ax = (u16)bgi_text_cell_color((s16)bArg04, wArg06);
 	return (u8)(ax >> 8);          /* SLICE(ax, byte, 8) */
 }
 
-// 1AB8:1384: void fn1AB8_1384(u8 * ptrArg04)
-void fn1AB8_1384(u8 * ptrArg04)
+// 1AB8:1384: void bgi_load_font_info(u8 * ptrArg04)
+void bgi_load_font_info(u8 * ptrArg04)  /* was fn1AB8_1384 */
 {
-	/* fn1EDA_0953 copies 0x11 bytes from the pointer returned by fn1AB8_1C6A
+	/* fn1EDA_0953 copies 0x11 bytes from the pointer returned by bgi_get_char_info
 	 * into ptrArg04 (asm pushes the destination first, source last). */
-	fn1EDA_0953(0x11, ptrArg04, fn1AB8_1C6A());
+	fn1EDA_0953(0x11, ptrArg04, bgi_get_char_info());
 }
 
-// 1AB8:13A3: u16 fn1AB8_13A3(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
-u16 fn1AB8_13A3(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+// 1AB8:13A3: u16 bgi_clamp_rectangle_coords(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+u16 bgi_clamp_rectangle_coords(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)  /* was fn1AB8_13A3 */
 {
-	u16 ax_24 = fn1AB8_19A6(wArg04, wArg06, wArg08, wArg0A);
+	u16 ax_24 = bgi_compute_char_block_size(wArg04, wArg06, wArg08, wArg0A);
 
 	if (ax_24 == 0xFFFF)           /* asm cmp word ptr [bp-4h],0FFh (sign-ext) */
 		LG16(0xB818) = 0xFFF5;
 	return ax_24;
 }
 
-// 1AB8:13D7: u16 fn1AB8_13D7(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
-u16 fn1AB8_13D7(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
+// 1AB8:13D7: u16 bgi_signed_rectangle_intersect(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
+u16 bgi_signed_rectangle_intersect(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)  /* was fn1AB8_13D7 */
 {
 	u16 ax_13;                     /* [bp-02h]: old word at ptrArg06+2 */
 	s32 t;
@@ -221,15 +221,15 @@ l1AB8_1464:
 	goto l1AB8_148C;
 
 l1AB8_1470:
-	dx_119 = fn1AB8_1E9F(bArg04, ptrArg06, wArg0A, wArg0C);
+	dx_119 = bgi_draw_char_pixel(bArg04, ptrArg06, wArg0A, wArg0C);
 	*(u16 *)(ptrArg06 + 2) = ax_13;
 
 l1AB8_148C:
 	return dx_119;
 }
 
-// 1AB8:1492: void fn1AB8_1492(u8 * ptrArg04)
-void fn1AB8_1492(u8 * ptrArg04)
+// 1AB8:1492: void bgi_draw_text_string(u8 * ptrArg04)
+void bgi_draw_text_string(u8 * ptrArg04)  /* was fn1AB8_1492 */
 {
 	u8  buf[0x100];                /* [bp-0100h] */
 	u16 dx_157;
@@ -237,18 +237,18 @@ void fn1AB8_1492(u8 * ptrArg04)
 	u16 ax_1E0B;
 
 	fn1EDA_0A39(0xFF, buf, ptrArg04, &dx_157);
-	(void)fn1AB8_1D82(buf, LG16(0xB846), LG16(0xB844), &ch_158);
+	(void)bgi_get_char_size_info(buf, LG16(0xB846), LG16(0xB844), &ch_158);
 	if (LG16(0xB892) == 0x0000 && LG16(0xB88E) == 0x0000)
 	{
-		/* asm: ax = fn1AB8_1E0B(buf); cwd ; add ax,[0B844h] ; adc dx,0,
-		 * then fn1AB8_108B([0B846h], low word). */
-		ax_1E0B = fn1AB8_1E0B(buf);
-		fn1AB8_108B(LG16(0xB846), (u16)(LG16(0xB844) + ax_1E0B));
+		/* asm: ax = bgi_advance_text_pointer(buf); cwd ; add ax,[0B844h] ; adc dx,0,
+		 * then bgi_set_text_color([0B846h], low word). */
+		ax_1E0B = bgi_advance_text_pointer(buf);
+		bgi_set_text_color(LG16(0xB846), (u16)(LG16(0xB844) + ax_1E0B));
 	}
 }
 
-// 1AB8:14F4: void fn1AB8_14F4(u16 wArg04, u16 wArg06)
-void fn1AB8_14F4(u16 wArg04, u16 wArg06)
+// 1AB8:14F4: void bgi_set_text_rectangle(u16 wArg04, u16 wArg06)
+void bgi_set_text_rectangle(u16 wArg04, u16 wArg06)  /* was fn1AB8_14F4 */
 {
 	/* The asm's first and third tests are `cmp word ptr [bp+N],0 ; jc`,
 	 * i.e. unsigned `x <u 0`, which is never taken (IR: `branch ... <u 0`);
@@ -266,7 +266,7 @@ l1AB8_150F:
 l1AB8_1517:
 	LG16(0xB892) = wArg06;
 	LG16(0xB894) = wArg04;
-	fn1AB8_1992((u8)wArg04, (u8)wArg06);
+	bgi_set_text_color_palette((u8)wArg04, (u8)wArg06);
 
 l1AB8_152D:
 	return;

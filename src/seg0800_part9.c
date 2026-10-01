@@ -59,7 +59,7 @@ u16 fn0800_2827(u16 *dsOut)
 	u8 *saved_io;            /* g_1EDA_io_buffer saved around fn1EDA_1085       */
 
 	u16 dx_1236 = 0x0000;    /* engine_probe_file dxOut / fn1E78_030D DX              */
-	u16 ds_226 = 0x0000;     /* fn1AB8_1536 dsOut                               */
+	u16 ds_226 = 0x0000;     /* bgi_load_video_driver_file dsOut                               */
 	u16 ax_1369 = 0x0000;    /* fn1EDA_0B24 axOut                               */
 	u16 dx_1370 = 0x0000;    /* fn1EDA_0B24 dxOut                               */
 	u16 dx_1371 = 0x0000;    /* fn1EDA_0FD0 dxOut                               */
@@ -78,8 +78,8 @@ u16 fn0800_2827(u16 *dsOut)
 	u16 dx_482;              /* cwd(ax_482)                                     */
 	u16 ax_1183;             /* DGROUP:0002h (record limit low)                 */
 	u8  al_546;              /* dispatch byte (DGROUP:53D2h)                    */
-	u8  ch_1373;             /* fn1AB8_1D82 chOut (first)                       */
-	u8  ch_1374;             /* fn1AB8_1D82 chOut (second)                      */
+	u8  ch_1373;             /* bgi_get_char_size_info chOut (first)                       */
+	u8  ch_1374;             /* bgi_get_char_size_info chOut (second)                      */
 	u8  ch_1380;             /* fn1206_015B chOut                               */
 	u16 dx_1381 = 0x0000;    /* fn1206_015B dxOut                               */
 	u16 bp_1121 = 0x0000;    /* 1206 frame-pointer preservation artifact        */
@@ -158,15 +158,15 @@ u16 fn0800_2827(u16 *dsOut)
 			break;                     /* l0800_28D0: jmp 2B41h */
 
 		/* l0800_28D3: paint the RAD.HLP frame and load the mission state. */
-		(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_226);
-		fn1AB8_14F4(0x0001, 0x0001);
+		(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_226);
+		bgi_set_text_rectangle(0x0001, 0x0001);
 		/* push 0Fh ; push 184h ; push 114h ; push 18Fh ; call 005Ah */
 		fn0800_005A(0x018F, 0x0114, 0x0184, 0x000F);
-		(void)fn1AB8_1C32(0x08);
+		(void)bgi_get_text_cursor_attributes(0x08);
 		/* push 94h ; push 18Ah ; push ds:5CBBh ; call far 1AB8h:1D82h */
-		(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_1373);
-		(void)fn1AB8_1C32(0x0A);
-		(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_1374);
+		(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_1373);
+		(void)bgi_get_text_cursor_attributes(0x0A);
+		(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_1374);
 		(void)fn0800_04E3(&ds_318);
 		/* mov di,5ECEh ; push ds ; push di ; mov di,5ED6h ; push ds ;
 		 * push di ; push 6h ; call far 1EDAh:0A39h  (dst 5ED6, src 5ECE) */
@@ -176,7 +176,7 @@ u16 fn0800_2827(u16 *dsOut)
 		(void)fn0800_0BEC();
 		fn13E2_00FB();
 		/* push 8h ; push 0h ; call far 1AB8h:1342h */
-		(void)fn1AB8_1342(0x00, 0x08);
+		(void)bgi_set_text_character_color(0x00, 0x08);
 		(void)fn1206_0066(&bp_1376, &ds_408);
 		/* mov al,[53D9h] ; push ax ; call 04CCh ; push ax ;
 		 * mov al,[53DAh] ; push ax ; call 04CCh ; push ax ;

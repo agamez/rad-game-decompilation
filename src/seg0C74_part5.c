@@ -55,7 +55,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 {
 	u8  bCount = 0x00;         /* [bp-01h] loop counter (Reko [bp_139-1]) */
 	u32 dwBlock = 0x00000000;  /* [bp-06h]/[bp-04h] far block, off|seg<<16 */
-	u8  dlTmp = 0x00;          /* fn1AB8_1E3C dlOut scratch */
+	u8  dlTmp = 0x00;          /* bgi_draw_line dlOut scratch */
 	void *dsv = NULL;          /* engine_scale_and_tick_clock / fn1EDA_098A dsOut scratch */
 	u16 dsTmp = 0x0000;        /* engine_clock_tick / fn1EDA_023F/0254 dsOut (u16) */
 	u16 dxTmp = 0x0000;        /* fn1EDA_0254 dxOut */
@@ -65,19 +65,19 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 	s16 bxT = 0;               /* fn1EDA_098A bxOut */
 
 	/* --- 0C74:1B3B prologue: three pixels (colors 3,1,1) ---------------- */
-	(void)fn1AB8_1E54(0x03, (u16)(LG16(0x58B8) + 0x001C),
+	(void)bgi_get_line_attributes(0x03, (u16)(LG16(0x58B8) + 0x001C),
 	                  (u16)(LG16(0x58B4) + 0x0017));
-	(void)fn1AB8_1E54(0x01, (u16)(LG16(0x58B8) + 0x001C),
+	(void)bgi_get_line_attributes(0x01, (u16)(LG16(0x58B8) + 0x001C),
 	                  (u16)(LG16(0x58B4) + 0x0018));
-	(void)fn1AB8_1E54(0x01, (u16)(LG16(0x58B8) + 0x001C),
+	(void)bgi_get_line_attributes(0x01, (u16)(LG16(0x58B8) + 0x001C),
 	                  (u16)(LG16(0x58B4) + 0x0019));
 
 	/* --- 0C74:1B99: size and allocate the backing block, paint it ------- */
-	LG16(0x595E) = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001C),
+	LG16(0x595E) = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001C),
 	                           (u16)(LG16(0x58B4) + 0x002B),
 	                           LG16(0x58B8), LG16(0x58B4));
 	dwBlock = fn1EDA_023F(LG16(0x595E), 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwBlock),
+	bgi_draw_clip_rectangle(far_ptr(dwBlock),
 	            (u16)(LG16(0x58B8) + 0x001C),
 	            (u16)(LG16(0x58B4) + 0x002B),
 	            LG16(0x58B8), LG16(0x58B4));
@@ -86,15 +86,15 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 	bCount = 0x00;
 	while (bCount < 0x58)
 	{
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) - 0x0001), LG16(0x58B4),
+		if (bgi_draw_line((u16)(LG16(0x58B8) - 0x0001), LG16(0x58B4),
 		                &dlTmp) != 0x00)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) - 0x0001), LG16(0x58B6),
+		if (bgi_draw_line((u16)(LG16(0x58B8) - 0x0001), LG16(0x58B6),
 		                &dlTmp) != 0x00)
 			break;
 		(void)engine_scale_and_tick_clock(0x000A, 0x00C8, &dsTmp);
 		LG16(0x58B8) = (u16)(LG16(0x58B8) - 0x0001);
-		fn1AB8_13D7(0x00, far_ptr(dwBlock), LG16(0x58B8),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwBlock), LG16(0x58B8),
 		            LG16(0x58B4));
 		++bCount;
 	}
@@ -115,15 +115,15 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 	/* --- 0C74:1C3E: loop B: rise back while the counter is positive ----- */
 	while (bCount > 0x00)
 	{
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x002C),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x002C),
 		                (u16)(LG16(0x58B4) - 0x0001), &dlTmp) != 0x00)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x002C),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x002C),
 		                (u16)(LG16(0x58B6) + 0x0001), &dlTmp) != 0x00)
 			break;
 		(void)engine_scale_and_tick_clock(0x000A, 0x00C8, &dsTmp);
 		LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
-		fn1AB8_13D7(0x00, far_ptr(dwBlock), LG16(0x58B8),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwBlock), LG16(0x58B8),
 		            LG16(0x58B4));
 		--bCount;
 	}
@@ -159,7 +159,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 		}
 
 		/* 1CF6: repaint the window, then hand back to the frame engine. */
-		fn1AB8_1E6B(far_ptr(dwBlock),
+		bgi_draw_clip_rectangle(far_ptr(dwBlock),
 		            (u16)(LG16(0x58B8) + 0x001C),
 		            (u16)(LG16(0x58B4) + 0x002B),
 		            LG16(0x58B8), LG16(0x58B4));
@@ -170,7 +170,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 			{
 				(void)engine_scale_and_tick_clock(0x000A, 0x00C8, &dsTmp);
 				LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
-				fn1AB8_13D7(0x00, far_ptr(dwBlock),
+				bgi_signed_rectangle_intersect(0x00, far_ptr(dwBlock),
 				            LG16(0x58B8), LG16(0x58B4));
 				--bCount;
 			}

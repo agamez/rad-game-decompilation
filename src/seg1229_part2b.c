@@ -25,7 +25,7 @@
  *   staged at [bp-0202h].  As in parts 1/3, the staged pointer is recovered as
  *   an explicit pointer argument; the bp-relative buffer offsets are kept in
  *   comments.
- *   0x5992 far-pointer table: the fn1AB8_13D7 sites load a 32-bit far pointer
+ *   0x5992 far-pointer table: the bgi_signed_rectangle_intersect sites load a 32-bit far pointer
  *   from DGROUP:0x5992[idx*4]; it is reconstructed exactly as parts 1/3 and
  *   docs/notes-1AB8.md do for the analogous DGROUP slots,
  *   `far_ptr(LG32(...))`.  The table is populated at startup by the
@@ -79,13 +79,13 @@ u16 fn1229_0AA8(void)
 	u8  buf_102[0x100];   /* [bp-0102h] final rendered line (lea di,[bp+0FEFEh]) */
 	u8  bLoc04_623;       /* [bp-0002h] row (0..10h) */
 	u8  bLoc03_624;       /* [bp-0001h] column (0..1Ch) */
-	u8  ch_725;           /* fn1AB8_1D82 chOut */
-	u16 ds_227;           /* fn1AB8_1536 dsOut (dropped DGROUP selector) */
+	u8  ch_725;           /* bgi_get_char_size_info chOut */
+	u16 ds_227;           /* bgi_load_video_driver_file dsOut (dropped DGROUP selector) */
 	u16 dx_724;           /* fn1EDA_0A39 dxOut */
 
-	fn1AB8_0F93(0x01, 0x0176, 0x027E, 0x01, 0x01);
-	fn1AB8_1028();
-	fn1AB8_0F93(0x01, 0x01DF, 0x027F, 0x00, 0x00);
+	bgi_draw_text_rectangle(0x01, 0x0176, 0x027E, 0x01, 0x01);
+	bgi_update_text_window_position();
+	bgi_draw_text_rectangle(0x01, 0x01DF, 0x027F, 0x00, 0x00);
 	bLoc04_623 = 0x00;
 	while (1)
 	{
@@ -98,7 +98,7 @@ u16 fn1229_0AA8(void)
 			if (LG8((u16)(0x5CE0 + wCell)) != 0x00)
 			{
 				/* table entry cell*4 at 5992h; Y = col*16h+1, X = row*16h+1 */
-				(void)fn1AB8_13D7(
+				(void)bgi_signed_rectangle_intersect(
 					0x00,
 					far_ptr(LG32((u16)(0x5992 +
 						((u16)LG8((u16)(0x5CE0 + wCell)) << 2)))),
@@ -115,11 +115,11 @@ u16 fn1229_0AA8(void)
 	}
 
 	/* l1229_0B46: repaint the frame, then build the status line. */
-	fn1AB8_0F93(0x01, 0x0182, 0x027E, 0x0178, LG16(0x50C4));
-	fn1AB8_1028();
-	fn1AB8_0F93(0x01, 0x01DF, 0x027F, 0x00, 0x00);
-	fn1AB8_14F4(0x01, 0x00);
-	fn1AB8_1536(0x04, 0x00, 0x02, &ds_227);
+	bgi_draw_text_rectangle(0x01, 0x0182, 0x027E, 0x0178, LG16(0x50C4));
+	bgi_update_text_window_position();
+	bgi_draw_text_rectangle(0x01, 0x01DF, 0x027F, 0x00, 0x00);
+	bgi_set_text_rectangle(0x01, 0x00);
+	bgi_load_video_driver_file(0x04, 0x00, 0x02, &ds_227);
 
 	/* 09F9(formatted byte) then 0AAC appends into buf_202 (the staged dest).
 	 * Literals: cs:0A8Bh={1," "}, cs:0A8Dh={5,"TIME:"}, cs:0A93h={6," PUSH:"},
@@ -148,7 +148,7 @@ u16 fn1229_0AA8(void)
 	fn1EDA_0AAC(&g_dgroup[0x5CBB], buf_202);
 
 	fn1EDA_0A39(0xFF, buf_102, buf_202, &dx_724);
-	(void)fn1AB8_1D82(buf_102, 0x017D, (u16)(LG16(0x50C4) + 0x16), &ch_725);
+	(void)bgi_get_char_size_info(buf_102, 0x017D, (u16)(LG16(0x50C4) + 0x16), &ch_725);
 	return ds_227;   /* Reko return = the dropped DGROUP selector (0) */
 }
 
@@ -166,7 +166,7 @@ void fn1229_0C58(void)
 		{
 			/* les di,[di+5992h] with di = bLoc05*4; Y = row*16h+187h,
 			 * X = col*16h+59h. */
-			(void)fn1AB8_13D7(
+			(void)bgi_signed_rectangle_intersect(
 				0x00,
 				far_ptr(LG32((u16)(0x5992 + ((u16)bLoc05_81 << 2)))),
 				(u16)((u16)bLoc03_82 * 0x16 + 0x0187),

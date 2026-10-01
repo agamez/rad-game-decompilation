@@ -48,14 +48,14 @@
 // 0C74:1D95: u16 engine_blit_field_edges(u16 wArg02, void * dsOut)
 //
 // Blit the two caller-indexed field-edge rectangles: build both rects with
-// fn1AB8_13A3, allocate a far block each (fn1EDA_023F), stamp the rects into the
-// blocks (fn1AB8_1E6B), then for the caller-frame offset down to 0 tick
-// engine_scale_and_tick_clock(0Ah,0E6h) and blit both blocks with fn1AB8_13D7, finally free
+// bgi_clamp_rectangle_coords, allocate a far block each (fn1EDA_023F), stamp the rects into the
+// blocks (bgi_draw_clip_rectangle), then for the caller-frame offset down to 0 tick
+// engine_scale_and_tick_clock(0Ah,0E6h) and blit both blocks with bgi_signed_rectangle_intersect, finally free
 // both blocks.  Returns the saved-BP artifact (0 in flat C).
 u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 {
-	u16 wLoc04;              /* [bp-04h] first  fn1AB8_13A3 result (blk B size) */
-	u16 wLoc06;              /* [bp-06h] second fn1AB8_13A3 result (blk A size) */
+	u16 wLoc04;              /* [bp-04h] first  bgi_clamp_rectangle_coords result (blk B size) */
+	u16 wLoc06;              /* [bp-06h] second bgi_clamp_rectangle_coords result (blk A size) */
 	u32 dwLoc0A;             /* [bp-0Ah]/[bp-08h] far block A (023F of wLoc06) */
 	u32 dwLoc0E;             /* [bp-0Eh]/[bp-0Ch] far block B (023F of wLoc04) */
 	u8  bLoc01;              /* [bp-01h] blit-loop counter */
@@ -71,12 +71,12 @@ u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 	u16 wCallerL4 = wArg02;
 
 	/* 1D95..1DB4: first rect = [58B8h+1Bh, 58B4h+1Dh+N]-[58B8h+0Dh, 58B4h+19h+N] */
-	wLoc04 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+	wLoc04 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(LG16(0x58B4) + 0x001D + wCallerL4),
 	                     (u16)(LG16(0x58B8) + 0x000D),
 	                     (u16)(LG16(0x58B4) + 0x0019 + wCallerL4));
 	/* 1DB6..1DDD: second rect = [58B8h+1Bh, 58B4h+11h-N]-[58B8h+0Dh, 58B4h+0Dh-N] */
-	wLoc06 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+	wLoc06 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(LG16(0x58B4) + 0x0011 - wCallerL4),
 	                     (u16)(LG16(0x58B8) + 0x000D),
 	                     (u16)(LG16(0x58B4) + 0x000D - wCallerL4));
@@ -87,13 +87,13 @@ u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 	dwLoc0E = fn1EDA_023F(wLoc04, 0x0000, 0x0000, &dsTmp);
 
 	/* 1DF7: stamp the first rect into block B (les di,[bp-0Eh]) */
-	fn1AB8_1E6B(far_ptr(dwLoc0E),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc0E),
 	            (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x001D + wCallerL4),
 	            (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x0019 + wCallerL4));
 	/* 1E2B: stamp the second rect into block A (les di,[bp-0Ah]) */
-	fn1AB8_1E6B(far_ptr(dwLoc0A),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc0A),
 	            (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x0011 - wCallerL4),
 	            (u16)(LG16(0x58B8) + 0x000D),
@@ -105,12 +105,12 @@ u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 	{
 		(void)engine_scale_and_tick_clock(0x000A, 0x00E6, &dsTmp);
 		/* push (58B4h+19h+c) ; (58B8h+0Dh) ; es:di=block B ; 0 ; 13D7 */
-		(void)fn1AB8_13D7(0x00,
+		(void)bgi_signed_rectangle_intersect(0x00,
 		                  far_ptr(dwLoc0E),
 		                  (u16)(LG16(0x58B8) + 0x000D),
 		                  (u16)(LG16(0x58B4) + 0x0019 + bLoc01));
 		/* push (58B4h+0Dh-c) ; (58B8h+0Dh) ; es:di=block A ; 0 ; 13D7 */
-		(void)fn1AB8_13D7(0x00,
+		(void)bgi_signed_rectangle_intersect(0x00,
 		                  far_ptr(dwLoc0A),
 		                  (u16)(LG16(0x58B8) + 0x000D),
 		                  (u16)(LG16(0x58B4) + 0x000D - bLoc01));

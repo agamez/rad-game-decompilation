@@ -68,15 +68,15 @@ u8 engine_bar_pull_out /* was fn0C74_4999 */(void *bpOut, u16 *dsOut)
 	u16 wLoc08 = 0x0000;    /* [bp-08h] pulled-row counter */
 	u16 wLoc0A = 0x0000;    /* [bp-0Ah] bar X origin ([58B8h]+12h) */
 	u16 wLoc0C = 0x0000;    /* [bp-0Ch] bar X origin 2 ([58B8h]+14h) */
-	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
-	u16 dxTmp  = 0x0000;    /* fn1AB8_1AF6 dxOut */
+	u8  dlTmp  = 0x00;      /* bgi_draw_line dlOut */
+	u16 dxTmp  = 0x0000;    /* bgi_set_pixel dxOut */
 	u16 dsTmp  = 0x0000;    /* engine_scale_and_tick_clock / 02D8 dsOut */
 	void *dsv  = NULL;      /* engine_scale_and_tick_clock void * dsOut */
 
 	/* 499D: push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
 	/* 49A8: push 0Ch ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x0C);
+	(void)bgi_get_text_cursor_attributes(0x0C);
 	/* 49B4: inc word ptr [58B4h] */
 	LG16(0x58B4) = (u16)(LG16(0x58B4) + 0x0001);
 
@@ -87,7 +87,7 @@ u8 engine_bar_pull_out /* was fn0C74_4999 */(void *bpOut, u16 *dsOut)
 	{
 		/* 49BC: 1AF6([58B8h]+13h, wLoc04+[58B4h], [58B8h]+12h,
 		 *            wLoc04+[58B4h]) */
-		(void)fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0013),
+		(void)bgi_set_pixel((u16)(LG16(0x58B8) + 0x0013),
 		                  (u16)(wLoc04 + LG16(0x58B4)),
 		                  (u16)(LG16(0x58B8) + 0x0012),
 		                  (u16)(wLoc04 + LG16(0x58B4)),
@@ -100,7 +100,7 @@ u8 engine_bar_pull_out /* was fn0C74_4999 */(void *bpOut, u16 *dsOut)
 		if (wLoc04 == 0xFFF1)
 			goto l0C74_4A49;
 		/* l0C74_4A04: 1E3C([58B8h]+13h, wLoc04+[58B4h]) ; jnz 4A49h */
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x0013),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x0013),
 		                (u16)(wLoc04 + LG16(0x58B4)), &dlTmp) != 0x00)
 			goto l0C74_4A49;
 		/* l0C74_4A26: signed 32-bit sum [bp-4h]+[58B4h].
@@ -123,7 +123,7 @@ l0C74_4A49:
 		goto l0C74_4AB7;
 
 	/* l0C74_4A4F: push 0h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_text_cursor_attributes(0x00);
 	/* 4A56: mov ax,[bp-4h] ; inc ax ; cmp ax,0Dh ; jg 4AACh */
 	wLoc06 = (u16)(wLoc04 + 0x0001);
 	if ((s16)wLoc06 > 0x000D)
@@ -133,7 +133,7 @@ l0C74_4A49:
 	{
 		/* l0C74_4A67: 1AF6([58B8h]+13h, wLoc06+[58B4h],
 		 *                   [58B8h]+12h, wLoc06+[58B4h]) */
-		(void)fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0013),
+		(void)bgi_set_pixel((u16)(LG16(0x58B8) + 0x0013),
 		                  (u16)(wLoc06 + LG16(0x58B4)),
 		                  (u16)(LG16(0x58B8) + 0x0012),
 		                  (u16)(wLoc06 + LG16(0x58B4)),
@@ -165,24 +165,24 @@ l0C74_4AB7:
 	for (;;)
 	{
 		/* 4ACF: 1E3C(wLoc0C, [58B4h]-0Eh) ; jnz 4B36h */
-		if (fn1AB8_1E3C(wLoc0C, (u16)(LG16(0x58B4) - 0x000E),
+		if (bgi_draw_line(wLoc0C, (u16)(LG16(0x58B4) - 0x000E),
 		                &dlTmp) != 0x00)
 			break;
 		/* 4AE2: cmp word ptr [bp-0Ch],1DEh ; jnc 4B36h */
 		if (wLoc0C >= 0x01DE)
 			break;
 		/* 4AE9: push 0Ch ; call far 1AB8h:1C32h */
-		(void)fn1AB8_1C32(0x0C);
+		(void)bgi_get_text_cursor_attributes(0x0C);
 		/* 4AF0: 1AF6(wLoc0C, [58B4h]-0Fh, wLoc0C, [58B4h]-0Bh) */
-		(void)fn1AB8_1AF6(wLoc0C,
+		(void)bgi_set_pixel(wLoc0C,
 		                  (u16)(LG16(0x58B4) - 0x000F),
 		                  wLoc0C,
 		                  (u16)(LG16(0x58B4) - 0x000B),
 		                  &dxTmp);
 		/* 4B09: push 0h ; call far 1AB8h:1C32h */
-		(void)fn1AB8_1C32(0x00);
+		(void)bgi_get_text_cursor_attributes(0x00);
 		/* 4B10: 1AF6(wLoc0A, [58B4h]-0Fh, wLoc0A, [58B4h]-0Bh) */
-		(void)fn1AB8_1AF6(wLoc0A,
+		(void)bgi_set_pixel(wLoc0A,
 		                  (u16)(LG16(0x58B4) - 0x000F),
 		                  wLoc0A,
 		                  (u16)(LG16(0x58B4) - 0x000B),
@@ -225,22 +225,22 @@ l0C74_4AB7:
 
 	/* l0C74_4B91: four 1E3C probes refine the rectangle. */
 	/* 4B91: 1E3C([5972h]-15h, [596Ch]) ; jnz 4BBBh */
-	if (fn1AB8_1E3C((u16)(LG16(0x5972) - 0x0015), LG16(0x596C),
+	if (bgi_draw_line((u16)(LG16(0x5972) - 0x0015), LG16(0x596C),
 	                &dlTmp) != 0x00)
 		goto l0C74_4BBB;
 	/* l0C74_4BA5: 1E3C([596Eh], [596Ch]) ; jnz 4BBBh */
-	if (fn1AB8_1E3C(LG16(0x596E), LG16(0x596C), &dlTmp) != 0x00)
+	if (bgi_draw_line(LG16(0x596E), LG16(0x596C), &dlTmp) != 0x00)
 		goto l0C74_4BBB;
 	/* l0C74_4BB6: add word ptr [596Ch],16h */
 	LG16(0x596C) = (u16)(LG16(0x596C) + 0x0016);
 
 l0C74_4BBB:
 	/* 4BBB: 1E3C([596Eh], [5970h]-15h) ; jnz 4BE8h */
-	if (fn1AB8_1E3C(LG16(0x596E), (u16)(LG16(0x5970) - 0x0015),
+	if (bgi_draw_line(LG16(0x596E), (u16)(LG16(0x5970) - 0x0015),
 	                &dlTmp) != 0x00)
 		goto l0C74_4BE8;
 	/* l0C74_4BCF: 1E3C([596Eh], [5970h]-2Bh) ; jnz 4BE8h */
-	if (fn1AB8_1E3C(LG16(0x596E), (u16)(LG16(0x5970) - 0x002B),
+	if (bgi_draw_line(LG16(0x596E), (u16)(LG16(0x5970) - 0x002B),
 	                &dlTmp) != 0x00)
 		goto l0C74_4BE8;
 	/* l0C74_4BE3: add word ptr [596Eh],12h */
@@ -248,21 +248,21 @@ l0C74_4BBB:
 
 l0C74_4BE8:
 	/* 4BE8: push 0Ch ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x0C);
+	(void)bgi_get_text_cursor_attributes(0x0C);
 	/* 4BEF: 1AF6(wLoc0A-1, [58B4h]-0Fh, wLoc0A-1, [58B4h]-0Bh) */
-	(void)fn1AB8_1AF6((u16)(wLoc0A - 0x0001),
+	(void)bgi_set_pixel((u16)(wLoc0A - 0x0001),
 	                  (u16)(LG16(0x58B4) - 0x000F),
 	                  (u16)(wLoc0A - 0x0001),
 	                  (u16)(LG16(0x58B4) - 0x000B),
 	                  &dxTmp);
 	/* 4C0C: 1AF6(wLoc0A-2, [58B4h]-0Fh, wLoc0A-2, [58B4h]-0Bh) */
-	(void)fn1AB8_1AF6((u16)(wLoc0A - 0x0002),
+	(void)bgi_set_pixel((u16)(wLoc0A - 0x0002),
 	                  (u16)(LG16(0x58B4) - 0x000F),
 	                  (u16)(wLoc0A - 0x0002),
 	                  (u16)(LG16(0x58B4) - 0x000B),
 	                  &dxTmp);
 	/* 4C2B: push 0h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_text_cursor_attributes(0x00);
 	/* 4C32: mov ax,[bp-4h] ; inc ax ; cmp ax,0Dh ; jg 4C88h */
 	wLoc06 = (u16)(wLoc04 + 0x0001);
 	if ((s16)wLoc06 > 0x000D)
@@ -272,7 +272,7 @@ l0C74_4BE8:
 	{
 		/* l0C74_4C43: 1AF6([58B8h]+13h, wLoc06+[58B4h],
 		 *                   [58B8h]+12h, wLoc06+[58B4h]) */
-		(void)fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0013),
+		(void)bgi_set_pixel((u16)(LG16(0x58B8) + 0x0013),
 		                  (u16)(wLoc06 + LG16(0x58B4)),
 		                  (u16)(LG16(0x58B8) + 0x0012),
 		                  (u16)(wLoc06 + LG16(0x58B4)),
@@ -334,18 +334,18 @@ l0C74_4CA0:
 		/* 4CE3: cmp word ptr [58B6h],27Fh ; jnc 4D22h, then the three
 		 * 1E3C edge probes (4CEB / 4CFC / 4D10). */
 		if (LG16(0x58B6) < 0x027F &&
-		    fn1AB8_1E3C(LG16(0x58BA), LG16(0x58B6), &dlTmp) == 0x00 &&
-		    fn1AB8_1E3C((u16)(LG16(0x58BA) - 0x0015), LG16(0x58B6),
+		    bgi_draw_line(LG16(0x58BA), LG16(0x58B6), &dlTmp) == 0x00 &&
+		    bgi_draw_line((u16)(LG16(0x58BA) - 0x0015), LG16(0x58B6),
 		                &dlTmp) == 0x00)
 		{
 			/* 4D10: 1E3C([58BAh]+1h, [58B6h]) ; jnz 4D34h */
-			if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
+			if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
 			                &dlTmp) != 0x00)
 			{
 				/* l0C74_4D34: les di,[wLoc04*4 + 58F4h] ;
 				 *             push es/di ; push [58B8h] ;
 				 *             push [58B4h] ; call 13D7h */
-				(void)fn1AB8_13D7(0x00,
+				(void)bgi_signed_rectangle_intersect(0x00,
 				    far_ptr(LG32((u16)(0x58F4 +
 				                                (u16)(wLoc04 << 2)))),
 				    LG16(0x58B8), LG16(0x58B4));

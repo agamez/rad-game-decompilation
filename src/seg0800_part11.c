@@ -150,9 +150,9 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 	(void)fn1206_0066(&bp_210, &ds_218);
 
 	/* draw the panel frame. */
-	(void)fn1AB8_1C32(0x08);
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-	(void)fn1AB8_112E(0x0177, 0x027F, 0x0000, 0x0000);
+	(void)bgi_get_text_cursor_attributes(0x08);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+	(void)bgi_clip_text_rectangle(0x0177, 0x027F, 0x0000, 0x0000);
 	fn0800_0024(0x01DF, 0x027F, 0x0179, 0x0000);
 	(void)fn0800_1315(0x01DA, 0x027C, 0x017B, 0x0003);
 
@@ -183,28 +183,28 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 	}
 
 	/* l0800_328D: paint the input dialog frame. */
-	(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_268);
-	fn1AB8_14F4(0x0001, 0x0001);
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_268);
+	bgi_set_text_rectangle(0x0001, 0x0001);
+	(void)bgi_get_text_cursor_attributes(0x08);
 	/* first text row (cs:3153h,315Bh,3153h,3162h,3165h,3168h,316Bh at
 	 * 1CEh). */
-	(void)fn1AB8_1D82(&g_seg0800[0x3153], 0x01CE, 0x0043, &ch_2186);
-	(void)fn1AB8_1D82(&g_seg0800[0x315B], 0x01CE, 0x0093, &ch_2187);
-	(void)fn1AB8_1D82(&g_seg0800[0x3153], 0x01CE, 0x00E3, &ch_2188);
-	(void)fn1AB8_1D82(&g_seg0800[0x3162], 0x01CE, 0x012F, &ch_2189);
-	(void)fn1AB8_1D82(&g_seg0800[0x3165], 0x01CE, 0x0163, &ch_2190);
-	(void)fn1AB8_1D82(&g_seg0800[0x3168], 0x01CE, 0x0197, &ch_2191);
-	(void)fn1AB8_1D82(&g_seg0800[0x316B], 0x01CE, 0x01CB, &ch_2192);
-	(void)fn1AB8_1C32(0x0B);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3153], 0x01CE, 0x0043, &ch_2186);
+	(void)bgi_get_char_size_info(&g_seg0800[0x315B], 0x01CE, 0x0093, &ch_2187);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3153], 0x01CE, 0x00E3, &ch_2188);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3162], 0x01CE, 0x012F, &ch_2189);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3165], 0x01CE, 0x0163, &ch_2190);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3168], 0x01CE, 0x0197, &ch_2191);
+	(void)bgi_get_char_size_info(&g_seg0800[0x316B], 0x01CE, 0x01CB, &ch_2192);
+	(void)bgi_get_text_cursor_attributes(0x0B);
 	/* second text row at 1CFh. */
-	(void)fn1AB8_1D82(&g_seg0800[0x3153], 0x01CF, 0x0044, &ch_2193);
-	(void)fn1AB8_1D82(&g_seg0800[0x315B], 0x01CF, 0x0094, &ch_2194);
-	(void)fn1AB8_1D82(&g_seg0800[0x3153], 0x01CF, 0x00E4, &ch_2195);
-	(void)fn1AB8_1D82(&g_seg0800[0x3162], 0x01CF, 0x0130, &ch_2196);
-	(void)fn1AB8_1D82(&g_seg0800[0x3165], 0x01CF, 0x0164, &ch_2197);
-	(void)fn1AB8_1D82(&g_seg0800[0x3168], 0x01CF, 0x0198, &ch_2198);
-	(void)fn1AB8_1D82(&g_seg0800[0x316B], 0x01CF, 0x01CC, &ch_2199);
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3153], 0x01CF, 0x0044, &ch_2193);
+	(void)bgi_get_char_size_info(&g_seg0800[0x315B], 0x01CF, 0x0094, &ch_2194);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3153], 0x01CF, 0x00E4, &ch_2195);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3162], 0x01CF, 0x0130, &ch_2196);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3165], 0x01CF, 0x0164, &ch_2197);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3168], 0x01CF, 0x0198, &ch_2198);
+	(void)bgi_get_char_size_info(&g_seg0800[0x316B], 0x01CF, 0x01CC, &ch_2199);
+	(void)bgi_get_text_cursor_attributes(0x00);
 
 	/* 0800:3398: field widths / mouse range.  ax_809 = 04CC(53D9h); the
 	 * second 04CC input keeps ax_809's high byte (the original pushes AX
@@ -215,19 +215,19 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 	(void)fn1206_00D1(0, &si_2200, &es_2201, &ds_639);
 
 	/* second frame block. */
-	(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_662);
-	fn1AB8_14F4(0x0001, 0x0001);
+	(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_662);
+	bgi_set_text_rectangle(0x0001, 0x0001);
 	fn0800_005A(0x018F, 0x0114, 0x0184, 0x000F);
-	(void)fn1AB8_1C32(0x08);
-	(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x0189, 0x0093, &ch_2202);
-	(void)fn1AB8_1C32(0x0A);
-	(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_2203);
+	(void)bgi_get_text_cursor_attributes(0x08);
+	(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x0189, 0x0093, &ch_2202);
+	(void)bgi_get_text_cursor_attributes(0x0A);
+	(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_2203);
 
 	/* 0800:340C: repaint the HUD and the clock, then set button 8. */
 	(void)fn0800_04E3(&ds_754);
 	(void)fn0800_0619();
 	(void)fn0800_0BEC();
-	(void)fn1AB8_1342(0x0000, 0x0008);
+	(void)bgi_set_text_character_color(0x0000, 0x0008);
 	ax_809 = (u16)fn0800_04CC(LG8(0x53D9));
 	w_816 = (u16)((ax_809 & 0xFF00u) | (u16)LG8(0x53DA));
 	w_817 = (u16)fn0800_04CC((u8)w_816);

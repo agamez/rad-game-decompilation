@@ -18,10 +18,10 @@
  * Graphics-driver dispatch [0xB820]/[0xB822]: all nine functions except 180A
  * (and 1807 itself) reach the runtime graphics driver through the 16:16 far
  * code pointer held at DGROUP 0xB820/0xB822 (`call dword ptr [0B820h]`).  The
- * file-static fn1AB8_call_0B820 stand-in below mirrors
- * src/seg1AB8_part6.c's fn1AB8_call_0B820: the entry is a 16:16 code pointer
+ * file-static bgi_call_graphics_driver stand-in below mirrors
+ * src/seg1AB8_part6.c's bgi_call_graphics_driver: the entry is a 16:16 code pointer
  * (LG32(0xB820) = offset | segment<<16); the only recovered target is the
- * default fn1AB8_008B ("graphics not initialized") staged by fn1AB8_0813.
+ * default bgi_error_not_initialized ("graphics not initialized") staged by bgi_init_graphics_error.
  * The loaded driver (relocated blob headed at 1AB8:2073) is not recovered as C
  * and is therefore a no-op that leaves the staged registers unchanged.
  *
@@ -61,15 +61,15 @@ typedef struct {
  * LG32(0xB820) = offset | segment<<16.  The loaded driver is the relocated blob
  * headed at 1AB8:2073 ([0x2073] = +0x20 -> entry 1AB8:2093); Reko left that
  * region as data and the port does not recover it as C.  The only recovered
- * target is the default fn1AB8_008B (1AB8:008B, "graphics not initialized"),
- * which fn1AB8_0813 stages.  When that default is staged the call is issued;
+ * target is the default bgi_error_not_initialized (1AB8:008B, "graphics not initialized"),
+ * which bgi_init_graphics_error stages.  When that default is staged the call is issued;
  * otherwise the external driver call has no recovered implementation and is a
  * no-op that leaves the staged register values unchanged.  This is the same
- * flat-model treatment as chunk 6's fn1AB8_call_0B820. */
-static void fn1AB8_call_0B820(TRegs1AB8 * r)
+ * flat-model treatment as chunk 6's bgi_call_graphics_driver. */
+static void bgi_call_graphics_driver(TRegs1AB8 * r)  /* was fn1AB8_call_0B820 */
 {
 	if (LG16(0xB820) == 0x008B && LG16(0xB822) == 0x1AB8)
-		(void)fn1AB8_008B();
+		(void)bgi_error_not_initialized();
 	else {
 		/* The EGAVGA.BGI driver is installed: dispatch into the PAL's
 		 * BGI implementation (the original enters the relocated 16-bit
@@ -84,8 +84,8 @@ static void fn1AB8_call_0B820(TRegs1AB8 * r)
 	}
 }
 
-// 1AB8:1807: void fn1AB8_1807(void)
-void fn1AB8_1807(void)
+// 1AB8:1807: void bgi_driver_trampoline(void)
+void bgi_driver_trampoline(void)  /* was fn1AB8_1807 */
 {
 	/* Original bytes 06 53 CB: push es / push bx / retf -- a trampoline that
 	 * transfers control to the far code pointer ES:BX (the driver routine
@@ -95,8 +95,8 @@ void fn1AB8_1807(void)
 	 * is not recovered, so this trampoline is a no-op stand-in. */
 }
 
-// 1AB8:180A: void fn1AB8_180A(void)
-void fn1AB8_180A(void)
+// 1AB8:180A: void bgi_init_video_mode(void)
+void bgi_init_video_mode(void)  /* was fn1AB8_180A */
 {
 	u8 bMode_181E;
 	u8 bPage_181F;
@@ -121,8 +121,8 @@ void fn1AB8_180A(void)
 		LG8(0xB8A3) = 0x00;
 }
 
-// 1AB8:1855: void fn1AB8_1855(u8 * ptrArg04)
-void fn1AB8_1855(u8 * ptrArg04)
+// 1AB8:1855: void bgi_set_text_cursor_position(u8 * ptrArg04)
+void bgi_set_text_cursor_position(u8 * ptrArg04)  /* was fn1AB8_1855 */
 {
 	TRegs1AB8 r;
 	u16 ch_1855;
@@ -153,13 +153,13 @@ void fn1AB8_1855(u8 * ptrArg04)
 	r.bx = bx_1882;
 	r.es = es_1882;
 	r.si = 0x0000;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	LG16(0xB83A) = r.bx;                 /* mov [0B83Ah],bx */
 	LG16(0xB83C) = r.es;                 /* mov [0B83Ch],es */
 }
 
-// 1AB8:1895: u16 fn1AB8_1895(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)
-u16 fn1AB8_1895(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)
+// 1AB8:1895: u16 bgi_draw_text(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)
+u16 bgi_draw_text(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)  /* was fn1AB8_1895 */
 {
 	TRegs1AB8 r;
 
@@ -172,12 +172,12 @@ u16 fn1AB8_1895(u8 bArg04, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C)
 	if (bArg04 == 0x00)                  /* cmp byte [bp+6h],0 */
 		r.ax |= 0x8000;                  /* or ah,80h */
 	r.si = 0x0038;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return r.dx;                         /* dx_32 */
 }
 
-// 1AB8:18E3: void fn1AB8_18E3(void)
-void fn1AB8_18E3(void)
+// 1AB8:18E3: void bgi_set_video_mode(void)
+void bgi_set_video_mode(void)  /* was fn1AB8_18E3 */
 {
 	TRegs1AB8 r;
 
@@ -189,7 +189,7 @@ void fn1AB8_18E3(void)
 		r.dx = 0x0000;
 		r.es = 0x0000;
 		r.si = 0x0006;
-		fn1AB8_call_0B820(&r);
+		bgi_call_graphics_driver(&r);
 		if (LG8(0xB850) != 0xA5)
 		{
 			/* original: mov ax,40h ; mov es,ax ; mov bx,10h ;
@@ -202,8 +202,8 @@ void fn1AB8_18E3(void)
 	LG8(0xB8A3) = 0xFF;
 }
 
-// 1AB8:194E: void fn1AB8_194E(u8 bArg04)
-void fn1AB8_194E(u8 bArg04)
+// 1AB8:194E: void bgi_set_text_style(u8 bArg04)
+void bgi_set_text_style(u8 bArg04)  /* was fn1AB8_194E */
 {
 	TRegs1AB8 r;
 
@@ -213,17 +213,17 @@ void fn1AB8_194E(u8 bArg04)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x0032;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	/* original: mov bx,es:[bx+0Eh] then the shared epilogue at 1AB8:1945
 	 * (`pop ax / push cs / call 1807h`) -- the driver-structure field at
-	 * +0x0E is the far-call target of fn1AB8_1807.  The loaded driver is not
+	 * +0x0E is the far-call target of bgi_driver_trampoline.  The loaded driver is not
 	 * recovered so the field read is not modelled; only the trampoline call
 	 * (a stand-in) is preserved. */
-	fn1AB8_1807();
+	bgi_driver_trampoline();
 }
 
-// 1AB8:1968: void fn1AB8_1968(u8 bArg04, u8 * ptrArg06)
-void fn1AB8_1968(u8 bArg04, u8 * ptrArg06)
+// 1AB8:1968: void bgi_set_text_cursor_attributes(u8 bArg04, u8 * ptrArg06)
+void bgi_set_text_cursor_attributes(u8 bArg04, u8 * ptrArg06)  /* was fn1AB8_1968 */
 {
 	TRegs1AB8 r;
 	u16 off_1968;
@@ -237,7 +237,7 @@ void fn1AB8_1968(u8 bArg04, u8 * ptrArg06)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x001E;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	LG8(0xB842) = 0x0C;                  /* mov byte ptr [0B842h],0Ch */
 	/* original: les bx,[bp+8h] -- offset/segment words of the incoming far
 	 * pointer (flat-model off | seg<<16 convention). */
@@ -247,11 +247,11 @@ void fn1AB8_1968(u8 bArg04, u8 * ptrArg06)
 	r.bx = off_1968;
 	r.es = seg_1968;
 	r.si = 0x0020;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:1992: void fn1AB8_1992(u8 bArg04, u8 bArg06)
-void fn1AB8_1992(u8 bArg04, u8 bArg06)
+// 1AB8:1992: void bgi_set_text_color_palette(u8 bArg04, u8 bArg06)
+void bgi_set_text_color_palette(u8 bArg04, u8 bArg06)  /* was fn1AB8_1992 */
 {
 	TRegs1AB8 r;
 
@@ -262,11 +262,11 @@ void fn1AB8_1992(u8 bArg04, u8 bArg06)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x002A;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:19A6: u16 fn1AB8_19A6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
-u16 fn1AB8_19A6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+// 1AB8:19A6: u16 bgi_compute_char_block_size(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+u16 bgi_compute_char_block_size(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)  /* was fn1AB8_19A6 */
 {
 	TRegs1AB8 r;
 	u16 ax_33;
@@ -295,7 +295,7 @@ u16 fn1AB8_19A6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x0032;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	/* original: mov bx,es:[bx+8h] ; push cs ; call 1807h -- a far call to
 	 * the driver routine whose AX return feeds the first mul.  The routine
 	 * is not recovered; its observable contract (fixed by the shipped data)
@@ -306,7 +306,7 @@ u16 fn1AB8_19A6(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 	 *     RAD.BUT record stride 1086 (DGROUP[0004h]).
 	 * A constant 4 would under-allocate the button blocks (1062 < 1086),
 	 * which the original demonstrably does not do. */
-	fn1AB8_1807();
+	bgi_driver_trampoline();
 	ax_33 = (u16)(r.ax + 0x0001);
 
 	/* original: pop bx (BX = the pushed ax_19) ; mul bx ; mov cx,[bp+6h] ;

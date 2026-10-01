@@ -50,13 +50,13 @@ u16 fn0800_0619(void)
 	                    /* [bp-0104h] formatted string / record scratch (Reko
 	                     * ptrLoc010A).  SS-resident, and SS==DS in the tiny
 	                     * model, so stage at DGROUP 0xF800 for the ES:BX
-	                     * materialization that fn1AB8_1D82 does for the
+	                     * materialization that bgi_get_char_size_info does for the
 	                     * driver's 0x26 text op (a C stack buffer resolves to
 	                     * segment 0 and the "MISSION n" line drew nothing). */
 	u8  bLoc04[0x04];   /* [bp-0004h] 3-byte selected-record copy */
 	u16 ax_569;
 	u16 dx_570;
-	u16 ds_43 = 0x0000; /* dropped DGROUP selector out of fn1AB8_1536 */
+	u16 ds_43 = 0x0000; /* dropped DGROUP selector out of bgi_load_video_driver_file */
 	u16 dx_571;
 	u16 dx_572;
 	u16 dx_573;
@@ -67,8 +67,8 @@ u16 fn0800_0619(void)
 	u8  ch_577;
 
 	fn0800_005A(0x01CF, 0x0264, 0x01A7, 0x0204);
-	(void)fn1AB8_1536(0x0000, 0x0000, 0x0000, &ds_43);
-	fn1AB8_14F4(0x0001, 0x0001);
+	(void)bgi_load_video_driver_file(0x0000, 0x0000, 0x0000, &ds_43);
+	bgi_set_text_rectangle(0x0001, 0x0001);
 
 	/* 0800:0627: fn1EDA_0B24(cs:0605, ds:5ECE) sets ZF when equal. */
 	if (fn1EDA_0B24(&g_seg0800[0x0605], &g_dgroup[0x5ECE], &ax_569, &dx_570) == 0x00)
@@ -99,16 +99,16 @@ u16 fn0800_0619(void)
 		(void)fn1EDA_0A39(0x03, bLoc04, abBuf, &dx_578);
 	}
 
-	fn1AB8_1C32(0x08);
+	bgi_get_text_cursor_attributes(0x08);
 	fn1EDA_0A1F(&g_seg0800[0x0610], abBuf);               /* {8,"MISSION "} */
 	fn1EDA_0AAC(bLoc04, abBuf);
-	(void)fn1AB8_1D82(abBuf, 0x01AE, 0x0233, &ch_574);
-	(void)fn1AB8_1D82(&g_dgroup[0x5ECE], 0x01C6, 0x0233, &ch_575);
-	fn1AB8_1C32(0x0B);
+	(void)bgi_get_char_size_info(abBuf, 0x01AE, 0x0233, &ch_574);
+	(void)bgi_get_char_size_info(&g_dgroup[0x5ECE], 0x01C6, 0x0233, &ch_575);
+	bgi_get_text_cursor_attributes(0x0B);
 	fn1EDA_0A1F(&g_seg0800[0x0610], abBuf);               /* {8,"MISSION "} */
 	fn1EDA_0AAC(bLoc04, abBuf);
-	(void)fn1AB8_1D82(abBuf, 0x01AF, 0x0234, &ch_576);
-	(void)fn1AB8_1D82(&g_dgroup[0x5ECE], 0x01C7, 0x0234, &ch_577);
+	(void)bgi_get_char_size_info(abBuf, 0x01AF, 0x0234, &ch_576);
+	(void)bgi_get_char_size_info(&g_dgroup[0x5ECE], 0x01C7, 0x0234, &ch_577);
 
 	return ds_43;   /* original returns the dropped DGROUP selector (0) */
 }
@@ -120,7 +120,7 @@ s16 fn0800_0768(u16 * bpOut, u16 * dsOut)
 {
 	u16 wLoc02 = 0x0000;   /* [bp-0002h] wait counter (Reko bp_157.tFFFE) */
 	u16 wLoc04 = 0x0000;   /* uninitialised 030D wArg02 stack slot (Reko ss->*sp) */
-	u16 ds_111 = 0x0000;   /* dropped DGROUP selector out of fn1AB8_1536 */
+	u16 ds_111 = 0x0000;   /* dropped DGROUP selector out of bgi_load_video_driver_file */
 	u16 bpDummy = 0x0000;  /* 015B BP-register output, discarded */
 	s16 dx_170 = 0x0000;   /* 015B DX-register output / return value */
 	u8  ch_440;
@@ -132,17 +132,17 @@ s16 fn0800_0768(u16 * bpOut, u16 * dsOut)
 	u8  ch_446;
 	u8  ch_447;
 
-	(void)fn1AB8_1536(0x0000, 0x0000, 0x0000, &ds_111);
-	fn1AB8_14F4(0x0001, 0x0001);
-	fn1AB8_1C32(0x08);
+	(void)bgi_load_video_driver_file(0x0000, 0x0000, 0x0000, &ds_111);
+	bgi_set_text_rectangle(0x0001, 0x0001);
+	bgi_get_text_cursor_attributes(0x08);
 	fn0800_005A(0x01CF, 0x0264, 0x01A7, 0x0204);
-	(void)fn1AB8_1D82(&g_seg0800[0x0755], 0x01AE, 0x0233, &ch_440);   /* {7,"PRESSEZ"} */
-	(void)fn1AB8_1D82(&g_seg0800[0x075D], 0x01C6, 0x0233, &ch_441);   /* {10,"UNE TOUCHE"} */
+	(void)bgi_get_char_size_info(&g_seg0800[0x0755], 0x01AE, 0x0233, &ch_440);   /* {7,"PRESSEZ"} */
+	(void)bgi_get_char_size_info(&g_seg0800[0x075D], 0x01C6, 0x0233, &ch_441);   /* {10,"UNE TOUCHE"} */
 
 l0768_07B6:
-	fn1AB8_1C32(0x0B);
-	(void)fn1AB8_1D82(&g_seg0800[0x0755], 0x01AF, 0x0234, &ch_446);
-	(void)fn1AB8_1D82(&g_seg0800[0x075D], 0x01C7, 0x0234, &ch_447);
+	bgi_get_text_cursor_attributes(0x0B);
+	(void)bgi_get_char_size_info(&g_seg0800[0x0755], 0x01AF, 0x0234, &ch_446);
+	(void)bgi_get_char_size_info(&g_seg0800[0x075D], 0x01C7, 0x0234, &ch_447);
 	wLoc02 = 0x0001;
 	goto l0768_07E7;
 
@@ -158,9 +158,9 @@ l0768_07E7:
 		goto l0768_07E4;
 
 	/* l0800_0804: second, longer wait. */
-	fn1AB8_1C32(0x0E);
-	(void)fn1AB8_1D82(&g_seg0800[0x0755], 0x01AF, 0x0234, &ch_443);
-	(void)fn1AB8_1D82(&g_seg0800[0x075D], 0x01C7, 0x0234, &ch_444);
+	bgi_get_text_cursor_attributes(0x0E);
+	(void)bgi_get_char_size_info(&g_seg0800[0x0755], 0x01AF, 0x0234, &ch_443);
+	(void)bgi_get_char_size_info(&g_seg0800[0x075D], 0x01C7, 0x0234, &ch_444);
 	wLoc02 = 0x0001;
 	goto l0768_0835;
 
@@ -187,7 +187,7 @@ l0768_085E:
 	goto l0768_085E;
 
 l0768_086E:
-	fn1AB8_1C32(0x00);
+	bgi_get_text_cursor_attributes(0x00);
 
 l0768_0875:
 	*bpOut = 0x0000;   /* saved-BP output; not meaningful here */
@@ -196,7 +196,7 @@ l0768_0875:
 }
 
 // 0800:0877: u8 fn0800_0877(void)
-// Scan the 0x5EB0 grid for a cell equal to '^' whose fn1AB8_1E3C result is not
+// Scan the 0x5EB0 grid for a cell equal to '^' whose bgi_draw_line result is not
 // 0x0F; returns 1 when the index reaches 0x1C while still scanning, else 0.
 
 /* Diagnostic (RAD_WIN_TRACE env): log fn0800_0877 outcomes; every ret=1,
@@ -225,7 +225,7 @@ u8 fn0800_0877(void)
 	u8 dl_109;
 
 	while (LG8((u16)(0x5EB0 + (u16)bLoc02)) != 0x5E ||
-	       fn1AB8_1E3C(0x0176,
+	       bgi_draw_line(0x0176,
 	                   (u16)((u16)bLoc02 * 0x0016 + 0x000B),
 	                   &dl_109) == 0x000F)
 	{
@@ -265,7 +265,7 @@ u16 fn0800_08C0(void)
 }
 
 // 0800:08E9: s16 fn0800_08E9(s16 dx)
-// Grid hit-test loop: for every cell, call fn1AB8_1E3C; when it reports 0x0F
+// Grid hit-test loop: for every cell, call bgi_draw_line; when it reports 0x0F
 // select the cell via engine_scatter_starfield.  Esc sets the 58B3h latch.  Called from
 // fn0800_0C71 only; the return value is discarded there.
 s16 fn0800_08E9(s16 dx)
@@ -293,9 +293,9 @@ s16 fn0800_08E9(s16 dx)
 					return dx_134;
 				}
 			}
-			/* asm 091D: fn1AB8_1E3C(bLoc02*22+1, bLoc01*22+1) */
+			/* asm 091D: bgi_draw_line(bLoc02*22+1, bLoc01*22+1) */
 			wLoc04 = (u16)((u16)bLoc01 * 0x0016 + 0x0001);
-			if (fn1AB8_1E3C((u16)((u16)bLoc02 * 0x0016 + 0x0001),
+			if (bgi_draw_line((u16)((u16)bLoc02 * 0x0016 + 0x0001),
 			                wLoc04, &dl_67) == 0x000F)
 			{
 				/* asm 093B: engine_scatter_starfield(bLoc02*22+22, bLoc01*22+22,
@@ -352,14 +352,14 @@ u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)
 		wLoc02 = (u16)((u16)((u16)bArg02 - 0x0009) * 0x0008 +
 		               (u16)(fn0800_04CC((u8)(((u16)bArg02 - 0x0009) << 0x01)) + 0x0016));
 	}
-	fn1AB8_1C32(0x0B);
+	bgi_get_text_cursor_attributes(0x0B);
 	(void)fn1206_0066(&bp_236, &ds_198);
 	/* les di,[di+5388h] with di = bArg02*4 */
 	blk = far_ptr(LG32((u16)(0x5388 + (u16)bArg02 * 0x0004)));
-	(void)fn1AB8_13D7(0x00, blk, 0x0198, wLoc02);
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-	fn1AB8_1C32(0x00);
-	(void)fn1AB8_112E(0x01C4, (u16)(wLoc02 + 0x002C), 0x0197,
+	(void)bgi_signed_rectangle_intersect(0x00, blk, 0x0198, wLoc02);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+	bgi_get_text_cursor_attributes(0x00);
+	(void)bgi_clip_text_rectangle(0x01C4, (u16)(wLoc02 + 0x002C), 0x0197,
 	                  (u16)(wLoc02 - 0x0001));
 	/* asm 0A7C: jz 0A86h -- call 04E3 when 0CD4 returns 0 (bit set). */
 	if (fn1EDA_0CD4(&g_seg0800[0x0982], bArg02, &es_297) == 0x00)
@@ -408,12 +408,12 @@ u16 fn0800_0AA1(u16 * dsOut)
 	}
 	(void)fn1206_0066(&bp_122, &ds_126);
 	fn0800_005A(0x019B, 0x025C, 0x0192, 0x024B);
-	fn1AB8_1C32(0x08);
-	(void)fn1AB8_1D82(bLoc04, 0x0196, 0x0253, &ch_258);
-	fn1AB8_1C32(0x0A);
-	(void)fn1AB8_1D82(bLoc04, 0x0197, 0x0254, &ch_259);
+	bgi_get_text_cursor_attributes(0x08);
+	(void)bgi_get_char_size_info(bLoc04, 0x0196, 0x0253, &ch_258);
+	bgi_get_text_cursor_attributes(0x0A);
+	(void)bgi_get_char_size_info(bLoc04, 0x0197, 0x0254, &ch_259);
 	(void)fn1206_0038(&ch_260, &dx_261, &bp_206, &ds_210);
-	fn1AB8_1C32(0x00);
+	bgi_get_text_cursor_attributes(0x00);
 
 	*dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */
 	return bp_206;     /* saved-BP output (Reko returns [bp_206]) */

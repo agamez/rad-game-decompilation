@@ -50,7 +50,7 @@ u16 fn0800_0B42(void *dsOut)
 	                        /* [bp-0004h] length-prefixed 2-digit record (Reko
 	                         * bLoc06).  SS-resident, and SS==DS in the tiny
 	                         * model, so stage at DGROUP 0xF6F0 for the ES:BX
-	                         * materialization that fn1AB8_1D82 does for the
+	                         * materialization that bgi_get_char_size_info does for the
 	                         * driver's 0x26 text op (a C stack buffer resolves
 	                         * to segment 0 and the seconds digits drew
 	                         * nothing). */
@@ -83,13 +83,13 @@ u16 fn0800_0B42(void *dsOut)
 	(void)fn1206_0066(&bp_122, &ds_126);
 	/* push 233h ; push 192h ; push 244h ; push 19Bh ; call 005Ah */
 	fn0800_005A(0x019B, 0x0244, 0x0192, 0x0233);
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 	/* push 23Bh ; push 196h ; push ss:bp-4 ; call 1AB8:1D82h */
-	(void)fn1AB8_1D82(bLoc06, 0x0196, 0x023B, &ch_257);
-	(void)fn1AB8_1C32(0x0A);
+	(void)bgi_get_char_size_info(bLoc06, 0x0196, 0x023B, &ch_257);
+	(void)bgi_get_text_cursor_attributes(0x0A);
 	/* push 23Ch ; push 197h ; push ss:bp-4 ; call 1AB8:1D82h */
-	(void)fn1AB8_1D82(bLoc06, 0x0197, 0x023C, &ch_258);
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_char_size_info(bLoc06, 0x0197, 0x023C, &ch_258);
+	(void)bgi_get_text_cursor_attributes(0x00);
 	(void)fn1206_0038(&ch_259, &dx_260, &bp_212, &ds_216);
 
 	/* The frozen prototype has no BP output slot: Reko models the return as
@@ -131,12 +131,12 @@ u16 fn0800_0BEC(void)
 	LG16(0x58D4) = prod16;
 	LG16(0x58D6) = (u16)(((s16)prod16 < 0) ? 0xFFFF : 0x0000);
 
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 	/* push 233h ; push 196h ; push cs:0BE1h ; call 1AB8:1D82h */
-	(void)fn1AB8_1D82(&g_seg0800[0x0BE1], 0x0196, 0x0233, &ch_140);
-	(void)fn1AB8_1C32(0x0A);
+	(void)bgi_get_char_size_info(&g_seg0800[0x0BE1], 0x0196, 0x0233, &ch_140);
+	(void)bgi_get_text_cursor_attributes(0x0A);
 	/* push 234h ; push 197h ; push cs:0BE1h ; call 1AB8:1D82h */
-	(void)fn1AB8_1D82(&g_seg0800[0x0BE1], 0x0197, 0x0234, &ch_141);
+	(void)bgi_get_char_size_info(&g_seg0800[0x0BE1], 0x0197, 0x0234, &ch_141);
 	(void)fn0800_0B42(&ds_97);
 	(void)fn0800_0AA1(&ds_112);
 
@@ -286,41 +286,41 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 		fn1EDA_0A39(0xFF, bLoc0206, bLoc0318, &dx_1873);
 
 	/* 0800:0D9C: allocate the screen buffer and draw the dialog. */
-	(void)fn1AB8_1C32(0x0B);
-	ax_181 = fn1AB8_13A3(wArg06, wArg08, wArg0A, wArg0C);
+	(void)bgi_get_text_cursor_attributes(0x0B);
+	ax_181 = bgi_clamp_rectangle_coords(wArg06, wArg08, wArg0A, wArg0C);
 	dx_ax_1868 = fn1EDA_023F(ax_181, 0x0000, 0x0000, &ds_200);
-	fn1AB8_1E6B(far_ptr(dx_ax_1868),
+	bgi_draw_clip_rectangle(far_ptr(dx_ax_1868),
 	            wArg06, wArg08, wArg0A, wArg0C);
 	fn0800_0024(wArg06, wArg08, wArg0A, wArg0C);
-	(void)fn1AB8_112E(wArg06, wArg08, wArg0A, wArg0C);
-	(void)fn1AB8_1536(0x01, 0x00, 0x00, &ds_296);
-	fn1AB8_14F4(0x01, 0x00);
+	(void)bgi_clip_text_rectangle(wArg06, wArg08, wArg0A, wArg0C);
+	(void)bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_296);
+	bgi_set_text_rectangle(0x01, 0x00);
 
 	/* 0800:0E18: ax_317 = (wArg06 - wArg0A) / 2 + wArg0A (16-bit). */
 	ax_317 = (u16)(((wArg06 - wArg0A) >> 1) + wArg0A);
 
 	/* 0800:0E28: label the code field. */
 	{
-		u16 arg = (u16)(fn1AB8_1E0B(&g_seg0800[0x0D0F]) + wArg0C);
-		(void)fn1AB8_1D82(abLoc0100, ax_317, arg, &ch_1871);
+		u16 arg = (u16)(bgi_advance_text_pointer(&g_seg0800[0x0D0F]) + wArg0C);
+		(void)bgi_get_char_size_info(abLoc0100, ax_317, arg, &ch_1871);
 	}
 	fn1EDA_0A1F(&g_seg0800[0x0D12], abLoc0418);
 	fn1EDA_0AAC(abLoc0100, abLoc0418);
 	{
-		u16 arg = (u16)(fn1AB8_1E0B(abLoc0418) + wArg0C);
-		fn1AB8_108B(ax_317, arg);
+		u16 arg = (u16)(bgi_advance_text_pointer(abLoc0418) + wArg0C);
+		bgi_set_text_color(ax_317, arg);
 	}
 
 	/* 0800:0E6D: ax_422 = current cursor column; draw the caret field. */
-	ax_422 = fn1AB8_10A8();
-	(void)fn1AB8_1C32(0x0A);
-	(void)fn1AB8_1D82(bLoc0206, ax_317, ax_422, &ch_1872);
+	ax_422 = bgi_get_text_foreground();
+	(void)bgi_get_text_cursor_attributes(0x0A);
+	(void)bgi_get_char_size_info(bLoc0206, ax_317, ax_422, &ch_1872);
 	fn1EDA_0A1F(&g_seg0800[0x0D12], abLoc0418);
 	fn1EDA_0AAC(abLoc0100, abLoc0418);
 	fn1EDA_0AAC(bLoc0206, abLoc0418);
 	{
-		u16 arg = (u16)(fn1AB8_1E0B(abLoc0418) + wArg0C);
-		fn1AB8_108B(ax_317, arg);
+		u16 arg = (u16)(bgi_advance_text_pointer(abLoc0418) + wArg0C);
+		bgi_set_text_color(ax_317, arg);
 	}
 
 	/* 0800:0EC8: keypad loop. */
@@ -335,10 +335,10 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 		{
 			u16 a3;
 			u16 a4;
-			(void)fn1AB8_1C32(0x0B);
-			a3 = fn1AB8_10A8();
-			a4 = fn1AB8_10A8();
-			(void)fn1AB8_1AF6((u16)(ax_317 - 0x06), a4,
+			(void)bgi_get_text_cursor_attributes(0x0B);
+			a3 = bgi_get_text_foreground();
+			a4 = bgi_get_text_foreground();
+			(void)bgi_set_pixel((u16)(ax_317 - 0x06), a4,
 			                  (u16)(ax_317 + 0x06), a3, &dx_1874);
 		}
 
@@ -348,10 +348,10 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 			u16 a3;
 			u16 a4;
 			wLoc0210 = 0x0000;
-			(void)fn1AB8_1C32(0x00);
-			a3 = fn1AB8_10A8();
-			a4 = fn1AB8_10A8();
-			(void)fn1AB8_1AF6((u16)(ax_317 - 0x06), a4,
+			(void)bgi_get_text_cursor_attributes(0x00);
+			a3 = bgi_get_text_foreground();
+			a4 = bgi_get_text_foreground();
+			(void)bgi_set_pixel((u16)(ax_317 - 0x06), a4,
 			                  (u16)(ax_317 + 0x06), a3, &dx_1875);
 		}
 
@@ -360,12 +360,12 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 		{
 			u16 a3;
 			u16 a4;
-			(void)fn1AB8_1C32(0x00);
-			a3 = fn1AB8_10A8();
-			a4 = fn1AB8_10A8();
-			(void)fn1AB8_1AF6((u16)(ax_317 - 0x06), a4,
+			(void)bgi_get_text_cursor_attributes(0x00);
+			a3 = bgi_get_text_foreground();
+			a4 = bgi_get_text_foreground();
+			(void)bgi_set_pixel((u16)(ax_317 - 0x06), a4,
 			                  (u16)(ax_317 + 0x06), a3, &dx_684);
-			(void)fn1AB8_1C32(0x0A);
+			(void)bgi_get_text_cursor_attributes(0x0A);
 			ax_693 = fn1E78_030D((s16)dx_684, 0x000A, &dx_696);
 			al_704 = fn1EDA_1384((u8)ax_693);
 			bLoc0209 = al_704;
@@ -386,8 +386,8 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 				u16 ax_1188;
 				u16 ax_1197;
 				ax_1188 = (u16)(wArg08 -
-				                fn1AB8_1E0B(&g_seg0800[0x0D0F]));
-				ax_1197 = fn1AB8_10A8();
+				                bgi_advance_text_pointer(&g_seg0800[0x0D0F]));
+				ax_1197 = bgi_get_text_foreground();
 				/* cmp dx,bx ; jl ; jg ; cmp ax,cx ; jnc : action when the
 				 * cursor column is negative or exactly 0 and < the field
 				 * width. */
@@ -395,7 +395,7 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 				    ((s16)ax_1197 == 0 && ax_1197 < ax_1188))
 				{
 					fn1EDA_0B4F(bLoc0209, abLoc0418);
-					fn1AB8_1492(abLoc0418);
+					bgi_draw_text_string(abLoc0418);
 					fn1EDA_0A1F(bLoc0206, abLoc0518);
 					fn1EDA_0B4F(bLoc0209, abLoc0418);
 					fn1EDA_0AAC(abLoc0418, abLoc0518);
@@ -414,16 +414,16 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 				u16 BB2;
 				u16 AX3;
 				bLoc0206[0] = 0x00;
-				F1  = fn1AB8_1783(&g_seg0800[0x0D17]);
-				BB1 = fn1AB8_10BB();
+				F1  = bgi_display_error_string(&g_seg0800[0x0D17]);
+				BB1 = bgi_get_text_background();
 				AX1 = (u16)(BB1 - (F1 >> 1));
-				E1  = fn1AB8_1E0B(&g_seg0800[0x0D19]);
+				E1  = bgi_advance_text_pointer(&g_seg0800[0x0D19]);
 				AX2 = (u16)(E1 + ax_422);
-				F2  = fn1AB8_1783(&g_seg0800[0x0D17]);
-				BB2 = fn1AB8_10BB();
+				F2  = bgi_display_error_string(&g_seg0800[0x0D17]);
+				BB2 = bgi_get_text_background();
 				AX3 = (u16)(BB2 + (F2 >> 1));
 				fn0800_0024(AX3, AX2, AX1, ax_422);
-				fn1AB8_108B(ax_317, ax_422);
+				bgi_set_text_color(ax_317, ax_422);
 			}
 			/* 0800:10A5: code 08h (left) -> move the caret field. */
 			else if (bLoc0209 == 0x08)
@@ -439,25 +439,25 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 				u16 BB2;
 				u16 E3;
 				u16 ax_748;
-				ax_748 = fn1AB8_10A8();
+				ax_748 = bgi_get_text_foreground();
 				if ((s16)ax_748 >= 0 && ax_422 < ax_748)
 				{
-					W1  = fn1AB8_10A8();
+					W1  = bgi_get_text_foreground();
 					ax_769 = W1;
-					E1  = fn1AB8_1E0B(&g_seg0800[0x0D17]);
-					W2  = fn1AB8_10A8();
-					F1  = fn1AB8_1783(&g_seg0800[0x0D17]);
-					BB1 = fn1AB8_10BB();
-					E2  = fn1AB8_1E0B(&g_seg0800[0x0D17]);
-					W3  = fn1AB8_10A8();
-					F2  = fn1AB8_1783(&g_seg0800[0x0D17]);
-					BB2 = fn1AB8_10BB();
+					E1  = bgi_advance_text_pointer(&g_seg0800[0x0D17]);
+					W2  = bgi_get_text_foreground();
+					F1  = bgi_display_error_string(&g_seg0800[0x0D17]);
+					BB1 = bgi_get_text_background();
+					E2  = bgi_advance_text_pointer(&g_seg0800[0x0D17]);
+					W3  = bgi_get_text_foreground();
+					F2  = bgi_display_error_string(&g_seg0800[0x0D17]);
+					BB2 = bgi_get_text_background();
 					fn0800_0024((u16)(BB2 + (F2 >> 1)),
 					            (u16)(W3 + E2),
 					            (u16)(BB1 - (F1 >> 1)),
 					            (u16)(W2 - E1));
-					E3 = fn1AB8_1E0B(&g_seg0800[0x0D17]);
-					fn1AB8_108B(ax_317, (u16)(ax_769 - E3));
+					E3 = bgi_advance_text_pointer(&g_seg0800[0x0D17]);
+					bgi_set_text_color(ax_317, (u16)(ax_769 - E3));
 					fn1EDA_0BD0(0x01, (u16)bLoc0206[0], bLoc0206);
 				}
 			}
@@ -469,7 +469,7 @@ u16 fn0800_0D20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg0C,
 		fn1EDA_0A39(0xFF, bLoc0206, bLoc0318, &dx_1879);
 
 	/* 0800:119D: free the screen buffer, then copy the last line out. */
-	(void)fn1AB8_13D7(0x00, far_ptr(dx_ax_1868), wArg0A, wArg0C);
+	(void)bgi_signed_rectangle_intersect(0x00, far_ptr(dx_ax_1868), wArg0A, wArg0C);
 	(void)fn1EDA_0254(ax_181, (u16)(dx_ax_1868 & 0xFFFFu), (u16)(dx_ax_1868 >> 16), 0, &dx_1877, &ds_1417);
 	fn1EDA_0A39(0xFF, ptrArg0E, bLoc0206, &dx_1878);
 

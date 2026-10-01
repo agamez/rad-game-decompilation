@@ -55,7 +55,7 @@
 /* 0800:3CFA: u16 fn0800_3CFA(void)
  * Time the "completion" hold: set the 53DFh "timed already" flag, select video
  * attribute 0, stamp the ds:555Eh interval record with the current clock
- * (fn0800_3BF2), then poll every clock tick (fn1AB8_122E + fn0800_3C72) until
+ * (fn0800_3BF2), then poll every clock tick (bgi_draw_scaled_text_number + fn0800_3C72) until
  * the elapsed interval is positive or reaches 100 ticks.  The tick count * 8
  * / 100 (minimum 7) is stored at ds:58E6h.  Called from fn0800_3D9D. */
 u16 fn0800_3CFA(void)
@@ -67,7 +67,7 @@ u16 fn0800_3CFA(void)
 	/* mov byte ptr [53DFh],1h */
 	LG8(0x53DF) = 0x01;
 	/* push 0h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x00);
+	(void)bgi_get_text_cursor_attributes(0x00);
 	/* push ds:555Eh ; call 3BF2h */
 	fn0800_3BF2(&g_dgroup[0x555E]);
 
@@ -75,7 +75,7 @@ u16 fn0800_3CFA(void)
 	 * inc [bp-2h] ; push ds:555Eh ; call 3C72h ; cmp dx,0. */
 	do
 	{
-		(void)fn1AB8_122E(0x005A, 0x0064, 0x0064);
+		(void)bgi_draw_scaled_text_number(0x005A, 0x0064, 0x0064);
 		++wLoc04;
 		ax_74 = fn0800_3C72(&g_dgroup[0x555E], &dx_78);
 	} while (dx_78 <= 0x0000 && (dx_78 < 0x0000 || ax_74 <= 0x0064));
@@ -158,7 +158,7 @@ u16 fn0800_3D9D(void)
 	/* call far 1206h:0066h ; call far 13E2h:003Bh ; call far 1AB8h:0F80h */
 	fn1206_0066(&bp_1592, &ds_16);
 	(void)fn13E2_003B();
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	/* cmp byte ptr [53DFh],0h ; jnz 3DBAh ; else call 3CFAh */
 	if (LG8(0x53DF) == 0x00)
 		(void)fn0800_3CFA();
@@ -167,23 +167,23 @@ u16 fn0800_3D9D(void)
 	(void)fn13E2_0080();
 	(void)fn0800_21E7();
 	/* push 7h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x07);
+	(void)bgi_get_text_cursor_attributes(0x07);
 	/* push 1h ; push 0h ; push 2h ; call far 1AB8h:1536h */
-	(void)fn1AB8_1536(0x02, 0x00, 0x01, &ds_106);
+	(void)bgi_load_video_driver_file(0x02, 0x00, 0x01, &ds_106);
 	/* call far 1206h:0066h */
 	fn1206_0066(&bp_1593, &ds_118);
 	/* push 140h ; push 1CEh ; push cs:3D5Ah ; call far 1AB8h:1D82h */
-	(void)fn1AB8_1D82(&g_seg0800[0x3D5A], 0x01CE, 0x0140, &ch_1594);
+	(void)bgi_get_char_size_info(&g_seg0800[0x3D5A], 0x01CE, 0x0140, &ch_1594);
 	/* push 2h ; push 0h ; push 0h ; push 0h ; call far 1AB8h:1CBAh */
-	(void)fn1AB8_1CBA(0x00, 0x00, 0x00, 0x02);
+	(void)bgi_get_pixel(0x00, 0x00, 0x00, 0x02);
 	/* push 2h ; push 2h ; call far 1AB8h:1342h */
-	(void)fn1AB8_1342(0x02, 0x02);
+	(void)bgi_set_text_character_color(0x02, 0x02);
 	/* push 2h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x02);
+	(void)bgi_get_text_cursor_attributes(0x02);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
-	fn1AB8_10F4(0x01, 0x00, 0x00);
+	bgi_set_text_background_color(0x01, 0x00, 0x00);
 	/* push 6Ah ; push 16Dh ; push 203h ; push 1C9h ; call far 1AB8h:112Eh */
-	(void)fn1AB8_112E(0x01C9, 0x0203, 0x016D, 0x006A);
+	(void)bgi_clip_text_rectangle(0x01C9, 0x0203, 0x016D, 0x006A);
 	/* push 79h ; push 19Bh ; call far 0C74h:06B7h (the returned DGROUP
 	 * selector is dropped in the flat model). */
 	(void)engine_arm_window_geometry(0x019B, 0x0079);
@@ -261,10 +261,10 @@ l0800_3E46:
 	(void)fn0800_19E1(0x00, &g_dgroup[0x5452], LG16(0x542C), LG16(0x541E),
 	                  0x0002, &dx_1604, &bp_570, &ds_574);
 	/* push 1h ; push 3h ; call far 1AB8h:1175h */
-	fn1AB8_1175(0x03, 0x01);
+	bgi_set_text_font_size(0x03, 0x01);
 	/* mov ax,[53E4h]-4 ; [53F2h]-1 ; [5400h]+4 ; [540Eh]+3 ;
 	 * call far 1AB8h:1B3Eh */
-	(void)fn1AB8_1B3E((u16)(LG16(0x540E) + 0x0003),
+	(void)bgi_draw_rectangle((u16)(LG16(0x540E) + 0x0003),
 	                  (u16)(LG16(0x5400) + 0x0004),
 	                  (u16)(LG16(0x53F2) - 0x0001),
 	                  (u16)(LG16(0x53E4) - 0x0004));
@@ -349,10 +349,10 @@ l0800_3FE3:
 		/* l0800_4093: modal RAD.MEM browser until 5CB3h is set. */
 		do
 		{
-			(void)fn1AB8_1CBA(0x00, 0x2A, 0x00, 0x02);
-			(void)fn1AB8_1342(0x02, 0x02);
+			(void)bgi_get_pixel(0x00, 0x2A, 0x00, 0x02);
+			(void)bgi_set_text_character_color(0x02, 0x02);
 			fn1206_0066(&bp_1621, &ds_894);
-			(void)fn1AB8_1342(0x00, 0x08);
+			(void)bgi_set_text_character_color(0x00, 0x08);
 			/* push ds:5ED6h ; push cs:3D91h ; call far 1EDAh:0B24h ;
 			 * jnz 40D9h */
 			if (fn1EDA_0B24(&g_seg0800[0x3D91], &g_dgroup[0x5ED6],

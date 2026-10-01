@@ -8,7 +8,7 @@
  * Hardware / DOS (CONVENTIONS.md rule 4): this segment contains no direct
  * `int 10h` / `int 16h` / `int 21h`, no `in`/`out` port instruction, no
  * __cli/__sti and no int 23h.  All video/text work is reached through
- * segment 1AB8 (fn1AB8_1CBA / 1342), segment 1E78 (fn1E78_016B) and
+ * segment 1AB8 (bgi_get_pixel / 1342), segment 1E78 (fn1E78_016B) and
  * segment 1EDA (BGI text output helpers); those ports carry the hardware
  * translation.  The implicit DS selector parameter is dropped (flat model)
  * and the Reko `out ds` parameters are dropped.
@@ -32,20 +32,20 @@
 #include "seg1E78.h"
 
 // 13E2:0001: u8 fn13E2_0001(u16 * dsOut)
-// Initialise the BGI driver state: fn1AB8_0BAE(cs:0000, ss:bp-6, ss:bp-4)
-// then report whether fn1AB8_04F3 found a pending BGI error (0 -> success,
+// Initialise the BGI driver state: bgi_load_bgi_driver(cs:0000, ss:bp-6, ss:bp-4)
+// then report whether bgi_get_error_code found a pending BGI error (0 -> success,
 // 1 -> error).  The DS selector returned by 0BAE is the `dsOut` output.
 u8 fn13E2_0001(u16 *dsOut)
 {
-    u16 wLoc4 = 0x0000;   /* [bp-4]  fn1AB8_0BAE ptrArg0C (prologue zeroes it) */
-    s16 wLoc6;            /* [bp-6]  fn1AB8_0BAE ptrArg08 (char-height out) */
-    u16 wLoc8;            /* [bp-8]  fn1AB8_04F3 result */
+    u16 wLoc4 = 0x0000;   /* [bp-4]  bgi_load_bgi_driver ptrArg0C (prologue zeroes it) */
+    s16 wLoc6;            /* [bp-6]  bgi_load_bgi_driver ptrArg08 (char-height out) */
+    u16 wLoc8;            /* [bp-8]  bgi_get_error_code result */
     u8  bLoc1;            /* [bp-1]  result flag (AL at retf) */
-    u16 ds_36;            /* fn1AB8_0BAE DS return (dropped selector, flat model) */
+    u16 ds_36;            /* bgi_load_bgi_driver DS return (dropped selector, flat model) */
 
     /* original: push ss:bp-4 ; push ss:bp-6 ; push cs:0000 ; call 1AB8:0BAE */
-    ds_36 = fn1AB8_0BAE(&g_seg13E2[0x0000], &wLoc6, (u8 *)&wLoc4);
-    wLoc8 = fn1AB8_04F3();
+    ds_36 = bgi_load_bgi_driver(&g_seg13E2[0x0000], &wLoc6, (u8 *)&wLoc4);
+    wLoc8 = bgi_get_error_code();
     if (wLoc8 != 0x0000)
         bLoc1 = 0x00;
     else
@@ -60,7 +60,7 @@ u8 fn13E2_0001(u16 *dsOut)
 // the driver with a zero colour.  Reko returns SLICE(dx, byte, 8).
 u8 fn13E2_003B(void)
 {
-    u16 dx = 0x0000;   /* fn1AB8_1CBA DX result */
+    u16 dx = 0x0000;   /* bgi_get_pixel DX result */
 
     if (LG8(0xB6C1) != 0x00)
     {
@@ -68,8 +68,8 @@ u8 fn13E2_003B(void)
         LG8(0xB6BE) = 0x0F;
         for (;;)
         {
-            dx = fn1AB8_1CBA(0x0000, 0x0000, 0x0000, (u16)LG8(0xB6BE));
-            (void)fn1AB8_1342((u8)LG8(0xB6BE), (u16)LG8(0xB6BE));
+            dx = bgi_get_pixel(0x0000, 0x0000, 0x0000, (u16)LG8(0xB6BE));
+            (void)bgi_set_text_character_color((u8)LG8(0xB6BE), (u16)LG8(0xB6BE));
             if (LG8(0xB6BE) == 0x00)
                 break;
             LG8(0xB6BE) = (u8)(LG8(0xB6BE) - 0x01);
@@ -82,10 +82,10 @@ u8 fn13E2_003B(void)
 // Install the BGI text: if not already installed, program all 16 colour
 // slots (00h..0Fh) from the 3-byte-per-entry table at 50CCh/50CDh/50CEh,
 // passing each entry as the driver's (R,G,B) components.  Returns the last
-// fn1AB8_1CBA DX value.
+// bgi_get_pixel DX value.
 u16 fn13E2_0080(void)
 {
-    u16 dx = 0x0000;   /* fn1AB8_1CBA DX result */
+    u16 dx = 0x0000;   /* bgi_get_pixel DX result */
 
     if (LG8(0xB6C1) == 0x00)
     {
@@ -95,11 +95,11 @@ u16 fn13E2_0080(void)
         {
             u16 idx = (u16)LG8(0xB6BE);
             /* asm: di = idx*3 ; al = [di+50CEh] / [di+50CDh] / [di+50CCh] */
-            dx = fn1AB8_1CBA((u16)LG8((u16)(0x50CE + idx * 0x03)),
+            dx = bgi_get_pixel((u16)LG8((u16)(0x50CE + idx * 0x03)),
                              (u16)LG8((u16)(0x50CD + idx * 0x03)),
                              (u16)LG8((u16)(0x50CC + idx * 0x03)),
                              idx);
-            (void)fn1AB8_1342((u8)idx, idx);
+            (void)bgi_set_text_character_color((u8)idx, idx);
             if (LG8(0xB6BE) == 0x0F)
                 break;
             LG8(0xB6BE) = (u8)(LG8(0xB6BE) + 0x01);
@@ -121,13 +121,13 @@ void fn13E2_00FB(void)
         {
             u16 idx = (u16)LG8(0xB6BE);
             if (LG8(0xB6BE) == 0x08)
-                (void)fn1AB8_1CBA(0x0000, 0x0000, 0x0000, idx);
+                (void)bgi_get_pixel(0x0000, 0x0000, 0x0000, idx);
             else
-                (void)fn1AB8_1CBA((u16)LG8((u16)(0x50CE + idx * 0x03)),
+                (void)bgi_get_pixel((u16)LG8((u16)(0x50CE + idx * 0x03)),
                                   (u16)LG8((u16)(0x50CD + idx * 0x03)),
                                   (u16)LG8((u16)(0x50CC + idx * 0x03)),
                                   idx);
-            (void)fn1AB8_1342((u8)idx, idx);
+            (void)bgi_set_text_character_color((u8)idx, idx);
             if (LG8(0xB6BE) == 0x0F)
                 break;
             LG8(0xB6BE) = (u8)(LG8(0xB6BE) + 0x01);
@@ -137,7 +137,7 @@ void fn13E2_00FB(void)
 
 // 13E2:0193: u16 fn13E2_0193(u8 * ptrArg04)
 // Report a fatal BGI error: format ptrArg04 into [bp-0100h], tear the video
-// driver down (fn1AB8_0EB5 / 0E88), run the 1E78 teardown (fn1E78_016B), copy the
+// driver down (bgi_shutdown_video_driver / 0E88), run the 1E78 teardown (fn1E78_016B), copy the
 // message to [bp-0200h], append the 0x0191 beep string three times, emit the
 // result through the BGI stream at ds:0B9BCh and terminate via the CRT fatal
 // exit fn1EDA_00E9(0) (no return).
@@ -151,8 +151,8 @@ u16 fn13E2_0193(u8 *ptrArg04)
 
     /* original: push 0FFh ; push ss:bp-0100h ; push ptrArg04 ; call 1EDA:0A39 */
     fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_228);
-    fn1AB8_0EB5();
-    fn1AB8_0E88();
+    bgi_shutdown_video_driver();
+    bgi_swap_graphics_gateway();
     /* original: push [0B8ACh] ; call far 1E78:016B */
     (void)fn1E78_016B(LG16(0xB8AC), &dx_229);
     /* original: 0A1F(src=ss:bp-0100h, dst=ss:bp-0200h) then three 0AAC
@@ -180,13 +180,13 @@ u16 fn13E2_0220(void)
     u16 ds = 0x0000;   /* DGROUP selector threaded through fn13E2_0193 */
 
     /* original: push 13E2h:0278h ; call far 1AB8:05D3 ; or ax,ax ; jge */
-    if ((s16)fn1AB8_05D3(&g_seg13E2[0x0278]) < 0x0000)
+    if ((s16)bgi_find_video_driver_index(&g_seg13E2[0x0278]) < 0x0000)
         ds = fn13E2_0193(&g_seg13E2[0x0208]);
     /* original: push 13E2h:182Ah ; call far 1AB8:06CA ; or ax,ax ; jge */
-    if ((s16)fn1AB8_06CA(&g_seg13E2[0x182A]) < 0x0000)
+    if ((s16)bgi_unload_video_driver(&g_seg13E2[0x182A]) < 0x0000)
         ds = fn13E2_0193(&g_seg13E2[0x0208]);
     /* original: push 13E2h:594Fh ; call far 1AB8:06CA ; or ax,ax ; jge */
-    if ((s16)fn1AB8_06CA(&g_seg13E2[0x594F]) < 0x0000)
+    if ((s16)bgi_unload_video_driver(&g_seg13E2[0x594F]) < 0x0000)
         ds = fn13E2_0193(&g_seg13E2[0x0208]);
     LG8(0xB6C1) = 0x01;
     return ds;

@@ -22,8 +22,8 @@
 #include "seg1EDA.h"
 
 /* 1AB8:0538.  It is the target of the DGROUP far code pointer at
- * [0xB6C6]/[0xB6C8], assigned by fn1AB8_17AE (`mov ax,538h; mov dx,1AB8h`)
- * and called indirectly at 1AB8:079D in fn1AB8_06CA.  The original thunk is:
+ * [0xB6C6]/[0xB6C8], assigned by bgi_init_graphics_driver (`mov ax,538h; mov dx,1AB8h`)
+ * and called indirectly at 1AB8:079D in bgi_unload_video_driver.  The original thunk is:
  *
  *     push bp / mov bp,sp
  *     les di,[bp+8h]               ; ptrArg08 = far pointer slot
@@ -46,7 +46,7 @@
  * file-static copy of the helper part2 also defines (the two TUs do not
  * share the symbol).  fn1EDA_0254's ptrArg06/dxOut/dsOut parameters are the
  * iface.tsv artifact (the .asm pops only wArg00/wArg02/wArg04). */
-static void fn1AB8_0538(u16 wArg06, u32 * ptrArg08)
+static void bgi_free_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_0538 */
 {
 	u16 dxOut_0538 = 0x0000;
 	u16 dsOut_0538 = 0x0000;
@@ -58,8 +58,8 @@ static void fn1AB8_0538(u16 wArg06, u32 * ptrArg08)
 	*ptrArg08 = 0x00000000u;
 }
 
-// 1AB8:0000: void fn1AB8_0000(u32 dwArg02, u8 * ptrArg06)
-void fn1AB8_0000(u32 dwArg02, u8 * ptrArg06)
+// 1AB8:0000: void bgi_print_error_code(u32 dwArg02, u8 * ptrArg06)
+void bgi_print_error_code(u32 dwArg02, u8 * ptrArg06)  /* was fn1AB8_0000 */
 {
 	u8  abBuf[8];          /* [bp-0008h] */
 	u16 dx_95;
@@ -69,8 +69,8 @@ void fn1AB8_0000(u32 dwArg02, u8 * ptrArg06)
 	fn1EDA_0A39(0xFF, ptrArg06, abBuf, &dx_95);
 }
 
-// 1AB8:008B: u16 fn1AB8_008B(void)
-u16 fn1AB8_008B(void)
+// 1AB8:008B: u16 bgi_error_not_initialized(void)
+u16 bgi_error_not_initialized(void)  /* was fn1AB8_008B */
 {
 	u16 cx_87;
 	u16 dsSel;
@@ -97,8 +97,8 @@ u16 fn1AB8_008B(void)
 	return (u16)(uintptr_t)fn1EDA_00E9(0x0001);
 }
 
-// 1AB8:027E: void fn1AB8_027E(u16 wArg04, u8 * ptrArg06)
-void fn1AB8_027E(u16 wArg04, u8 * ptrArg06)
+// 1AB8:027E: void bgi_color_name_to_string(u16 wArg04, u8 * ptrArg06)
+void bgi_color_name_to_string(u16 wArg04, u8 * ptrArg06)  /* was fn1AB8_027E */
 {
 	u8  abBuf[0x200];        /* [bp-0200h] 512-byte scratch */
 	u8 *buf1 = abBuf + 0x100;/* [bp-0100h] overlaps abBuf (bytes 0..0x1FF) */
@@ -170,7 +170,7 @@ void fn1AB8_027E(u16 wArg04, u8 * ptrArg06)
 		/* [bp-0200h] formatter buffer, [bp-0100h] number buffer */
 		fn1EDA_0A1F(&g_seg1AB8[0x026D], abBuf);
 		/* original pushes cwd(dwArg02) then ss:bp-0100h: AX:DX = (s32)(s16)wArg04 */
-		fn1AB8_0000((u32)(s32)(s16)wArg04, buf1);
+		bgi_print_error_code((u32)(s32)(s16)wArg04, buf1);
 		fn1EDA_0AAC(buf1, abBuf);
 		fn1EDA_0AAC(&g_seg1AB8[0x013D], abBuf);
 		fn1EDA_0A39(0xFF, ptrArg06, abBuf, &dx_1036);
@@ -178,8 +178,8 @@ void fn1AB8_027E(u16 wArg04, u8 * ptrArg06)
 	}
 }
 
-// 1AB8:04F3: u16 fn1AB8_04F3(void)
-u16 fn1AB8_04F3(void)
+// 1AB8:04F3: u16 bgi_get_error_code(void)
+u16 bgi_get_error_code(void)  /* was fn1AB8_04F3 */
 {
 	u16 ax_11 = LG16(0xB818);
 
@@ -187,8 +187,8 @@ u16 fn1AB8_04F3(void)
 	return ax_11;
 }
 
-// 1AB8:0569: u16 fn1AB8_0569(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * dxOut)
-u16 fn1AB8_0569(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * dxOut)
+// 1AB8:0569: u16 bgi_reloc_copy_with_alignment(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * dxOut)
+u16 bgi_reloc_copy_with_alignment(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * dxOut)  /* was fn1AB8_0569 */
 {
 	u16 v11_14 = (u16)(wArg0A + *(u16 *)ptrArg06);
 	u16 ax_20  = (u16)((u16)(uintptr_t)wArg0C + (v11_14 >> 0x04));
@@ -198,7 +198,7 @@ u16 fn1AB8_0569(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * d
 		/* original: fn1EDA_11DF(count, dst = MK_FP(ax_20, 0),
 		 *                       src = MK_FP(wArg0C, v11_14))
 		 * The 16:16 far addresses are carried as off | seg<<16, the
-		 * flat-port convention also used by fn1AB8_0BAE's 1EDA:11DF
+		 * flat-port convention also used by bgi_load_bgi_driver's 1EDA:11DF
 		 * call.  ptrArg02/ptrArg06 are host pointers to the source
 		 * record/count words. */
 		fn1EDA_11DF(*(u16 *)ptrArg02,
@@ -211,8 +211,8 @@ u16 fn1AB8_0569(u8 * ptrArg02, u8 * ptrArg06, u16 wArg0A, void * wArg0C, u16 * d
 	return 0x0000;
 }
 
-// 1AB8:05D3: u16 fn1AB8_05D3(u8 * ptrArg04)
-u16 fn1AB8_05D3(u8 * ptrArg04)
+// 1AB8:05D3: u16 bgi_find_video_driver_index(u8 * ptrArg04)
+u16 bgi_find_video_driver_index(u8 * ptrArg04)  /* was fn1AB8_05D3 */
 {
 	u8  abBuf[0x108];        /* [bp-0108h] fn1EDA_0B61 output */
 	u16 wLoc02;              /* [bp-0002h] result / [0B818h] mirror */
@@ -262,7 +262,7 @@ u16 fn1AB8_05D3(u8 * ptrArg04)
 		{
 			/* 067E: found -- store the returned far pointer in the
 			 * record table at ds:5112/5114 + n*0x1A. */
-			ax_0569 = fn1AB8_0569(pRec + 0x04, pRec, wArg04_202,
+			ax_0569 = bgi_reloc_copy_with_alignment(pRec + 0x04, pRec, wArg04_202,
 			                      (void *)(uintptr_t)wArg06_203, &dx_0569);
 			LG16((u16)(wLoc08 * 0x1A + 0x5112)) = ax_0569;
 			LG16((u16)(wLoc08 * 0x1A + 0x5114)) = dx_0569;
@@ -276,8 +276,8 @@ u16 fn1AB8_05D3(u8 * ptrArg04)
 	}
 }
 
-// 1AB8:06CA: u16 fn1AB8_06CA(u8 * ptrArg04)
-u16 fn1AB8_06CA(u8 * ptrArg04)
+// 1AB8:06CA: u16 bgi_unload_video_driver(u8 * ptrArg04)
+u16 bgi_unload_video_driver(u8 * ptrArg04)  /* was fn1AB8_06CA */
 {
 	u8  abBuf1[0x08];        /* [bp-010Ah] fn1EDA_0B61 output (first test) */
 	u8  abBuf2[0x08];        /* [bp-010Eh] fn1EDA_0B61 output (record test) */
@@ -331,13 +331,13 @@ u16 fn1AB8_06CA(u8 * ptrArg04)
 	pRec520B = &g_dgroup[(u16)(wLoc08 * 0x0F + 0x520B)];
 	/* original: call dword ptr [0B6C6h] (1AB8:0538) with the record far
 	 * pointer and its word at +8. */
-	fn1AB8_0538(*(u16 *)&pRec520B[0x08], (u32 *)pRec520B);
+	bgi_free_driver_blob(*(u16 *)&pRec520B[0x08], (u32 *)pRec520B);
 	*(u16 *)&pRec520B[0x00] = 0x0000;
 	*(u16 *)&pRec520B[0x02] = 0x0000;
 
 	wArg04_318 = (u16)(uintptr_t)ptrArg04;
 	wArg06_317 = far_seg_of(ptrArg04);
-	ax_0569 = fn1AB8_0569(pRec + 0x06, pRec, wArg04_318,
+	ax_0569 = bgi_reloc_copy_with_alignment(pRec + 0x06, pRec, wArg04_318,
 	                      (void *)(uintptr_t)wArg06_317, &dx_0569);
 	*(u16 *)&pRec520B[0x04] = ax_0569;
 	*(u16 *)&pRec520B[0x06] = dx_0569;
@@ -348,8 +348,8 @@ u16 fn1AB8_06CA(u8 * ptrArg04)
 	return wLoc02;
 }
 
-// 1AB8:0813: u16 fn1AB8_0813(void * dxOut)
-u16 fn1AB8_0813(void * dxOut)
+// 1AB8:0813: u16 bgi_init_graphics_error(void * dxOut)
+u16 bgi_init_graphics_error(void * dxOut)  /* was fn1AB8_0813 */
 {
 	LG16(0xB820) = 0x008B;
 	LG16(0xB822) = 0x1AB8;
@@ -376,15 +376,15 @@ u16 fn1AB8_0813(void * dxOut)
 	LG8(0xB84E) = 0x00;
 
 	/* original: DX = code segment 1AB8 (selector).  The callers pass the
-	 * address of a 16-bit scratch (see fn1AB8_0BAE / fn1AB8_0EB5), so the
+	 * address of a 16-bit scratch (see bgi_load_bgi_driver / bgi_shutdown_video_driver), so the
 	 * write is kept 16-bit rather than overrunning the frozen `void *`
 	 * target in the flat model. */
 	*(u16 *)dxOut = 0x1AB8;
 	return 0x0000;
 }
 
-// 1AB8:0887: u8 fn1AB8_0887(u16 wArg02, u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C, u16 * dsOut)
-u8 fn1AB8_0887(u16 wArg02, u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C, u16 * dsOut)
+// 1AB8:0887: u8 bgi_open_video_driver_file(u16 wArg02, u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C, u16 * dsOut)
+u8 bgi_open_video_driver_file(u16 wArg02, u8 * ptrArg04, u8 * ptrArg08, u8 * ptrArg0C, u16 * dsOut)  /* was fn1AB8_0887 */
 {
 	u8  abBuf[0x302];        /* [bp-0302h] 256-byte scratch x3 */
 	u8 *buf1 = abBuf + 0x200;/* [bp-0102h] */

@@ -4,7 +4,7 @@
  *
  * Ground truth: data/segments/seg1AB8.bin (raw bytes), decoded with
  *   ndisasm -b16 -o 0x2500    and   objdump -D -b binary -mi8086.
- * No Reko listing covers this region (Reko stopped at fn1AB8_2043 / 1AB8:2072
+ * No Reko listing covers this region (Reko stopped at bgi_detect_video_adapter / 1AB8:2072
  * and emitted 1AB8:2073.. as data).
  *
  * ---------------------------------------------------------------------------
@@ -13,8 +13,8 @@
  * The driver image starts at 1AB8:2073.  Its header is
  *     2073: word 0x0020   entry offset (+0x20 -> 1AB8:2093)
  *     2075: word 0x19D0   image size
- * The loader (fn1AB8_0BAE at 1AB8:0BB4) points DGROUP [0xB820]/[0xB822] at
- * 1AB8:2073 and calls fn1AB8_0569, which relocates/copies the image into its
+ * The loader (bgi_load_bgi_driver at 1AB8:0BB4) points DGROUP [0xB820]/[0xB822] at
+ * 1AB8:2073 and calls bgi_reloc_copy_with_alignment, which relocates/copies the image into its
  * own segment and returns the entry far pointer.  The wrappers in
  * seg1AB8_part5b/6/7/8.c stage SI = function number and execute
  * `call dword ptr [0B820h]`.

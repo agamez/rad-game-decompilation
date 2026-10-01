@@ -10,7 +10,7 @@
  * ---------------------------------------------------------------------------
  * EMULATION DECISIONS (all deliberate, see comments at each site):
  *
- * Retrace / pacing.  Real RAD polls 0x3BA (see fn1AB8_2011 in the recon,
+ * Retrace / pacing.  Real RAD polls 0x3BA (see bgi_detect_vga_adapter in the recon,
  * `mov dx,3BAh ; in al,dx ; and al,80h`).  We emulate a 70 Hz VGA frame:
  *   - the "vertical retrace active" window is the first 1/8 of each frame
  *     (~1.8 ms of the ~14.29 ms period);
@@ -22,7 +22,7 @@
  * both terminate, and gives the game 70 Hz pacing without touching gameplay
  * code (the game's retrace poll becomes the frame flip).
  * Status bits: bit 3 (0x08) is what the brief specifies for vertical retrace;
- * bit 7 (0x80) is ALSO set because the recovered fn1AB8_2011 tests bit 7.
+ * bit 7 (0x80) is ALSO set because the recovered bgi_detect_vga_adapter tests bit 7.
  * Bits 4/5 are left clear (status reads of the recovered code then settle).
  *
  * Palette.  6-bit DAC values are converted to 8-bit by bit replication
@@ -175,7 +175,7 @@ static const u8 g_ega_dac[16][3] = {
 
 /* Gameplay/menu palette.  No longer a single hard-coded table for both
  * screens: the game now programs the DAC itself through BGI op 0x1A
- * (fn1AB8_1CBA, recovered as fn13E2_0080 for the menu and fn13E2_00FB for
+ * (bgi_get_pixel, recovered as fn13E2_0080 for the menu and fn13E2_00FB for
  * the level).  This table remains only as the mode-set default until the
  * game's first 0x1A call; it is the MEASURED level palette
  * (/tmp/opencode/cmp/run3/o_game.png, cropped (80,101)-(720,577), resized
@@ -905,7 +905,7 @@ void pal_video_get_window_size(int *w, int *h)
  * the port replaces it here: same function numbers, same register image,
  * implemented over the VGA shadow + palette + mode state of this file.
  * Recovered game code is untouched; only the dispatch tail in the four
- * fn1AB8_call_0B820 stand-ins routes here.
+ * bgi_call_graphics_driver stand-ins routes here.
  * ========================================================================= */
 #include "font8.h"
 
@@ -1046,7 +1046,7 @@ static void stroke_glyph(int ch, int *pen_x, int *pen_y, int num, int den, u8 co
  *
  * fn0C74_00B2 writes the loader's progress-bar cell row with driver op 0x12
  * (filled rectangle) at canvas y 0x1D5..0x1DF (469..479), 5 px per cell,
- * using the fill colour the game staged with fn1AB8_1175(0x0F, 0x01) ->
+ * using the fill colour the game staged with bgi_set_text_font_size(0x0F, 0x01) ->
  * index 15.  That happens while fn13E2_003B has the DAC blanked, so on the
  * real adapter those pixels are black when written.  The recovered menu
  * painter never repaints that row, whereas the original evidently does (the
@@ -1081,10 +1081,10 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
     switch (si) {
     case 0x00:
         if (((u8)ax) == 0x01) {
-            /* AL=1 (fn1AB8_1C93): CX = screen rows; caller does cx-1. */
+            /* AL=1 (bgi_get_current_page): CX = screen rows; caller does cx-1. */
             regs[2] = 480;
         } else {
-            /* AL=0 (fn1AB8_1855 driver install): ES:BX = a 32-byte MODE
+            /* AL=0 (bgi_set_text_cursor_position driver install): ES:BX = a 32-byte MODE
              * INFO block.  word[1]=640 (max x), word[2]=480 (max y); the
              * game copies 19 bytes to DGROUP 0xB7C0, so +2/+4 land at the
              * clip gates 0xB7C2/0xB7C4.  Staged at 0xBD20, clear of the
@@ -1105,7 +1105,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
          * title loader's explicit level_set_video_mode(0x13) mode-13h set, and at the
          * menu/level transition it is the only video-mode set. */
         bios_video_set_mode(0x12);
-        /* The driver publishes its LOGICAL screen dimensions; fn1AB8_0F93
+        /* The driver publishes its LOGICAL screen dimensions; bgi_draw_text_rectangle
          * validates clip windows against DGROUP [0xB7C2] (max x) and
          * [0xB7C4] (max y).  The game's windows reach x=454/y=454, so the
          * logical space is 640x480. */
@@ -1174,7 +1174,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
              * layout the original driver produces -- after the {w,h} header,
              * (h+1) rows x 4 groups of ceil(w/8) bytes plus a 2-byte
              * trailer, i.e. the same 4*wbr*(h+1)+2 payload op 0x36 blits
-             * back and the size fn1AB8_19A6 allocates. */
+             * back and the size bgi_compute_char_block_size allocates. */
             u8 *canvas = vga12_canvas();
             u16 wbr = (u16)((w + 7) >> 3);
             u32 plane_sz = (u32)wbr * ((u32)h + 1);
@@ -1205,7 +1205,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
         return 1;
     }
     case 0x34: {                            /* block transfer: ES:BX = {w,h} block, CX/DX = origin, DI = height */
-        /* fn1AB8_1E6B writes {width,height} = (xmax-xmin, ymax-ymin) into the
+        /* bgi_draw_clip_rectangle writes {width,height} = (xmax-xmin, ymax-ymin) into the
          * block at ES:BX and dispatches si=0x34 with CX/DX = the rectangle
          * origin and DI = the height.
          *
@@ -1224,7 +1224,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
         u16 h = cmd[2] | (cmd[3] << 8);
         if (g_mode == 0x12) {
             /* Mode 12h: 0x34 is a screen CAPTURE (BGI getimage), not a
-             * fill.  fn1AB8_1E6B stores {w,h} = (xmax-xmin, ymax-ymin) in
+             * fill.  bgi_draw_clip_rectangle stores {w,h} = (xmax-xmin, ymax-ymin) in
              * the block and passes CX/DX = the rectangle origin and DI =
              * the height; the driver copies the inclusive (h+1)x(w+1)
              * rectangle at (CX,DX) into the block in the SAME planar
@@ -1269,11 +1269,11 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
         return 1;
     }
     case 0x1A: {                            /* set DAC entry: AX=0x8000|idx, BX=R, CX=G, DX=B */
-        /* Recovered as fn1AB8_1CBA (menu/level palette loop) and
-         * fn1AB8_1CD7 (read back).  fn13E2_0080 programs the MENU palette
+        /* Recovered as bgi_get_pixel (menu/level palette loop) and
+         * bgi_text_cell_color (read back).  fn13E2_0080 programs the MENU palette
          * (index 8 = 0x15 grey: the drop shadows) and fn13E2_00FB the LEVEL
          * palette (index 8 = 0: no grey) from the same DGROUP table; both
-         * set index 15 = white.  AX==0xFFFF is fn1AB8_1CA4's attribute-
+         * set index 15 = white.  AX==0xFFFF is bgi_select_text_font's attribute-
          * controller path, which has no DAC/pixel model here. */
         if (ax == 0xFFFF)
             return 1;
@@ -1297,8 +1297,8 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
     case 0x1E:                              /* set current draw color: AL = color */
         /* The game stages a 16-bit word whose HIGH byte is the FILL
          * (background) color and whose LOW byte is the LINE (foreground)
-         * color: fn1AB8_1C32() stores the low byte at [0xB83E] and re-emits
-         * (fill<<8)|low, while fn1AB8_1D5B() stores the fill byte at
+         * color: bgi_get_text_cursor_attributes() stores the low byte at [0xB83E] and re-emits
+         * (fill<<8)|low, while bgi_set_text_color_attributes() stores the fill byte at
          * [0xB83F].  The menu proves it: the window fill is preceded by
          * 0x0300 (fill=3 teal, line=0 black) and the button bevel lines by
          * 0x030B (fill=3, line=11 bright cyan), exactly the reference's teal
@@ -1494,8 +1494,8 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
     }
     case 0x28: {                            /* string width / height query: CX = count */
         /* Driver 0x1713 / wrapper 0x01DE: BX = [0x160e] (width), CX =
-         * [0x160c] (height).  fn1AB8_1E0B() reads BX and
-         * fn1AB8_1783()/fn1AB8_1E26() read CX, so both must describe the
+         * [0x160c] (height).  bgi_advance_text_pointer() reads BX and
+         * bgi_display_error_string()/bgi_get_string_length() read CX, so both must describe the
          * font the port actually draws.
          *   bitmap (mode 0): width = count*txt_sx, height = txt_sy -- the
          *     driver's wrapper computes exactly cx*[0x1404] / [0x1406].
@@ -1545,7 +1545,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
         } else {
             v = g_shadow[drv_off(x, y)];
         }
-        regs[3] = v;                        /* DL: caller fn1AB8_1E3C reads DL */
+        regs[3] = v;                        /* DL: caller bgi_draw_line reads DL */
         regs[0] = v;
         return 1;
     }
@@ -1566,7 +1566,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
             /* Mode 12h: the payload is PLANAR and ROW-INTERLEAVED -- each of
              * the (h+1) rows is 4 groups of ceil(w/8) bytes, group p = bit
              * plane (3-p).  The payload carries h+1 rows: the record size
-             * computed by the original's own size calculator fn1AB8_19A6 is
+             * computed by the original's own size calculator bgi_compute_char_block_size is
              * 4*wbr*(h+1)+6 (e.g. a 21x21 RAD.STR tile is 4 + 4*3*22 + 2 =
              * 270 = the 54000/200 record stride, and a 43x43 RAD.DES frame is
              * 4 + 4*6*44 + 2 = 1062), so the last (row h) is real image data
@@ -1636,8 +1636,8 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
         regs[2] = 320;                      /* 1C4A returns cx */
         regs[1] = 200;                      /* 1C5A returns bx */
         if (((u8)regs[0]) == 0x01) {
-            /* AL=1: ES:BX = 17-byte driver info record (fn1AB8_1C6A copies
-             * it to DGROUP 0xB87A; fn1AB8_129A parses [0]=name length,
+            /* AL=1: ES:BX = 17-byte driver info record (bgi_get_char_info copies
+             * it to DGROUP 0xB87A; bgi_install_text_font parses [0]=name length,
              * [1..] name characters).  Stage the EGAVGA record in DGROUP
              * free space (highest converted offset is 0xBB08) and hand out
              * DGROUP -- the only registered data segment. */

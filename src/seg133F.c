@@ -25,9 +25,9 @@
 // 133F:0056: u16 fn133F_0056(u16 * dsOut)
 u16 fn133F_0056(u16 * dsOut)
 {
-    u16 wLoc6;                 /* [bp-6]  fn1AB8_04F3 result */
-    s16 wLoc4;                 /* [bp-4]  fn1AB8_0BAE ptrArg08 out */
-    u16 wLoc2 = 0x0000;        /* [bp-2]  fn1AB8_0BAE ptrArg0C out */
+    u16 wLoc6;                 /* [bp-6]  bgi_get_error_code result */
+    s16 wLoc4;                 /* [bp-4]  bgi_load_bgi_driver ptrArg08 out */
+    u16 wLoc2 = 0x0000;        /* [bp-2]  bgi_load_bgi_driver ptrArg0C out */
     u8  abLoc020C[0x206];      /* [bp-0x20C] formatted-message buffer */
     u16 cx_87;
     u16 cx_107;
@@ -35,13 +35,13 @@ u16 fn133F_0056(u16 * dsOut)
     u16 cx_185;
     void *ds_211 = 0;
 
-    /* original: fn1AB8_0BAE(cs:0000, ss:bp-4, ss:bp-2); DS result dropped */
-    (void)fn1AB8_0BAE(g_seg133F, &wLoc4, (u8 *)&wLoc2);
-    wLoc6 = fn1AB8_04F3();
+    /* original: bgi_load_bgi_driver(cs:0000, ss:bp-4, ss:bp-2); DS result dropped */
+    (void)bgi_load_bgi_driver(g_seg133F, &wLoc4, (u8 *)&wLoc2);
+    wLoc6 = bgi_get_error_code();
     if (wLoc6 != 0x00)
     {
         fn1EDA_08CE(0x00, &g_seg133F[0x0001], &g_dgroup[0xB9BC], &cx_87);
-        fn1AB8_027E(wLoc6, abLoc020C);
+        bgi_color_name_to_string(wLoc6, abLoc020C);
         fn1EDA_08CE(0x00, abLoc020C, &g_dgroup[0xB9BC], &cx_107);
         (void)fn1EDA_0848(0x00, cx_107, &g_dgroup[0xB9BC]);
         fn1EDA_08CE(0x00, &g_seg133F[0x0014], &g_dgroup[0xB9BC], &cx_146);
@@ -68,8 +68,8 @@ u16 fn133F_0056(u16 * dsOut)
     LG8(0xB5A2) = 0x00;
     LG8(0x6CD0) = 0x00;
     LG8(0xB59C) = 0x00;
-    fn1AB8_1250(0x0000);
-    (void)fn1AB8_1C32(0x0F);
+    bgi_set_text_color_attribute(0x0000);
+    (void)bgi_get_text_cursor_attributes(0x0F);
 
     *dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */
     return 0x0000;
@@ -95,8 +95,8 @@ u8 fn133F_014B(u8 *ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u16
 {
     u8  abLoc0100[0x100];      /* [bp-0x100] */
     u16 dx_296;                /* ignored 1EDA_0A39 out */
-    u16 dx_214;                /* second fn1AB8_0F93 result -> *dxOut */
-    u8  ch_297;                /* fn1AB8_1D82 chOut (unused) */
+    u16 dx_214;                /* second bgi_draw_text_rectangle result -> *dxOut */
+    u8  ch_297;                /* bgi_get_char_size_info chOut (unused) */
     u16 n1783_a, n1783_b;
     u16 n1E0B_a, n1E0B_b;
     u16 x1783, x1E0B;
@@ -105,33 +105,33 @@ u8 fn133F_014B(u8 *ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u16
 
     /* original: fn1EDA_0A39(FFh, ss:bp-100h, ptrArg04) */
     fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_296);
-    fn1AB8_14F4(0x01, 0x01);
-    /* original: fn1AB8_1536(wArg08, 0, wArg0A, out ds) */
-    (void)fn1AB8_1536(wArg08, 0x00, wArg0A, dsOut);
+    bgi_set_text_rectangle(0x01, 0x01);
+    /* original: bgi_load_video_driver_file(wArg08, 0, wArg0A, out ds) */
+    (void)bgi_load_video_driver_file(wArg08, 0x00, wArg0A, dsOut);
 
     /* first rect: 0F93(1, wArg0C + X1783, wArg0E + X1E0B,
      *                  wArg0C - X1783, wArg0E - X1E0B) */
-    n1E0B_a = fn1AB8_1E0B(abLoc0100);
+    n1E0B_a = bgi_advance_text_pointer(abLoc0100);
     x1E0B = (u16)((n1E0B_a >> 1) + 1);
     p1 = (u16)(wArg0E - x1E0B);
-    n1783_a = fn1AB8_1783(abLoc0100);
+    n1783_a = bgi_display_error_string(abLoc0100);
     x1783 = (u16)((n1783_a >> 1) + 1);
     p2 = (u16)(wArg0C - x1783);
-    n1E0B_b = fn1AB8_1E0B(abLoc0100);
+    n1E0B_b = bgi_advance_text_pointer(abLoc0100);
     x1E0B = (u16)((n1E0B_b >> 1) + 1);
     p3 = (u16)(wArg0E + x1E0B);
-    n1783_b = fn1AB8_1783(abLoc0100);
+    n1783_b = bgi_display_error_string(abLoc0100);
     x1783 = (u16)((n1783_b >> 1) + 1);
     p4 = (u16)(wArg0C + x1783);
-    (void)fn1AB8_0F93(0x01, p4, p3, p2, p1);
+    (void)bgi_draw_text_rectangle(0x01, p4, p3, p2, p1);
 
-    fn1AB8_1028();
-    ax10CE = fn1AB8_10CE();
-    ax10E1 = fn1AB8_10E1();
-    /* original: fn1AB8_0F93(1, AX_10E1, AX_10CE, 0, 0) */
-    dx_214 = fn1AB8_0F93(0x01, ax10E1, ax10CE, 0x00, 0x00);
-    /* original: fn1AB8_1D82(ss:bp-100h, wArg0C, wArg0E, out ch) */
-    (void)fn1AB8_1D82(abLoc0100, wArg0C, wArg0E, &ch_297);
+    bgi_update_text_window_position();
+    ax10CE = bgi_get_text_cols();
+    ax10E1 = bgi_get_text_rows();
+    /* original: bgi_draw_text_rectangle(1, AX_10E1, AX_10CE, 0, 0) */
+    dx_214 = bgi_draw_text_rectangle(0x01, ax10E1, ax10CE, 0x00, 0x00);
+    /* original: bgi_get_char_size_info(ss:bp-100h, wArg0C, wArg0E, out ch) */
+    (void)bgi_get_char_size_info(abLoc0100, wArg0C, wArg0E, &ch_297);
 
     *dxOut = dx_214;
     return 0x00;   /* Reko: return 0x00; asm leaves 1D82's AL (ignored) */
@@ -252,18 +252,18 @@ u16 fn133F_0352(u8 *ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
     LG16((u16)(LG8(0x6CD0) * 0x02 + 0x6D10)) = wArg0A;
     LG16((u16)(LG8(0x6CD0) * 0x02 + 0x6D4E)) = wArg0C;
     LG16((u16)(LG8(0x6CD0) * 0x02 + 0x6D8C)) = wArg08;
-    (void)fn1AB8_112E(wArg08, wArg0A, wArg0C, wArg0E);
+    (void)bgi_clip_text_rectangle(wArg08, wArg0A, wArg0C, wArg0E);
 
     w50CA = LG16(0x50CA);
-    (void)fn1AB8_1AF6((u16)(wArg0C + w50CA), (u16)(wArg0E - w50CA),
+    (void)bgi_set_pixel((u16)(wArg0C + w50CA), (u16)(wArg0E - w50CA),
                       wArg0C, wArg0E, &dx_326);
-    (void)fn1AB8_1AF6((u16)(wArg08 + w50CA), (u16)(wArg0E - w50CA),
+    (void)bgi_set_pixel((u16)(wArg08 + w50CA), (u16)(wArg0E - w50CA),
                       (u16)(wArg0C + w50CA), (u16)(wArg0E - w50CA), &dx_327);
-    (void)fn1AB8_1AF6((u16)(wArg08 + w50CA), (u16)(wArg0A - w50CA),
+    (void)bgi_set_pixel((u16)(wArg08 + w50CA), (u16)(wArg0A - w50CA),
                       (u16)(wArg08 + w50CA), (u16)(wArg0E - w50CA), &dx_328);
-    (void)fn1AB8_1AF6((u16)(wArg08 + w50CA), (u16)(wArg0A - w50CA),
+    (void)bgi_set_pixel((u16)(wArg08 + w50CA), (u16)(wArg0A - w50CA),
                       wArg08, wArg0A, &dx_329);
-    (void)fn1AB8_1AF6(wArg08, wArg0E, (u16)(wArg08 + w50CA),
+    (void)bgi_set_pixel(wArg08, wArg0E, (u16)(wArg08 + w50CA),
                       (u16)(wArg0E - w50CA), &dx_330);
 
     /* original: fn133F_014B(buf, 1, 0,
@@ -307,8 +307,8 @@ u16 fn133F_04DE(u8 *ptrArg04)
     u16 bp_130 = 0, ds_131 = 0;
 
     fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_129);
-    ax10CE = fn1AB8_10CE();
-    ax10E1 = fn1AB8_10E1();
+    ax10CE = bgi_get_text_cols();
+    ax10E1 = bgi_get_text_rows();
     /* original: fn133F_04B1(10E1, 10CE, 0, 0) */
     (void)fn133F_04B1(ax10E1, ax10CE, 0x0000, 0x0000, &ds_61);
     /* The original reads two further incoming words [bp+0Eh]/[bp+10h]

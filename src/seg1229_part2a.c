@@ -94,10 +94,10 @@ u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)
 
 	/* --- first dialog box ------------------------------------------- */
 	/* rect = (10CE/2-68h, 10E1/2-10h, 10CE/2+68h, 10E1/2+10h) */
-	rect1_ce_m68 = (u16)(((s16)fn1AB8_10CE() / 0x0002) - 0x0068);
-	rect1_e1_m10 = (u16)(((s16)fn1AB8_10E1() / 0x0002) - 0x0010);
-	rect1_ce_p68 = (u16)(((s16)fn1AB8_10CE() / 0x0002) + 0x0068);
-	rect1_e1_p10 = (u16)(((s16)fn1AB8_10E1() / 0x0002) + 0x0010);
+	rect1_ce_m68 = (u16)(((s16)bgi_get_text_cols() / 0x0002) - 0x0068);
+	rect1_e1_m10 = (u16)(((s16)bgi_get_text_rows() / 0x0002) - 0x0010);
+	rect1_ce_p68 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x0068);
+	rect1_e1_p10 = (u16)(((s16)bgi_get_text_rows() / 0x0002) + 0x0010);
 
 	/* cs:06C3h literal, ds:5CB4h working name, cs:06C9h literal */
 	fn1EDA_0A1F(&g_seg1229[0x06C3], buf59C);
@@ -117,10 +117,10 @@ u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)
 
 	/* --- second dialog box ------------------------------------------ */
 	/* rect = (10CE/2-128h, 10E1/2-10h, 10CE/2+128h, 10E1/2+10h) */
-	rect2_ce_m128 = (u16)(((s16)fn1AB8_10CE() / 0x0002) - 0x0128);
-	rect2_e1_m10 = (u16)(((s16)fn1AB8_10E1() / 0x0002) - 0x0010);
-	rect2_ce_p128 = (u16)(((s16)fn1AB8_10CE() / 0x0002) + 0x0128);
-	rect2_e1_p10 = (u16)(((s16)fn1AB8_10E1() / 0x0002) + 0x0010);
+	rect2_ce_m128 = (u16)(((s16)bgi_get_text_cols() / 0x0002) - 0x0128);
+	rect2_e1_m10 = (u16)(((s16)bgi_get_text_rows() / 0x0002) - 0x0010);
+	rect2_ce_p128 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x0128);
+	rect2_e1_p10 = (u16)(((s16)bgi_get_text_rows() / 0x0002) + 0x0010);
 
 	/* cs:06CDh literal, ds:5CBBh working name, cs:06D3h literal */
 	fn1EDA_0A1F(&g_seg1229[0x06CD], buf59C);
@@ -159,7 +159,7 @@ u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)
 		LG8(0x5CDC) = 0x0A;
 
 	/* --- l1229_0900: rewrite the RAD.DAT record --------------------- */
-	fn1AB8_1C32(0x0F);
+	bgi_get_text_cursor_attributes(0x0F);
 
 	/* initialise the 0x219h record/stream block at [bp-0080h] */
 	fn1EDA_0FA2(&g_seg1229[0x0726], buf80);

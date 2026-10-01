@@ -72,20 +72,20 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	u16 wLoc2A = 0x0000;    /* [bp-2Ah] */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut (023F/0254/05B8/02D8/070D?) */
 	void *dsv = NULL;       /* reusable void * dsOut (098A/070D/0E2E) */
-	u16 dxTmp = 0x0000;     /* fn1AB8_1AF6 / fn1EDA_0254 dxOut */
-	u8  dlTmp = 0x00;       /* fn1AB8_1E3C dlOut */
+	u16 dxTmp = 0x0000;     /* bgi_set_pixel / fn1EDA_0254 dxOut */
+	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
 	s16 cxT = 0, dxT = 0, bxT = 0;  /* fn1EDA_098A outs (cx/dx/bx) */
 
 	/* --- prologue: paint the two status rectangles (0FA1..106C) ---------- */
-	wLoc20 = fn1AB8_13A3(0x001B, 0x001C, 0x000D, 0x0019);
+	wLoc20 = bgi_clamp_rectangle_coords(0x001B, 0x001C, 0x000D, 0x0019);
 	dwLoc10 = fn1EDA_023F(wLoc20, 0x0000, 0x0000, &dsTmp);
 	dwLoc14 = fn1EDA_023F(wLoc20, 0x0000, 0x0000, &dsTmp);
 	/* first 1E6B draws into the [bp-14h] block */
-	fn1AB8_1E6B(far_ptr(dwLoc14), (u16)(LG16(0x58B8) + 0x001B),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc14), (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x001C), (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x0019));
 	/* second 1E6B draws into the [bp-10h] block */
-	fn1AB8_1E6B(far_ptr(dwLoc10), (u16)(LG16(0x58B8) + 0x001B),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc10), (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x0011), (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x000E));
 	wLoc24 = (u16)(LG16(0x58B4) + 0x000E - 0x0001);
@@ -98,38 +98,38 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
 
-	fn1AB8_13D7(0x00, far_ptr(dwLoc10),
+	bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc10),
 	            (u16)(LG16(0x58B8) + 0x000D), wLoc24);
-	fn1AB8_13D7(0x00, far_ptr(dwLoc14),
+	bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc14),
 	            (u16)(LG16(0x58B8) + 0x000D), wLoc26);
 	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-	(void)fn1AB8_1C32(0x00);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+	(void)bgi_get_text_cursor_attributes(0x00);
 
-	fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x001B), (u16)(LG16(0x58B4) + 0x0019),
+	bgi_set_pixel((u16)(LG16(0x58B8) + 0x001B), (u16)(LG16(0x58B4) + 0x0019),
 	            (u16)(LG16(0x58B8) + 0x000D), (u16)(LG16(0x58B4) + 0x0019),
 	            &dxTmp);
-	fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x001B), (u16)(LG16(0x58B4) + 0x0011),
+	bgi_set_pixel((u16)(LG16(0x58B8) + 0x001B), (u16)(LG16(0x58B4) + 0x0011),
 	            (u16)(LG16(0x58B8) + 0x000D), (u16)(LG16(0x58B4) + 0x0011),
 	            &dxTmp);
 
-	fn1AB8_1E54(0x0B, (u16)(LG16(0x58B8) + 0x0012), (u16)(LG16(0x58B4) + 0x0019));
-	fn1AB8_1E54(0x03, (u16)(LG16(0x58B8) + 0x0013), (u16)(LG16(0x58B4) + 0x0019));
-	fn1AB8_1E54(0x09, (u16)(LG16(0x58B8) + 0x0014), (u16)(LG16(0x58B4) + 0x0019));
-	fn1AB8_1E54(0x0B, (u16)(LG16(0x58B8) + 0x0012), (u16)(LG16(0x58B4) + 0x0011));
-	fn1AB8_1E54(0x03, (u16)(LG16(0x58B8) + 0x0013), (u16)(LG16(0x58B4) + 0x0011));
-	fn1AB8_1E54(0x09, (u16)(LG16(0x58B8) + 0x0014), (u16)(LG16(0x58B4) + 0x0011));
+	bgi_get_line_attributes(0x0B, (u16)(LG16(0x58B8) + 0x0012), (u16)(LG16(0x58B4) + 0x0019));
+	bgi_get_line_attributes(0x03, (u16)(LG16(0x58B8) + 0x0013), (u16)(LG16(0x58B4) + 0x0019));
+	bgi_get_line_attributes(0x09, (u16)(LG16(0x58B8) + 0x0014), (u16)(LG16(0x58B4) + 0x0019));
+	bgi_get_line_attributes(0x0B, (u16)(LG16(0x58B8) + 0x0012), (u16)(LG16(0x58B4) + 0x0011));
+	bgi_get_line_attributes(0x03, (u16)(LG16(0x58B8) + 0x0013), (u16)(LG16(0x58B4) + 0x0011));
+	bgi_get_line_attributes(0x09, (u16)(LG16(0x58B8) + 0x0014), (u16)(LG16(0x58B4) + 0x0011));
 
-	wLoc20 = fn1AB8_13A3(0x001B, 0x001D, 0x000D, 0x0019);
+	wLoc20 = bgi_clamp_rectangle_coords(0x001B, 0x001D, 0x000D, 0x0019);
 	dwLoc10 = fn1EDA_023F(wLoc20, 0x0000, 0x0000, &dsTmp);
 	dwLoc14 = fn1EDA_023F(wLoc20, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc14), (u16)(LG16(0x58B8) + 0x001B),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc14), (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x001D), (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x0019));
-	fn1AB8_1E6B(far_ptr(dwLoc10), (u16)(LG16(0x58B8) + 0x001B),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc10), (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x0011), (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x000D));
 
@@ -138,30 +138,30 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	/* --- 0C74:11EC: scan the left/right field edge up to 14h -------------- */
 	while (wLoc04 < 0x0014)
 	{
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x001B),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x001B),
 		                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x001B),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x001B),
 		                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x000D),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x000D),
 		                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x000D),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x000D),
 		                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x0016),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x0016),
 		                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x0016),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x0016),
 		                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 			break;
 
 		(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-		fn1AB8_13D7(0x00, far_ptr(dwLoc10),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc10),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x000D - wLoc04));
-		fn1AB8_13D7(0x00, far_ptr(dwLoc14),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc14),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x0019 + wLoc04));
 		++wLoc04;
@@ -188,14 +188,14 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 		/* --- 0C74:1333: extend the right field (uses the [bp-14h] block) */
 		while (wLoc04 < 0x0041)
 		{
-			if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x001B),
+			if (bgi_draw_line((u16)(LG16(0x58B8) + 0x001B),
 			                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 				break;
-			if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x000D),
+			if (bgi_draw_line((u16)(LG16(0x58B8) + 0x000D),
 			                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 				break;
 			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc14),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc14),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(LG16(0x58B4) + 0x0019 + wLoc04));
 			++wLoc04;
@@ -212,12 +212,12 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 			/* --- 0C74:13A0 ----------------------------------------------- */
 			fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 			            &dxTmp, &dsTmp);
-			wLoc22 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+			wLoc22 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 			                     (u16)(LG16(0x58B4) + 0x001D + wLoc04),
 			                     (u16)(LG16(0x58B8) + 0x000D),
 			                     (u16)(LG16(0x58B4) + 0x0019 + wLoc04));
 			dwLoc14 = fn1EDA_023F(wLoc22, 0x0000, 0x0000, &dsTmp);
-			fn1AB8_1E6B(far_ptr(dwLoc14),
+			bgi_draw_clip_rectangle(far_ptr(dwLoc14),
 			            (u16)(LG16(0x58B8) + 0x001B),
 			            (u16)(LG16(0x58B4) + 0x001D + wLoc04),
 			            (u16)(LG16(0x58B8) + 0x000D),
@@ -229,7 +229,7 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 				do
 				{
 					(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-					fn1AB8_13D7(0x00, far_ptr(dwLoc14),
+					bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc14),
 					            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 					if (wLoc06 == 0x0013)
 						break;
@@ -256,14 +256,14 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	/* --- 0C74:1491: extend the left field (uses the [bp-10h] block) ------ */
 	while (wLoc04 < 0x0041)
 	{
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x001B),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x001B),
 		                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x000D),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x000D),
 		                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 			break;
 		(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-		fn1AB8_13D7(0x00, far_ptr(dwLoc10),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc10),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x000D - wLoc04));
 		++wLoc04;
@@ -276,12 +276,12 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	/* --- 0C74:14FE ------------------------------------------------------- */
 	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	wLoc22 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+	wLoc22 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(LG16(0x58B4) + 0x0011 - wLoc04),
 	                     (u16)(LG16(0x58B8) + 0x000D),
 	                     (u16)(LG16(0x58B4) + 0x000D - wLoc04));
 	dwLoc10 = fn1EDA_023F(wLoc22, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc10),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc10),
 	            (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(LG16(0x58B4) + 0x0011 - wLoc04),
 	            (u16)(LG16(0x58B8) + 0x000D),
@@ -293,7 +293,7 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 		do
 		{
 			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc10),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc10),
 			            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 			if (wLoc06 == 0x0013)
 				break;
@@ -327,26 +327,26 @@ l0C74_15E7:
 
 	/* --- 0C74:1619 ------------------------------------------------------- */
 l0C74_1619:
-	if (fn1AB8_1E3C(wLoc06, wLoc0C, &dlTmp) == 0)
+	if (bgi_draw_line(wLoc06, wLoc0C, &dlTmp) == 0)
 		goto l0C74_163A;
-	if (fn1AB8_1E3C(wLoc04, wLoc0A, &dlTmp) == 0)
+	if (bgi_draw_line(wLoc04, wLoc0A, &dlTmp) == 0)
 		goto l0C74_163A;
 	goto l0C74_16C1;
 
 l0C74_163A:
-	if (fn1AB8_1E3C(wLoc06, wLoc0C, &dlTmp) != 0)
+	if (bgi_draw_line(wLoc06, wLoc0C, &dlTmp) != 0)
 		goto l0C74_1678;
-	(void)fn1AB8_1E54(0x0B, wLoc06, wLoc0C);
-	(void)fn1AB8_1E54(0x03, wLoc06, (u16)(wLoc0C + 0x0001));
-	(void)fn1AB8_1E54(0x09, wLoc06, (u16)(wLoc0C + 0x0002));
+	(void)bgi_get_line_attributes(0x0B, wLoc06, wLoc0C);
+	(void)bgi_get_line_attributes(0x03, wLoc06, (u16)(wLoc0C + 0x0001));
+	(void)bgi_get_line_attributes(0x09, wLoc06, (u16)(wLoc0C + 0x0002));
 	++wLoc06;
 
 l0C74_1678:
-	if (fn1AB8_1E3C(wLoc04, wLoc0A, &dlTmp) != 0)
+	if (bgi_draw_line(wLoc04, wLoc0A, &dlTmp) != 0)
 		goto l0C74_16B6;
-	(void)fn1AB8_1E54(0x0B, wLoc04, wLoc0A);
-	(void)fn1AB8_1E54(0x03, wLoc04, (u16)(wLoc0A + 0x0001));
-	(void)fn1AB8_1E54(0x09, wLoc04, (u16)(wLoc0A + 0x0002));
+	(void)bgi_get_line_attributes(0x0B, wLoc04, wLoc0A);
+	(void)bgi_get_line_attributes(0x03, wLoc04, (u16)(wLoc0A + 0x0001));
+	(void)bgi_get_line_attributes(0x09, wLoc04, (u16)(wLoc0A + 0x0002));
 	++wLoc04;
 
 l0C74_16B6:
@@ -361,25 +361,25 @@ l0C74_16C1:
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
 
-	wLoc1E = fn1AB8_13A3(LG16(0x58BA), LG16(0x58B6),
+	wLoc1E = bgi_clamp_rectangle_coords(LG16(0x58BA), LG16(0x58B6),
 	                     (u16)(LG16(0x58BA) - 0x000E), LG16(0x58B4));
 	dwLoc18 = fn1EDA_023F(wLoc1E, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc18), LG16(0x58BA), LG16(0x58B6),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc18), LG16(0x58BA), LG16(0x58B6),
 	            (u16)(LG16(0x58BA) - 0x000E), LG16(0x58B4));
 	LG16(0x58BA) = (u16)(LG16(0x58BA) - 0x0001);
-	fn1AB8_13D7(0x00, far_ptr(dwLoc18),
+	bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc18),
 	            (u16)(LG16(0x58BA) - 0x000E), LG16(0x58B4));
 	fn1EDA_0254(wLoc1E, (u16)((dwLoc18) & 0xFFFFu), (u16)((dwLoc18) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-	(void)fn1AB8_1C32(0x00);
-	fn1AB8_1AF6((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+	(void)bgi_get_text_cursor_attributes(0x00);
+	bgi_set_pixel((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
 	            (u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4), &dxTmp);
 
-	wLoc1E = fn1AB8_13A3((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
+	wLoc1E = bgi_clamp_rectangle_coords((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
 	                     (u16)(LG16(0x58BA) - 0x000D), LG16(0x58B4));
 	dwLoc18 = fn1EDA_023F(wLoc1E, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc18), (u16)(LG16(0x58BA) + 0x0001),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc18), (u16)(LG16(0x58BA) + 0x0001),
 	            LG16(0x58B6), (u16)(LG16(0x58BA) - 0x000D), LG16(0x58B4));
 
 	/* --- 0C74:17C1 ------------------------------------------------------- */
@@ -387,17 +387,17 @@ l0C74_16C1:
 	{
 		(void)engine_scale_and_tick_clock(0x003C, 0x0064, &dsv);
 		LG16(0x58BA) = (u16)(LG16(0x58BA) - 0x0001);
-		fn1AB8_13D7(0x00, far_ptr(dwLoc18),
+		bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc18),
 		            (u16)(LG16(0x58BA) - 0x000D), LG16(0x58B4));
 	} while ((u16)(LG16(0x58B8) + 0x002B) != LG16(0x58BA));
 
 	/* --- 0C74:17EF ------------------------------------------------------- */
 	fn1EDA_0254(wLoc1E, (u16)((dwLoc18) & 0xFFFFu), (u16)((dwLoc18) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	wLoc28 = fn1AB8_13A3(LG16(0x58BA), LG16(0x58B6), LG16(0x58B8),
+	wLoc28 = bgi_clamp_rectangle_coords(LG16(0x58BA), LG16(0x58B6), LG16(0x58B8),
 	                     LG16(0x58B4));
 	dwLoc1C = fn1EDA_023F(wLoc28, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc1C), LG16(0x58BA), LG16(0x58B6),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc1C), LG16(0x58BA), LG16(0x58B6),
 	            LG16(0x58B8), LG16(0x58B4));
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
@@ -412,7 +412,7 @@ l0C74_1867:
 	(void)engine_scale_and_tick_clock(0x0028, 0x0032, &dsv);
 	LG16(0x58B4) = (u16)(LG16(0x58B4) - LG16(0x5968));
 	LG16(0x58B6) = (u16)(LG16(0x58B6) - LG16(0x5968));
-	fn1AB8_13D7(0x00, far_ptr(dwLoc1C), LG16(0x58B8),
+	bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc1C), LG16(0x58B8),
 	            LG16(0x58B4));
 	if (wLoc08 == 0x002C)
 		goto l0C74_18B0;
@@ -428,8 +428,8 @@ l0C74_18B0:
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
 	fn1EDA_0254(wLoc28, (u16)((dwLoc1C) & 0xFFFFu), (u16)((dwLoc1C) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-	(void)fn1AB8_1C32(0x00);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+	(void)bgi_get_text_cursor_attributes(0x00);
 
 	/* --- 0C74:18F0: vertical sweep of the two bars ---------------------- */
 l0C74_18F0:
@@ -442,13 +442,13 @@ l0C74_1906:
 	if ((u16)(LG16(0x58B8) + 0x001C) >= wLoc06)
 		goto l0C74_1928;
 	--wLoc06;
-	fn1AB8_1AF6(wLoc06, (u16)(wLoc0C + 0x0002), wLoc06, wLoc0C, &dxTmp);
+	bgi_set_pixel(wLoc06, (u16)(wLoc0C + 0x0002), wLoc06, wLoc0C, &dxTmp);
 
 l0C74_1928:
 	if ((u16)(LG16(0x58B8) + 0x001C) >= wLoc04)
 		goto l0C74_194A;
 	--wLoc04;
-	fn1AB8_1AF6(wLoc04, (u16)(wLoc0A + 0x0002), wLoc04, wLoc0A, &dxTmp);
+	bgi_set_pixel(wLoc04, (u16)(wLoc0A + 0x0002), wLoc04, wLoc0A, &dxTmp);
 
 l0C74_194A:
 	(void)engine_scale_and_tick_clock(0x001E, 0x00FA, &dsv);
@@ -467,12 +467,12 @@ l0C74_1954:
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
 
-	wLoc20 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+	wLoc20 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(wLoc0A + 0x0004),
 	                     (u16)(LG16(0x58B8) + 0x000D),
 	                     (u16)(wLoc0A - 0x0001));
 	dwLoc14 = fn1EDA_023F(wLoc20, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc14), (u16)(LG16(0x58B8) + 0x001B),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc14), (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(wLoc0A + 0x0004), (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(wLoc0A - 0x0001));
 	wLoc2A = (u16)(LG16(0x58B4) + 0x0019 + 0x0013);
@@ -483,7 +483,7 @@ l0C74_1954:
 		do
 		{
 			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc14),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc14),
 			            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 			if (wLoc06 == wLoc2A)
 				break;
@@ -494,12 +494,12 @@ l0C74_1954:
 	/* --- 0C74:1A27 ------------------------------------------------------- */
 	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	wLoc20 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x001B),
+	wLoc20 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(wLoc0C + 0x0003),
 	                     (u16)(LG16(0x58B8) + 0x000D),
 	                     (u16)(wLoc0C - 0x0002));
 	dwLoc10 = fn1EDA_023F(wLoc20, 0x0000, 0x0000, &dsTmp);
-	fn1AB8_1E6B(far_ptr(dwLoc10), (u16)(LG16(0x58B8) + 0x001B),
+	bgi_draw_clip_rectangle(far_ptr(dwLoc10), (u16)(LG16(0x58B8) + 0x001B),
 	            (u16)(wLoc0C + 0x0003), (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(wLoc0C - 0x0002));
 	wLoc2A = (u16)(LG16(0x58B4) + 0x000D - 0x0013);
@@ -510,7 +510,7 @@ l0C74_1954:
 		do
 		{
 			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
-			fn1AB8_13D7(0x00, far_ptr(dwLoc10),
+			bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc10),
 			            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 			if (wLoc06 == wLoc2A)
 				break;
@@ -531,10 +531,10 @@ l0C74_1954:
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
 
 	bLoc01 = 0x01;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4),
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4),
 	                &dlTmp) != 0)
 		goto l0C74_1B36;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
 	                &dlTmp) != 0)
 		goto l0C74_1B36;
 	(void)engine_scroll_blit(&dsTmp);

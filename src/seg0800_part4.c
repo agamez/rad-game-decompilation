@@ -86,8 +86,8 @@ u16 fn0800_11EF(void)
 	/* push ss ; lea di,[bp+0FE74h] ; push di ; call 1AB8h:10CEh
 	 * (the ss:bp-018Ch pair 10CE ignores and leaves on the stack; it is
 	 * reused as the source of the fn1EDA_0A39 copy below). */
-	w_10CE_m68 = (u16)(((s16)fn1AB8_10CE() / 0x0002) - 0x0068);
-	w_10CE_p68 = (u16)(((s16)fn1AB8_10CE() / 0x0002) + 0x0068);
+	w_10CE_m68 = (u16)(((s16)bgi_get_text_cols() / 0x0002) - 0x0068);
+	w_10CE_p68 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x0068);
 	/* push ax ; push 8Eh ; ...
 	 * push ax ; push 0A0h ; push cs ; mov di,11D8h ; push di ; call 0D20h */
 	(void)fn0800_0D20(&g_seg0800[0x11D8], 0x00A0, w_10CE_p68, 0x008E,
@@ -160,8 +160,8 @@ u16 fn0800_11EF(void)
 /* 0800:1315: u8 fn0800_1315(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
  * Title-screen frame: set the fill/border attributes and draw the rectangular
  * border of the box (x=wArg02..wArg04, y=wArg06..wArg08) with the eight
- * fn1AB8_1AF6 line segments, in two attribute passes (0Bh then 08h).  Each
- * fn1AB8_1AF6 call draws one edge; the argument order is Reko's. */
+ * bgi_set_pixel line segments, in two attribute passes (0Bh then 08h).  Each
+ * bgi_set_pixel call draws one edge; the argument order is Reko's. */
 u8 fn0800_1315(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	u16 dx_419;
@@ -178,54 +178,54 @@ u8 fn0800_1315(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	u16 dx_430;
 
 	/* push 1h ; push 3h ; call 1AB8h:1175h */
-	fn1AB8_1175(0x03, 0x01);
+	bgi_set_text_font_size(0x03, 0x01);
 	/* push 0h ; push 0h ; push 1h ; call 1AB8h:10F4h */
-	fn1AB8_10F4(0x01, 0x00, 0x00);
+	bgi_set_text_background_color(0x01, 0x00, 0x00);
 	/* push [bp+0Ah] ; push [bp+8h] ; push [bp+6h] ; push [bp+4h] ;
 	 * call 1AB8h:1B3Eh */
-	fn1AB8_1B3E(wArg02, wArg04, wArg06, wArg08);
+	bgi_draw_rectangle(wArg02, wArg04, wArg06, wArg08);
 	/* push 0Bh ; call 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x0B);
+	(void)bgi_get_text_cursor_attributes(0x0B);
 
 	/* 0800:1344: top-left corner (wArg06, wArg04+3, wArg06, wArg08-3) */
-	(void)fn1AB8_1AF6(wArg06, (u16)(wArg04 + 0x0003), wArg06,
+	(void)bgi_set_pixel(wArg06, (u16)(wArg04 + 0x0003), wArg06,
 	                  (u16)(wArg08 - 0x0003), &dx_419);
 	/* 0800:1359: (wArg06+1, wArg04+1, wArg06+1, wArg08-2) */
-	(void)fn1AB8_1AF6((u16)(wArg06 + 0x0001), (u16)(wArg04 + 0x0001),
+	(void)bgi_set_pixel((u16)(wArg06 + 0x0001), (u16)(wArg04 + 0x0001),
 	                  (u16)(wArg06 + 0x0001), (u16)(wArg08 - 0x0002), &dx_420);
 	/* 0800:1370: (wArg06+2, wArg04, wArg06+2, wArg08-1) */
-	(void)fn1AB8_1AF6((u16)(wArg06 + 0x0002), wArg04,
+	(void)bgi_set_pixel((u16)(wArg06 + 0x0002), wArg04,
 	                  (u16)(wArg06 + 0x0002), (u16)(wArg08 - 0x0001), &dx_421);
 	/* 0800:1385: (wArg02+2, wArg08-3, wArg06, wArg08-3) */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0002), (u16)(wArg08 - 0x0003),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0002), (u16)(wArg08 - 0x0003),
 	                  wArg06, (u16)(wArg08 - 0x0003), &dx_422);
 	/* 0800:139E: (wArg02+1, wArg08-2, wArg06+1, wArg08-2) */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0001), (u16)(wArg08 - 0x0002),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0001), (u16)(wArg08 - 0x0002),
 	                  (u16)(wArg06 + 0x0001), (u16)(wArg08 - 0x0002), &dx_423);
 	/* 0800:13B3: (wArg02, wArg08-1, wArg06+2, wArg08-1) */
-	(void)fn1AB8_1AF6(wArg02, (u16)(wArg08 - 0x0001),
+	(void)bgi_set_pixel(wArg02, (u16)(wArg08 - 0x0001),
 	                  (u16)(wArg06 + 0x0002), (u16)(wArg08 - 0x0001), &dx_424);
 
 	/* push 8h ; call 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 
 	/* 0800:13C8: (wArg02+1, wArg04+3, wArg06, wArg04+3) */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0003),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0003),
 	                  wArg06, (u16)(wArg04 + 0x0003), &dx_425);
 	/* 0800:13DA: (wArg02, wArg04+2, wArg06+1, wArg04+2) */
-	(void)fn1AB8_1AF6(wArg02, (u16)(wArg04 + 0x0002),
+	(void)bgi_set_pixel(wArg02, (u16)(wArg04 + 0x0002),
 	                  (u16)(wArg06 + 0x0001), (u16)(wArg04 + 0x0002), &dx_426);
 	/* 0800:13EE: (wArg02-1, wArg04+1, wArg06+2, wArg04+1) */
-	(void)fn1AB8_1AF6((u16)(wArg02 - 0x0001), (u16)(wArg04 + 0x0001),
+	(void)bgi_set_pixel((u16)(wArg02 - 0x0001), (u16)(wArg04 + 0x0001),
 	                  (u16)(wArg06 + 0x0002), (u16)(wArg04 + 0x0001), &dx_427);
 	/* 0800:1404: (wArg02+2, wArg04+2, wArg02+2, wArg08-2) */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0002), (u16)(wArg04 + 0x0002),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0002), (u16)(wArg04 + 0x0002),
 	                  (u16)(wArg02 + 0x0002), (u16)(wArg08 - 0x0002), &dx_428);
 	/* 0800:141F: (wArg02+1, wArg04+1, wArg02+1, wArg08-1) */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0001),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0001),
 	                  (u16)(wArg02 + 0x0001), (u16)(wArg08 - 0x0001), &dx_429);
 	/* 0800:1436: (wArg02, wArg04, wArg02, wArg08) */
-	(void)fn1AB8_1AF6(wArg02, wArg04, wArg02, wArg08, &dx_430);
+	(void)bgi_set_pixel(wArg02, wArg04, wArg02, wArg08, &dx_430);
 
 	return 0x00;
 }
@@ -234,10 +234,10 @@ u8 fn0800_1315(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
  * Code-listing screen (the "FLECHES/ESPACE" panel).  Draws the frame with
  * fn0800_1315, then walks the 18 x N command table (effective DGROUP base
  * 0006h, stride 100h, selected by [bp-000Bh]) and renders each entry with
- * fn1EDA_0B4F + fn1AB8_1D82, twice per entry (normal then shifted, the
+ * fn1EDA_0B4F + bgi_get_char_size_info, twice per entry (normal then shifted, the
  * selected one taking attribute 0Ah via fn1EDA_0CD4 against cs:147Fh).
  * After the last row it waits on the 0x7D00-iteration counter-driven
- * fn1EDA_0D80 / fn1AB8_1E54 scroll, then restores the video state. */
+ * fn1EDA_0D80 / bgi_get_line_attributes scroll, then restores the video state. */
 u16 fn0800_149F(void)
 {
 	u8  buf10E[0x100];  /* [bp-010Eh] 1D82 render string (0B4F writes 2) */
@@ -251,11 +251,11 @@ u16 fn0800_149F(void)
 	u8  al_107;         /* [bp-000Dh] per-row entry count            */
 	u16 ax_20;          /* 10CE()                                    */
 	u16 ax_28;          /* 10E1()                                    */
-	u16 ds_90;          /* fn1AB8_1536 dsOut (dropped selector)      */
+	u16 ds_90;          /* bgi_load_video_driver_file dsOut (dropped selector)      */
 	u16 dx_302;         /* fn1E78_029C dxOut (outer 1F4h delay)      */
 	u16 dx_504;         /* fn1E78_029C dxOut (inner 1Eh delay)       */
 	u16 dx_502;         /* fn1E78_030D dxOut                         */
-	u8  ch_dummy;       /* fn1AB8_1D82 chOut (reused)                */
+	u8  ch_dummy;       /* bgi_get_char_size_info chOut (reused)                */
 	u16 es_501;         /* fn1EDA_0CD4 esOut (dropped selector)      */
 	u16 dx_505;         /* fn1EDA_0D80 dxOut (wLoc04 path)           */
 	u16 dx_506;         /* fn1EDA_0D80 dxOut (wLoc08 path)           */
@@ -265,12 +265,12 @@ u16 fn0800_149F(void)
 	u16 ax_b;           /* rem_b + wLoc06                            */
 
 	/* call far 1AB8h:0F80h -- clear / open the text screen */
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	wLoc02 = 0x002A;
 	wLoc06 = 0x006A;
-	ax_20 = fn1AB8_10CE();
+	ax_20 = bgi_get_text_cols();
 	wLoc04 = (u16)(ax_20 - 0x002A);      /* mov [bp-4h],ax */
-	ax_28 = fn1AB8_10E1();
+	ax_28 = bgi_get_text_rows();
 	wLoc08 = (u16)(ax_28 - 0x006A);      /* mov [bp-8h],ax */
 
 	/* push [bp-2h] ; push [bp-6h] ; push [bp-4h] ; push [bp-8h] ; call 1315h */
@@ -281,9 +281,9 @@ u16 fn0800_149F(void)
 	wLoc06 = (u16)(wLoc06 + 0x0008);
 
 	/* push 0h ; push 1h ; call 1AB8h:14F4h */
-	fn1AB8_14F4(0x01, 0x00);
+	bgi_set_text_rectangle(0x01, 0x00);
 	/* push 0h ; push 0h ; push 1h ; call 1AB8h:1536h */
-	(void)fn1AB8_1536(0x01, 0x00, 0x00, &ds_90);
+	(void)bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_90);
 
 	bLoc0D_409 = 0x01;
 	for (;;)
@@ -298,13 +298,13 @@ u16 fn0800_149F(void)
 				u8 bCode;
 
 				/* push 0h ; call 1AB8h:1C32h */
-				(void)fn1AB8_1C32(0x00);
+				(void)bgi_get_text_cursor_attributes(0x00);
 
 				/* first pass at (x-1, y-1) */
 				bCode = (u8)LG8((u16)(((u16)bLoc0D_409 << 8) +
 				                      (u16)bLoc0E_412 - 0x00FA));
 				fn1EDA_0B4F(bCode, buf10E);
-				(void)fn1AB8_1D82(buf10E,
+				(void)bgi_get_char_size_info(buf10E,
 					(u16)((u16)bLoc0D_409 * 0x0D + wLoc06 - 0x0001),
 					(u16)(((u16)bLoc0E_412 << 3) + wLoc02 - 0x0001),
 					&ch_dummy);
@@ -315,15 +315,15 @@ u16 fn0800_149F(void)
 				                 (u8)LG8((u16)(((u16)bLoc0D_409 << 8) +
 				                               (u16)bLoc0E_412 - 0x00FA)),
 				                 &es_501))
-					(void)fn1AB8_1C32(0x0A);   /* bit set  */
+					(void)bgi_get_text_cursor_attributes(0x0A);   /* bit set  */
 				else
-					(void)fn1AB8_1C32(0x0B);   /* bit clear */
+					(void)bgi_get_text_cursor_attributes(0x0B);   /* bit clear */
 
 				/* second pass at (x, y) */
 				bCode = (u8)LG8((u16)(((u16)bLoc0D_409 << 8) +
 				                      (u16)bLoc0E_412 - 0x00FA));
 				fn1EDA_0B4F(bCode, buf10E);
-				(void)fn1AB8_1D82(buf10E,
+				(void)bgi_get_char_size_info(buf10E,
 					(u16)((u16)bLoc0D_409 * 0x0D + wLoc06),
 					(u16)(((u16)bLoc0E_412 << 3) + wLoc02),
 					&ch_dummy);
@@ -358,14 +358,14 @@ u16 fn0800_149F(void)
 		ax_a  = (u16)(rem_a + wLoc02);
 		rem_b = fn1EDA_0D80((u16)(wLoc08 - wLoc06), &dx_506);
 		ax_b  = (u16)(rem_b + wLoc06);
-		(void)fn1AB8_1E54(0x00, ax_b, ax_a);
+		(void)bgi_get_line_attributes(0x00, ax_b, ax_a);
 		if (wLoc0A_452 == 0x7D00)
 			break;
 		++wLoc0A_452;
 	}
 
 	/* 0800:1646: call far 1AB8h:0F80h ; leave */
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	return 0x0000;   /* original returns the dropped DGROUP selector */
 }
 
@@ -388,11 +388,11 @@ u16 fn0800_166D(void)
 	s16 dx_22;          /* fn13E2_0080 result / fn1E78_030D dx       */
 	u16 ax_44;          /* 10CE()                                    */
 	u16 ax_52;          /* 10E1()                                    */
-	u16 ds_115;         /* fn1AB8_1536 dsOut (dropped selector)      */
+	u16 ds_115;         /* bgi_load_video_driver_file dsOut (dropped selector)      */
 	u16 dx_327;         /* fn1E78_029C dxOut (outer 1F4h delay)      */
 	u16 dx_546;         /* fn1E78_029C dxOut (inner 1Eh delay)       */
 	u16 dx_544;         /* fn1E78_030D dxOut                         */
-	u8  ch_dummy;       /* fn1AB8_1D82 chOut (reused)                */
+	u8  ch_dummy;       /* bgi_get_char_size_info chOut (reused)                */
 	u16 es_543;         /* fn1EDA_0CD4 esOut (dropped selector)      */
 	u16 dx_547;         /* fn1EDA_0D80 dxOut (wLoc04 path)           */
 	u16 dx_548;         /* fn1EDA_0D80 dxOut (wLoc08 path)           */
@@ -402,7 +402,7 @@ u16 fn0800_166D(void)
 	u16 ax_b;           /* rem_b + wLoc06                            */
 
 	/* call far 1AB8h:0F80h ; call far 13E2h:0080h */
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	dx_22 = (s16)fn13E2_0080();
 
 	/* l0800_167B: do { } while (fn1E78_02FB() != 0) drain the key buffer.
@@ -416,15 +416,15 @@ u16 fn0800_166D(void)
 	/* l0800_168B: rect setup, identical to fn0800_149F. */
 	wLoc02 = 0x002A;
 	wLoc06 = 0x006A;
-	ax_44 = fn1AB8_10CE();
+	ax_44 = bgi_get_text_cols();
 	wLoc04 = (u16)(ax_44 - 0x002A);
-	ax_52 = fn1AB8_10E1();
+	ax_52 = bgi_get_text_rows();
 	wLoc08 = (u16)(ax_52 - 0x006A);
 	fn0800_1315(wLoc08, wLoc04, 0x006A, 0x002A);
 	wLoc02 = (u16)(wLoc02 + 0x0008);
 	wLoc06 = (u16)(wLoc06 + 0x0008);
-	fn1AB8_14F4(0x01, 0x00);
-	(void)fn1AB8_1536(0x01, 0x00, 0x00, &ds_115);
+	bgi_set_text_rectangle(0x01, 0x00);
+	(void)bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_115);
 
 	bLoc0D_446 = 0x01;
 	for (;;)
@@ -439,13 +439,13 @@ u16 fn0800_166D(void)
 				u8 bCode;
 
 				/* push 0h ; call 1AB8h:1C32h */
-				(void)fn1AB8_1C32(0x00);
+				(void)bgi_get_text_cursor_attributes(0x00);
 
 				/* first pass at (x-1, y-1) */
 				bCode = (u8)LG8((u16)(((u16)bLoc0D_446 << 8) +
 				                      (u16)bLoc0E_449 + 0x1106));
 				fn1EDA_0B4F(bCode, buf10E);
-				(void)fn1AB8_1D82(buf10E,
+				(void)bgi_get_char_size_info(buf10E,
 					(u16)((u16)bLoc0D_446 * 0x0D + wLoc06 - 0x0001),
 					(u16)(((u16)bLoc0E_449 << 3) + wLoc02 - 0x0001),
 					&ch_dummy);
@@ -456,15 +456,15 @@ u16 fn0800_166D(void)
 				                 (u8)LG8((u16)(((u16)bLoc0D_446 << 8) +
 				                               (u16)bLoc0E_449 + 0x1106)),
 				                 &es_543))
-					(void)fn1AB8_1C32(0x0A);   /* bit set  */
+					(void)bgi_get_text_cursor_attributes(0x0A);   /* bit set  */
 				else
-					(void)fn1AB8_1C32(0x0B);   /* bit clear */
+					(void)bgi_get_text_cursor_attributes(0x0B);   /* bit clear */
 
 				/* second pass at (x, y) */
 				bCode = (u8)LG8((u16)(((u16)bLoc0D_446 << 8) +
 				                      (u16)bLoc0E_449 + 0x1106));
 				fn1EDA_0B4F(bCode, buf10E);
-				(void)fn1AB8_1D82(buf10E,
+				(void)bgi_get_char_size_info(buf10E,
 					(u16)((u16)bLoc0D_446 * 0x0D + wLoc06),
 					(u16)(((u16)bLoc0E_449 << 3) + wLoc02),
 					&ch_dummy);
@@ -495,13 +495,13 @@ u16 fn0800_166D(void)
 		ax_a  = (u16)(rem_a + wLoc02);
 		rem_b = fn1EDA_0D80((u16)(wLoc08 - wLoc06), &dx_548);
 		ax_b  = (u16)(rem_b + wLoc06);
-		(void)fn1AB8_1E54(0x00, ax_b, ax_a);
+		(void)bgi_get_line_attributes(0x00, ax_b, ax_a);
 		if (wLoc0C_489 == 0x7D00)
 			break;
 		++wLoc0C_489;
 	}
 
 	/* 0800:1829: call far 1AB8h:0F80h ; leave */
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	return 0x0000;   /* original returns the dropped DGROUP selector */
 }

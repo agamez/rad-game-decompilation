@@ -13,7 +13,7 @@
  * DGROUP (g_dgroup + off), the code segment (g_seg1AB8 + off) and the runtime
  * 16:16 allocation/dispatch slots documented inline.
  *
- * DGROUP dispatch slots consumed here (all installed by fn1AB8_17AE, this
+ * DGROUP dispatch slots consumed here (all installed by bgi_init_graphics_driver, this
  * chunk): [0xB6C2]/[0xB6C4] = 1AB8:051F and [0xB6C6]/[0xB6C8] = 1AB8:0538.
  * They are called indirectly (`call dword ptr [0B6C2h]` / `[0B6C6h]`); as in
  * chunks 1-2 the flat model calls the recovered file-static helpers directly
@@ -28,7 +28,7 @@
 #include "seg1EDA.h"
 
 /* Original 1AB8:051F.  Target of the DGROUP far code pointer at
- * [0xB6C2]/[0xB6C4], assigned by fn1AB8_17AE (`mov ax,51Fh; mov dx,1AB8h`).
+ * [0xB6C2]/[0xB6C4], assigned by bgi_init_graphics_driver (`mov ax,51Fh; mov dx,1AB8h`).
  * The original thunk is:
  *
  *     push bp / mov bp,sp
@@ -42,7 +42,7 @@
  * Flat model: the 16:16 result is kept as one 32-bit value in the DGROUP
  * slot, so fn1EDA_023F's u32 return is stored directly.  Same file-static
  * copy as chunk 2 (the two TUs do not share the symbol). */
-static void fn1AB8_051F(u16 wArg06, u32 * ptrArg08)
+static void bgi_alloc_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_051F */
 {
 	u16 dsOut_051F = 0x0000;
 
@@ -50,7 +50,7 @@ static void fn1AB8_051F(u16 wArg06, u32 * ptrArg08)
 }
 
 /* Original 1AB8:0538.  Target of the DGROUP far code pointer at
- * [0xB6C6]/[0xB6C8], assigned by fn1AB8_17AE (`mov ax,538h; mov dx,1AB8h`).
+ * [0xB6C6]/[0xB6C8], assigned by bgi_init_graphics_driver (`mov ax,538h; mov dx,1AB8h`).
  * The original thunk is:
  *
  *     push bp / mov bp,sp
@@ -70,7 +70,7 @@ static void fn1AB8_051F(u16 wArg06, u32 * ptrArg08)
  *     pop bp / retf 6h
  *
  * Same file-static copy as chunk 2. */
-static void fn1AB8_0538(u16 wArg06, u32 * ptrArg08)
+static void bgi_free_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_0538 */
 {
 	u16 dxOut_0538 = 0x0000;
 	u16 dsOut_0538 = 0x0000;
@@ -82,17 +82,17 @@ static void fn1AB8_0538(u16 wArg06, u32 * ptrArg08)
 	*ptrArg08 = 0x00000000u;
 }
 
-/* Video-driver record consumed by fn1AB8_1536: 0x0F-byte stride starting at
+/* Video-driver record consumed by bgi_load_video_driver_file: 0x0F-byte stride starting at
  * DGROUP 0x520B (the same layout chunk 2 named TRec520B).  Word fields at
  * +0,+2 (far code pointer), +4,+6 (allocation) and +8 (file size); the
- * display-driver name string starts at +0x0A.  fn1AB8_1536 addresses it with
+ * display-driver name string starts at +0x0A.  bgi_load_video_driver_file addresses it with
  * byte offsets (pRec + n) as the original does. */
 
-// 1AB8:1536: void * fn1AB8_1536(u16 wArg04, u16 wArg06, u16 wArg08, u16 * dsOut)
-void * fn1AB8_1536(u16 wArg04, u16 wArg06, u16 wArg08, u16 * dsOut)
+// 1AB8:1536: void * bgi_load_video_driver_file(u16 wArg04, u16 wArg06, u16 wArg08, u16 * dsOut)
+void * bgi_load_video_driver_file(u16 wArg04, u16 wArg06, u16 wArg08, u16 * dsOut)  /* was fn1AB8_1536 */
 {
 	u8  abBuf[0x100];   /* [bp-010Ah] 0x100-byte name/format scratch */
-	u16 wLoc02;         /* [bp-0002h] file size / handle from fn1AB8_0887 */
+	u16 wLoc02;         /* [bp-0002h] file size / handle from bgi_open_video_driver_file */
 	u32 dwLoc06;        /* [bp-0006h]/[bp-0004h] allocated driver blob (off|seg<<16) */
 	u8 *pRec;           /* [bp-000Ah]/[bp-0008h] driver record at 0x520B + n*0x0F */
 	u16 dx_45;
@@ -131,7 +131,7 @@ l1AB8_1571:
 		if (*(u16 *)&pOld[0x08] == 0x0000)
 			goto l1AB8_15E8;
 		/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-		fn1AB8_0538(*(u16 *)&pOld[0x08], (u32 *)pOld);
+		bgi_free_driver_blob(*(u16 *)&pOld[0x08], (u32 *)pOld);
 		*(u16 *)&pOld[0x00] = 0x0000;
 		*(u16 *)&pOld[0x02] = 0x0000;
 		*(u16 *)&pOld[0x04] = 0x0000;
@@ -145,12 +145,12 @@ l1AB8_15E8:
 		goto l1AB8_1741;                               /* 1607 jmp 1741 */
 
 	/* 160A: build the file name "<record name><suffix at 1AB8:1531>" then
-	 * open it.  fn1AB8_0887(0xFFF3, &size, ds:0B74Ch, ds:0B764h, dsOut). */
+	 * open it.  bgi_open_video_driver_file(0xFFF3, &size, ds:0B74Ch, ds:0B764h, dsOut). */
 	fn1EDA_0A1F((u8 *)pRec + 0x0A, abBuf);
 	fn1EDA_0AAC(&g_seg1AB8[0x1531], abBuf);
 	fn1EDA_0A39(0x08, &g_dgroup[0xB74C], abBuf, &dx_45);
 
-	if (fn1AB8_0887(0xFFF3, (u8 *)&wLoc02, &g_dgroup[0xB74C],
+	if (bgi_open_video_driver_file(0xFFF3, (u8 *)&wLoc02, &g_dgroup[0xB74C],
 	                &g_dgroup[0xB764], &ds_1536) == 0x00)
 	{
 		/* 1650 */
@@ -172,7 +172,7 @@ l1AB8_15E8:
 		LG16(0x536E) = 0x050B;
 		LG16(0x5370) = 0x1AB8;
 		/* original: call dword ptr [0B6C2h] (1AB8:051F) */
-		fn1AB8_051F(wLoc02, &dwLoc06);
+		bgi_alloc_driver_blob(wLoc02, &dwLoc06);
 		LG16(0x536E) = LG16(0xB7BC);
 		LG16(0x5370) = LG16(0xB7BE);
 	}
@@ -194,7 +194,7 @@ l1AB8_15E8:
 	if (fn1EDA_04A2() != 0x00)
 		goto l1AB8_1709;
 
-	ax_06CA = fn1AB8_06CA(far_ptr(dwLoc06));
+	ax_06CA = bgi_unload_video_driver(far_ptr(dwLoc06));
 	/* original: cwd / cmp dx,bx / cmp ax,cx against (u16)wArg08 (16-bit). */
 	if ((s32)(s16)ax_06CA != (s32)wArg08)
 		goto l1AB8_1709;
@@ -215,7 +215,7 @@ l1AB8_1747:
 l1AB8_1709:
 	LG16(0xB818) = 0xFFF3;
 	/* original: call dword ptr [0B6C6h] (1AB8:0538) */
-	fn1AB8_0538(wLoc02, &dwLoc06);
+	bgi_free_driver_blob(wLoc02, &dwLoc06);
 	wArg08 = 0x0000;
 	wArg04 = 0x0001;
 	goto l1AB8_175E;
@@ -225,37 +225,37 @@ l1AB8_175E:
 	LG16(0xB88E) = wArg06;
 	LG16(0xB890) = wArg04;
 	*dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */
-	return (void *)(uintptr_t)fn1AB8_1DA6((u8)wArg04, (u8)wArg06, (u8)wArg08);
+	return (void *)(uintptr_t)bgi_get_text_color_selector((u8)wArg04, (u8)wArg06, (u8)wArg08);
 }
 
-// 1AB8:1783: u16 fn1AB8_1783(u8 * ptrArg04)
-u16 fn1AB8_1783(u8 * ptrArg04)
+// 1AB8:1783: u16 bgi_display_error_string(u8 * ptrArg04)
+u16 bgi_display_error_string(u8 * ptrArg04)  /* was fn1AB8_1783 */
 {
 	u8  abBuf[0x100];   /* [bp-0102h] fn1EDA_0A39 destination (0x100 bytes) */
 	u16 wLoc02;         /* [bp-0002h] */
 	u16 dx_60;
 
 	fn1EDA_0A39(0xFF, abBuf, ptrArg04, &dx_60);
-	wLoc02 = fn1AB8_1E26();
+	wLoc02 = bgi_get_string_length();
 	return wLoc02;
 }
 
-// 1AB8:17AE: void fn1AB8_17AE(void)
-void fn1AB8_17AE(void)
+// 1AB8:17AE: void bgi_init_graphics_driver(void)
+void bgi_init_graphics_driver(void)  /* was fn1AB8_17AE */
 {
 	u16 dx_45;
 
 	LG16(0xB818) = 0x0000;
 	LG16(0xB7B6) = 0x1000;
-	fn1AB8_1A84();
-	(void)fn1AB8_0813(&dx_45);
+	bgi_clear_video_state();
+	(void)bgi_init_graphics_error(&dx_45);
 
 	/* Driver / helper dispatch table installed in DGROUP (off|seg<<16):
 	 *   [0xB6C2]/[0xB6C4] = 1AB8:051F  (allocate blob)
 	 *   [0xB6C6]/[0xB6C8] = 1AB8:0538  (free blob)
-	 * fn1AB8_0813() has just staged the default [0xB820]/[0xB822] =
+	 * bgi_init_graphics_error() has just staged the default [0xB820]/[0xB822] =
 	 * 1AB8:008B ("graphics not initialized").  The loaded driver entry
-	 * 1AB8:2093 (blob headed at 1AB8:2073) is staged later by fn1AB8_0BAE,
+	 * 1AB8:2093 (blob headed at 1AB8:2073) is staged later by bgi_load_bgi_driver,
 	 * not here.  See the chunk 5a notes. */
 	LG16(0xB6C2) = 0x051F;
 	LG16(0xB6C4) = 0x1AB8;

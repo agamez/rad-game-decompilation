@@ -15,7 +15,7 @@
  *   INT 33h wrappers replaced in seg1206.c), so no PAL call is issued here.
  *
  * Flat-model far pointers:
- *   cs:1830h..cs:1848h (the button-label strings drawn by fn1AB8_1D82) become
+ *   cs:1830h..cs:1848h (the button-label strings drawn by bgi_get_char_size_info) become
  *   &g_seg0800[0x1830] .. &g_seg0800[0x1848]; the DGROUP far pointer staged
  *   for fn1EDA_0A39 (ds:541Eh + 1Ah*slot) becomes &g_dgroup[...].
  *
@@ -71,14 +71,14 @@ u16 fn0800_184C(void *dsOut)
 
 	/* call far 1206h:0066h -- hide the mouse cursor. */
 	fn1206_0066(&bp_535, &ds_103);
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	fn13E2_003B();
 	/* push 8h ; call far 1AB8h:1C32h */
-	fn1AB8_1C32(0x08);
+	bgi_get_text_cursor_attributes(0x08);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
-	fn1AB8_10F4(0x01, 0x00, 0x00);
+	bgi_set_text_background_color(0x01, 0x00, 0x00);
 	/* push 0h ; push 0h ; push 27Fh ; push 177h ; call far 1AB8h:112Eh */
-	fn1AB8_112E(0x0177, 0x027F, 0x00, 0x00);
+	bgi_clip_text_rectangle(0x0177, 0x027F, 0x00, 0x00);
 	/* push 3h ; push 17Bh ; push 27Ch ; push 1DAh ; call 1315h */
 	fn0800_1315(0x01DA, 0x027C, 0x017B, 0x0003);
 	/* mov byte ptr [53DEh],0h ; [53DCh],0h ; [53DBh],0h */
@@ -101,32 +101,32 @@ u16 fn0800_184C(void *dsOut)
 	}
 
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:1536h */
-	fn1AB8_1536(0x01, 0x00, 0x00, &ds_161);
+	bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_161);
 	/* push 1h ; push 1h ; call far 1AB8h:14F4h */
-	fn1AB8_14F4(0x01, 0x01);
+	bgi_set_text_rectangle(0x01, 0x01);
 	/* push 8h ; call far 1AB8h:1C32h */
-	fn1AB8_1C32(0x08);
+	bgi_get_text_cursor_attributes(0x08);
 
 	/* first text row: cs:1830h,1838h,1830h,183Fh,1842h,1845h,1848h at 1CEh */
-	fn1AB8_1D82(&g_seg0800[0x1830], 0x01CE, 0x0043, &ch_538);
-	fn1AB8_1D82(&g_seg0800[0x1838], 0x01CE, 0x0093, &ch_539);
-	fn1AB8_1D82(&g_seg0800[0x1830], 0x01CE, 0x00E3, &ch_540);
-	fn1AB8_1D82(&g_seg0800[0x183F], 0x01CE, 0x012F, &ch_541);
-	fn1AB8_1D82(&g_seg0800[0x1842], 0x01CE, 0x0163, &ch_542);
-	fn1AB8_1D82(&g_seg0800[0x1845], 0x01CE, 0x0197, &ch_543);
-	fn1AB8_1D82(&g_seg0800[0x1848], 0x01CE, 0x01CB, &ch_544);
+	bgi_get_char_size_info(&g_seg0800[0x1830], 0x01CE, 0x0043, &ch_538);
+	bgi_get_char_size_info(&g_seg0800[0x1838], 0x01CE, 0x0093, &ch_539);
+	bgi_get_char_size_info(&g_seg0800[0x1830], 0x01CE, 0x00E3, &ch_540);
+	bgi_get_char_size_info(&g_seg0800[0x183F], 0x01CE, 0x012F, &ch_541);
+	bgi_get_char_size_info(&g_seg0800[0x1842], 0x01CE, 0x0163, &ch_542);
+	bgi_get_char_size_info(&g_seg0800[0x1845], 0x01CE, 0x0197, &ch_543);
+	bgi_get_char_size_info(&g_seg0800[0x1848], 0x01CE, 0x01CB, &ch_544);
 	/* push 0Bh ; call far 1AB8h:1C32h */
-	fn1AB8_1C32(0x0B);
+	bgi_get_text_cursor_attributes(0x0B);
 	/* second text row at 1CFh */
-	fn1AB8_1D82(&g_seg0800[0x1830], 0x01CF, 0x0044, &ch_545);
-	fn1AB8_1D82(&g_seg0800[0x1838], 0x01CF, 0x0094, &ch_546);
-	fn1AB8_1D82(&g_seg0800[0x1830], 0x01CF, 0x00E4, &ch_547);
-	fn1AB8_1D82(&g_seg0800[0x183F], 0x01CF, 0x0130, &ch_548);
-	fn1AB8_1D82(&g_seg0800[0x1842], 0x01CF, 0x0164, &ch_549);
-	fn1AB8_1D82(&g_seg0800[0x1845], 0x01CF, 0x0198, &ch_550);
-	fn1AB8_1D82(&g_seg0800[0x1848], 0x01CF, 0x01CC, &ch_551);
+	bgi_get_char_size_info(&g_seg0800[0x1830], 0x01CF, 0x0044, &ch_545);
+	bgi_get_char_size_info(&g_seg0800[0x1838], 0x01CF, 0x0094, &ch_546);
+	bgi_get_char_size_info(&g_seg0800[0x1830], 0x01CF, 0x00E4, &ch_547);
+	bgi_get_char_size_info(&g_seg0800[0x183F], 0x01CF, 0x0130, &ch_548);
+	bgi_get_char_size_info(&g_seg0800[0x1842], 0x01CF, 0x0164, &ch_549);
+	bgi_get_char_size_info(&g_seg0800[0x1845], 0x01CF, 0x0198, &ch_550);
+	bgi_get_char_size_info(&g_seg0800[0x1848], 0x01CF, 0x01CC, &ch_551);
 	/* push 0h ; call far 1AB8h:1C32h */
-	fn1AB8_1C32(0x00);
+	bgi_get_text_cursor_attributes(0x00);
 
 	/* push 1h ; push 198h ; push 16h ; call 04CCh ; push ax ;
 	 * push 1D1h ; push 9Ch ; push 1B4h ; call far 1206h:01ACh.
@@ -148,7 +148,7 @@ u16 fn0800_184C(void *dsOut)
 // Draw one button/slot around (x,y): copy the caller's 0FFh-prefixed label
 // into [bp-0100h], compute the left/right/top/bottom edges from the label's
 // measured half-width/height, blit the 19h-byte slot record and draw the four
-// beveled sides with fn1AB8_1AF6, then the label and the 1206:0038 mouse
+// beveled sides with bgi_set_pixel, then the label and the 1206:0038 mouse
 // wrapper.
 //
 // REPAIRED (see docs/notes-0800.md "## part 5"): the original reads six word
@@ -192,26 +192,26 @@ u8 fn0800_19E1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpO
 	/* call far 1206h:0066h */
 	fn1206_0066(&bp_39, &ds_43);
 	/* push 1h ; push 0h ; push 3h ; call far 1AB8h:1536h */
-	fn1AB8_1536(0x03, 0x00, 0x01, &ds_66);
+	bgi_load_video_driver_file(0x03, 0x00, 0x01, &ds_66);
 	/* push 1h ; push 3h ; call far 1AB8h:1175h */
-	fn1AB8_1175(0x03, 0x01);
+	bgi_set_text_font_size(0x03, 0x01);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
-	fn1AB8_10F4(0x01, 0x00, 0x00);
+	bgi_set_text_background_color(0x01, 0x00, 0x00);
 	/* push 1h ; push 1h ; call far 1AB8h:14F4h */
-	fn1AB8_14F4(0x01, 0x01);
+	bgi_set_text_rectangle(0x01, 0x01);
 
 	/* left = x - width/2 - 5 (53E2h + 2*index) */
 	LG16((u16)(0x53E2 + ((u16)slot << 1))) =
-		(u16)(x - (fn1AB8_1E0B(buf100) >> 0x0001) - 0x0005);
+		(u16)(x - (bgi_advance_text_pointer(buf100) >> 0x0001) - 0x0005);
 	/* right = x + width/2 + 5 (53FEh + 2*index) */
 	LG16((u16)(0x53FE + ((u16)slot << 1))) =
-		(u16)(x + (fn1AB8_1E0B(buf100) >> 0x0001) + 0x0005);
+		(u16)(x + (bgi_advance_text_pointer(buf100) >> 0x0001) + 0x0005);
 	/* top = y - height/2 (53F0h + 2*index) */
 	LG16((u16)(0x53F0 + ((u16)slot << 1))) =
-		(u16)(y - (fn1AB8_1783(buf100) >> 0x0001));
+		(u16)(y - (bgi_display_error_string(buf100) >> 0x0001));
 	/* bottom = y + height/2 + 5 (540Ch + 2*index) */
 	LG16((u16)(0x540C + ((u16)slot << 1))) =
-		(u16)(y + (fn1AB8_1783(buf100) >> 0x0001) + 0x0005);
+		(u16)(y + (bgi_display_error_string(buf100) >> 0x0001) + 0x0005);
 	/* mov [di+541Ah],ax (x) ; mov [di+5428h],ax (y) */
 	LG16((u16)(0x541A + ((u16)slot << 1))) = x;
 	LG16((u16)(0x5428 + ((u16)slot << 1))) = y;
@@ -227,63 +227,63 @@ u8 fn0800_19E1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpO
 	tFEF8 = LG16((u16)(0x540C + ((u16)slot << 1)));
 
 	/* push FEFEh ; FEFCh ; FEFA h ; FEF8h ; call far 1AB8h:1B3Eh */
-	fn1AB8_1B3E(tFEF8, tFEFA, tFEFC, tFEFE);
-	fn1AB8_1C32(0x0B);
+	bgi_draw_rectangle(tFEF8, tFEFA, tFEFC, tFEFE);
+	bgi_get_text_cursor_attributes(0x0B);
 	if (flag != 0x00)
-		fn1AB8_1C32(0x00);
+		bgi_get_text_cursor_attributes(0x00);
 
 	/* first pair of 1AF6h bevels */
-	fn1AB8_1AF6(tFEFC, (u16)(tFEFA + 0x0003), tFEFC,
+	bgi_set_pixel(tFEFC, (u16)(tFEFA + 0x0003), tFEFC,
 	            (u16)(tFEFE - 0x0003), &dx_821);
-	fn1AB8_1AF6((u16)(tFEFC + 0x0001), (u16)(tFEFA + 0x0001),
+	bgi_set_pixel((u16)(tFEFC + 0x0001), (u16)(tFEFA + 0x0001),
 	            (u16)(tFEFC + 0x0001), (u16)(tFEFE - 0x0002), &dx_822);
-	fn1AB8_1C32(0x0B);
-	fn1AB8_1AF6((u16)(tFEFC + 0x0002), tFEFA,
+	bgi_get_text_cursor_attributes(0x0B);
+	bgi_set_pixel((u16)(tFEFC + 0x0002), tFEFA,
 	            (u16)(tFEFC + 0x0002), (u16)(tFEFE - 0x0001), &dx_823);
 	if (flag != 0x00)
-		fn1AB8_1C32(0x00);
+		bgi_get_text_cursor_attributes(0x00);
 
 	/* second pair (left/bottom bevels) */
-	fn1AB8_1AF6((u16)(tFEF8 + 0x0002), (u16)(tFEFE - 0x0003), tFEFC,
+	bgi_set_pixel((u16)(tFEF8 + 0x0002), (u16)(tFEFE - 0x0003), tFEFC,
 	            (u16)(tFEFE - 0x0003), &dx_824);
-	fn1AB8_1AF6((u16)(tFEF8 + 0x0001), (u16)(tFEFE - 0x0002),
+	bgi_set_pixel((u16)(tFEF8 + 0x0001), (u16)(tFEFE - 0x0002),
 	            (u16)(tFEFC + 0x0001), (u16)(tFEFE - 0x0002), &dx_825);
-	fn1AB8_1C32(0x0B);
-	fn1AB8_1AF6(tFEF8, (u16)(tFEFE - 0x0001),
+	bgi_get_text_cursor_attributes(0x0B);
+	bgi_set_pixel(tFEF8, (u16)(tFEFE - 0x0001),
 	            (u16)(tFEFC + 0x0002), (u16)(tFEFE - 0x0001), &dx_826);
-	fn1AB8_1C32(0x08);
+	bgi_get_text_cursor_attributes(0x08);
 	if (flag != 0x00)
-		fn1AB8_1C32(0x00);
+		bgi_get_text_cursor_attributes(0x00);
 
 	/* third pair (right/bottom bevels) */
-	fn1AB8_1AF6((u16)(tFEF8 + 0x0001), (u16)(tFEFA + 0x0003), tFEFC,
+	bgi_set_pixel((u16)(tFEF8 + 0x0001), (u16)(tFEFA + 0x0003), tFEFC,
 	            (u16)(tFEFA + 0x0003), &dx_827);
-	fn1AB8_1AF6(tFEF8, (u16)(tFEFA + 0x0002),
+	bgi_set_pixel(tFEF8, (u16)(tFEFA + 0x0002),
 	            (u16)(tFEFC + 0x0001), (u16)(tFEFA + 0x0002), &dx_828);
-	fn1AB8_1C32(0x08);
-	fn1AB8_1AF6((u16)(tFEF8 - 0x0001), (u16)(tFEFA + 0x0001),
+	bgi_get_text_cursor_attributes(0x08);
+	bgi_set_pixel((u16)(tFEF8 - 0x0001), (u16)(tFEFA + 0x0001),
 	            (u16)(tFEFC + 0x0002), (u16)(tFEFA + 0x0001), &dx_829);
 	if (flag != 0x00)
-		fn1AB8_1C32(0x00);
+		bgi_get_text_cursor_attributes(0x00);
 
 	/* bottom bevels */
-	fn1AB8_1AF6((u16)(tFEF8 + 0x0002), (u16)(tFEFA + 0x0002),
+	bgi_set_pixel((u16)(tFEF8 + 0x0002), (u16)(tFEFA + 0x0002),
 	            (u16)(tFEF8 + 0x0002), (u16)(tFEFE - 0x0002), &dx_830);
-	fn1AB8_1AF6((u16)(tFEF8 + 0x0001), (u16)(tFEFA + 0x0001),
+	bgi_set_pixel((u16)(tFEF8 + 0x0001), (u16)(tFEFA + 0x0001),
 	            (u16)(tFEF8 + 0x0001), (u16)(tFEFE - 0x0001), &dx_831);
-	fn1AB8_1C32(0x08);
-	fn1AB8_1AF6(tFEF8, tFEFA, tFEF8, tFEFE, &dx_832);
-	fn1AB8_1C32(0x00);
+	bgi_get_text_cursor_attributes(0x08);
+	bgi_set_pixel(tFEF8, tFEFA, tFEF8, tFEFE, &dx_832);
+	bgi_get_text_cursor_attributes(0x00);
 	/* push FEFEh-4 ; FEFCh-1 ; FEFA h+4 ; FEF8h+3 ; call far 1AB8h:112Eh */
-	fn1AB8_112E((u16)(tFEF8 + 0x0003), (u16)(tFEFA + 0x0004),
+	bgi_clip_text_rectangle((u16)(tFEF8 + 0x0003), (u16)(tFEFA + 0x0004),
 	            (u16)(tFEFC - 0x0001), (u16)(tFEFE - 0x0004));
-	fn1AB8_1C32(0x01);
+	bgi_get_text_cursor_attributes(0x01);
 	if (flag != 0x00)
-		fn1AB8_1C32(0x0E);
+		bgi_get_text_cursor_attributes(0x0E);
 
 	/* push [bp+0Ch] (x) ; push [bp+0Ah] (y) ; push ss:buf ;
 	 * call far 1AB8h:1D82h */
-	fn1AB8_1D82(buf100, y, x, &ch_833);
+	bgi_get_char_size_info(buf100, y, x, &ch_833);
 
 	/* call far 1206h:0038h ; leave ; ret 0Ch */
 	ret = fn1206_0038(&ch_834, &dx_768, &bp_763, &ds_767);

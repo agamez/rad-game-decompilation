@@ -16,7 +16,7 @@
  *   replaced in seg1206.c), the keyboard/PIT delay through segment 1E78
  *   (fn1E78_02FB / fn1E78_030D / fn1E78_029C, replaced there with
  *   bios_kbd_* / pal_*), and every text/drawing primitive through segment
- *   1AB8 (fn1AB8_10CE / 14F4 / 1536 / 1C32 / 1D82) and segment 1EDA
+ *   1AB8 (bgi_get_text_cols / 14F4 / 1536 / 1C32 / 1D82) and segment 1EDA
  *   (fn1EDA_0CD4, the bit test).  No PAL call is issued in this file.
  *
  * Flat-model far pointers:
@@ -110,7 +110,7 @@ u8 fn0800_1D55(u16 *dxOut, void *bpOut, u16 *dsOut)
 /* 0800:1E3F: u16 fn0800_1E3F(s16 dx, u16 * dsOut)
  * The 20-row (rows 1..14h) "SUITE." command screen.  Drains the key buffer,
  * draws the frame with fn0800_1315 and, per row, blits the ds:2306h +
- * (row<<8) label twice (normal then highlighted) with fn1AB8_1D82, choosing
+ * (row<<8) label twice (normal then highlighted) with bgi_get_char_size_info, choosing
  * attribute 0Ah when the row's bit is set in the cs:1DE0h table (via
  * fn1EDA_0CD4) and 0Bh otherwise.  Then it draws the cs:1E00h string block,
  * waits for a key or a mouse button, and on a key that is present in the
@@ -156,7 +156,7 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 	/* l0800_1E53: frame setup. */
 	wLoc02 = 0x002A;                          /* mov [bp-2h],2Ah */
 	wLoc06 = 0x0014;                          /* mov [bp-6h],14h */
-	wLoc04 = (u16)(fn1AB8_10CE() - 0x002A);   /* sub ax,2Ah */
+	wLoc04 = (u16)(bgi_get_text_cols() - 0x002A);   /* sub ax,2Ah */
 	wLoc08 = 0x016A;                          /* mov [bp-8h],16Ah */
 	fn1206_0066(&bp_36, &ds_40);
 	/* push [bp-2h] ; push [bp-6h] ; push [bp-4h] ; push [bp-8h] ;
@@ -165,19 +165,19 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 	wLoc02 = (u16)(wLoc02 + 0x0008);          /* add ax,8h */
 	wLoc06 = (u16)(wLoc06 + 0x0008);          /* add ax,8h */
 	/* push 0h ; push 1h ; call far 1AB8h:14F4h */
-	fn1AB8_14F4(0x01, 0x00);
+	bgi_set_text_rectangle(0x01, 0x00);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:1536h */
-	(void)fn1AB8_1536(0x01, 0x00, 0x00, &ds_103);
+	(void)bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_103);
 
 	bLoc0B = 0x01;
 	for (;;)
 	{
 		/* push 0h ; call far 1AB8h:1C32h */
-		(void)fn1AB8_1C32(0x00);
+		(void)bgi_get_text_cursor_attributes(0x00);
 
 		/* first pass at (x-1, y-1): push (wLoc02-1) ; push
 		 * (bLoc0B*0Dh + wLoc06 - 1) ; push ds ; push di. */
-		(void)fn1AB8_1D82(
+		(void)bgi_get_char_size_info(
 			&g_dgroup[(u16)(((u16)bLoc0B << 0x08) + 0x2306)],
 			(u16)((u16)bLoc0B * 0x0D + wLoc06 - 0x0001),
 			(u16)(wLoc02 - 0x0001),
@@ -187,13 +187,13 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 		 * call far 1EDAh:0CD4h ; jz 1EF7h.
 		 * 0CD4 != 0 -> tested bit CLEAR -> attribute 0Bh. */
 		if (!fn1EDA_0CD4(&g_seg0800[0x1DE0], bLoc0B, &es_473))
-			(void)fn1AB8_1C32(0x0A);          /* bit set   */
+			(void)bgi_get_text_cursor_attributes(0x0A);          /* bit set   */
 		else
-			(void)fn1AB8_1C32(0x0B);          /* bit clear */
+			(void)bgi_get_text_cursor_attributes(0x0B);          /* bit clear */
 
 		/* second pass at (x, y): push wLoc02 ; push
 		 * (bLoc0B*0Dh + wLoc06) ; push ds ; push di. */
-		(void)fn1AB8_1D82(
+		(void)bgi_get_char_size_info(
 			&g_dgroup[(u16)(((u16)bLoc0B << 0x08) + 0x2306)],
 			(u16)((u16)bLoc0B * 0x0D + wLoc06),
 			wLoc02,
@@ -245,7 +245,7 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 /* 0800:2004: u16 fn0800_2004(void)
  * The 21-row (rows 1..15h) registration screen.  Clears DGROUP 53D8h, draws
  * the frame with fn0800_1315 and, per row, blits the ds:3706h + (row<<8)
- * label twice through fn1AB8_1D82, choosing attribute 0Ah/0Bh from the
+ * label twice through bgi_get_char_size_info, choosing attribute 0Ah/0Bh from the
  * cs:1FB5h bit table.  Then it draws the cs:1FD5h string block, waits for a
  * key or mouse button, and on a key present in the cs:1FE4h table sets
  * DGROUP 53D8h.  Finally it repaints the block with flag 1, runs the
@@ -291,9 +291,9 @@ u16 fn0800_2004(void)
 	wLoc02 = (u16)(wLoc02 + 0x0008);          /* add ax,8h  */
 	wLoc06 = (u16)(wLoc06 + 0x000C);          /* add ax,0Ch */
 	/* push 1h ; push 1h ; call far 1AB8h:14F4h */
-	fn1AB8_14F4(0x01, 0x01);
+	bgi_set_text_rectangle(0x01, 0x01);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:1536h */
-	(void)fn1AB8_1536(0x01, 0x00, 0x00, &ds_70);
+	(void)bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_70);
 
 	bLoc09 = 0x01;
 	for (;;)
@@ -301,11 +301,11 @@ u16 fn0800_2004(void)
 		u16 di = (u16)((u16)bLoc09 << 0x08);   /* shl di,8h */
 
 		/* push 0h ; call far 1AB8h:1C32h */
-		(void)fn1AB8_1C32(0x00);
+		(void)bgi_get_text_cursor_attributes(0x00);
 
 		/* first pass at (x-1, y-1): x is the column centre
 		 * ((wLoc04-wLoc02)/2 + wLoc02). */
-		(void)fn1AB8_1D82(
+		(void)bgi_get_char_size_info(
 			&g_dgroup[(u16)(di + 0x3706)],
 			(u16)((u16)bLoc09 * 0x0D + wLoc06 - 0x0001),
 			(u16)(((u16)(wLoc04 - wLoc02) >> 0x01) + wLoc02 - 0x0001),
@@ -315,12 +315,12 @@ u16 fn0800_2004(void)
 		 * call far 1EDAh:0CD4h ; jz 20AEh.
 		 * 0CD4 != 0 -> tested bit CLEAR -> attribute 0Bh. */
 		if (!fn1EDA_0CD4(&g_seg0800[0x1FB5], bLoc09, &es_458))
-			(void)fn1AB8_1C32(0x0A);          /* bit set   */
+			(void)bgi_get_text_cursor_attributes(0x0A);          /* bit set   */
 		else
-			(void)fn1AB8_1C32(0x0B);          /* bit clear */
+			(void)bgi_get_text_cursor_attributes(0x0B);          /* bit clear */
 
 		/* second pass at (x, y). */
-		(void)fn1AB8_1D82(
+		(void)bgi_get_char_size_info(
 			&g_dgroup[(u16)(di + 0x3706)],
 			(u16)((u16)bLoc09 * 0x0D + wLoc06),
 			(u16)(((u16)(wLoc04 - wLoc02) >> 0x01) + wLoc02),

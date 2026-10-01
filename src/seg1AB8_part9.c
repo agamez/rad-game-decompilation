@@ -1,15 +1,15 @@
 /* seg1AB8_part9.c -- RAD V3.1 preservation port, segment 1AB8 (VIDEO),
- * chunk 9 of N: function 1AB8:2043 (fn1AB8_2043).
+ * chunk 9 of N: function 1AB8:2043 (bgi_detect_video_adapter).
  *
  * Literal recovery from analysis/slices/1AB8/1AB8_2043.asm (ground truth),
  * cross-checked against the per-function Reko slice and RAD_1AB8.dis; the
  * frozen prototype from src/seg1AB8.h (analysis/summary/iface.tsv) is adopted
  * exactly.  See CONVENTIONS.md and docs/notes-1AB8.md ("## chunk 9").
  *
- * fn1AB8_2043 is a video-adapter probe: it issues INT 10h AH=30h (AL=06h) and,
+ * bgi_detect_video_adapter is a video-adapter probe: it issues INT 10h AH=30h (AL=06h) and,
  * when the BIOS returns CX:DX as a (non-null) far pointer, reads the byte at
  * CX:DX+2 and -- if that byte is 0 or 2 and I/O port 188h has bit 4 set --
- * reports the adapter present (AX=1).  A true result drives fn1AB8_1F19 to
+ * reports the adapter present (AX=1).  A true result drives bgi_detect_video_mode to
  * stage LG8(0xB89C)=0Ah, the IBM 8514-class mode record (0x1EB9 table index
  * 0x0A -> record 5 "IBM851").
  *
@@ -44,8 +44,8 @@
  * into DS:BX with 16-bit arithmetic, so the index wraps mod 0x10000. */
 static u8 g_vbios_30[0x10000];
 
-// 1AB8:2043: u16 fn1AB8_2043(void)
-u16 fn1AB8_2043(void)
+// 1AB8:2043: u16 bgi_detect_video_adapter(void)
+u16 bgi_detect_video_adapter(void)  /* was fn1AB8_2043 */
 {
 	u16 regs[4];
 	u16 cx;

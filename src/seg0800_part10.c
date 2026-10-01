@@ -183,29 +183,29 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 
 	l0800_2D2B:
 		/* l0800_2D2B: frame setup + the DEMO/NONAME-dependent title. */
-		(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_457);
-		fn1AB8_14F4(0x0001, 0x0001);
+		(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_457);
+		bgi_set_text_rectangle(0x0001, 0x0001);
 		fn0800_005A(0x018F, 0x0114, 0x0184, 0x000F);
-		(void)fn1AB8_1C32(0x08);
+		(void)bgi_get_text_cursor_attributes(0x08);
 
 		/* l0800_2D50: call 0B24h ; jz 2D77h. */
 		/* asm 2D5E: jz 2D77 -> EQUAL draws cs:2BED (DEMO prompt);
 		 * NOT-equal falls through to 2D65 which draws ds:5CBB (mission text). */
 		if (fn1EDA_0B24(&g_seg0800[0x2B4A], &g_dgroup[0x5ECE],
 		                &ax_2267, &dx_2268) == 0)
-			(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x0189, 0x0093, &ch_2280);
+			(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x0189, 0x0093, &ch_2280);
 		else
-			(void)fn1AB8_1D82(&g_seg0800[0x2BED], 0x0189, 0x0093, &ch_2279);
+			(void)bgi_get_char_size_info(&g_seg0800[0x2BED], 0x0189, 0x0093, &ch_2279);
 
-		(void)fn1AB8_1C32(0x0A);
+		(void)bgi_get_text_cursor_attributes(0x0A);
 
 		/* l0800_2D87: call 0B24h ; jz 2DB1h. */
 		/* asm 2D87: jz 2DB1 -> EQUAL draws cs:2BED; NOT-equal draws ds:5CBB. */
 		if (fn1EDA_0B24(&g_seg0800[0x2B4A], &g_dgroup[0x5ECE],
 		                &ax_2281, &dx_2282) == 0)
-			(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_2284);
+			(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x018A, 0x0094, &ch_2284);
 		else
-			(void)fn1AB8_1D82(&g_seg0800[0x2BED], 0x018A, 0x0094, &ch_2283);
+			(void)bgi_get_char_size_info(&g_seg0800[0x2BED], 0x018A, 0x0094, &ch_2283);
 
 		/* l0800_2DC1: HUD counters, then copy ds:5ECEh -> ds:5ED6h. */
 		(void)fn0800_04E3(&ds_644);
@@ -217,7 +217,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 		fn13E2_00FB();
 
 		/* l0800_2DE4: push 8h ; push 0h ; call 1AB8:1342h. */
-		(void)fn1AB8_1342(0x00, 0x0008);
+		(void)bgi_set_text_character_color(0x00, 0x0008);
 		(void)fn1206_0066(&bp_2286, &ds_735);
 
 		/* l0800_2DF2/2DFA: 04CCh(ds:53D9h), 04CCh(ds:53DAh) -> 0C74:06B7h.
@@ -338,14 +338,14 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				LG8(0x58B2) = 0x00;
 				ds_1065 = fn0800_2401();
 				LG8(0x58B2) = 0x01;
-				(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_1065);
-				fn1AB8_14F4(0x0001, 0x0001);
+				(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_1065);
+				bgi_set_text_rectangle(0x0001, 0x0001);
 				fn0800_005A(0x018F, 0x0114, 0x0184, 0x000F);
-				(void)fn1AB8_1C32(0x08);
-				(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x0189, 0x0093,
+				(void)bgi_get_text_cursor_attributes(0x08);
+				(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x0189, 0x0093,
 				                  &ch_2309);
-				(void)fn1AB8_1C32(0x0A);
-				(void)fn1AB8_1D82(&g_dgroup[0x5CBB], 0x018A, 0x0094,
+				(void)bgi_get_text_cursor_attributes(0x0A);
+				(void)bgi_get_char_size_info(&g_dgroup[0x5CBB], 0x018A, 0x0094,
 				                  &ch_2310);
 				break;
 

@@ -46,8 +46,8 @@
 u16 engine_load_resources /* was fn0C74_03D4 */(void)
 {
 	u8  abLoc82[0x82];      /* [bp+0FF7Eh] = bp-0x82 DOS stream (DAT) block  */
-	u16 wLoc88;             /* [bp+0FF78h] first fn1AB8_13A3 result (023F sz)*/
-	u16 wLoc8A;             /* [bp+0FF76h] second fn1AB8_13A3 result (unused)*/
+	u16 wLoc88;             /* [bp+0FF78h] first bgi_clamp_rectangle_coords result (023F sz)*/
+	u16 wLoc8A;             /* [bp+0FF76h] second bgi_clamp_rectangle_coords result (unused)*/
 	u16 wLoc86;             /* [bp+0FF7Ah] 023F block offset                 */
 	u16 wLoc84;             /* [bp+0FF7Ch] 023F block segment                */
 	u8  bLoc03;             /* [bp-0001h] resource index 1..1Dh              */
@@ -61,8 +61,8 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 	/* mov di,3B2h ; push cs ; push di ; push cs ; call 0000h */
 	if (engine_probe_file(&g_seg0C74[0x03B2], &dx_719) == 0x00)
 	{
-		fn1AB8_0EB5();
-		fn1AB8_0E88();
+		bgi_shutdown_video_driver();
+		bgi_swap_graphics_gateway();
 		/* push [0B8ACh] ; call far 1E78h:016Bh */
 		(void)fn1E78_016B(LG16(0xB8AC), &dx_721);
 		/* fn1EDA_08CE(0, cs:03BA, ds:0B9BC, &cx_85) then the paired
@@ -79,9 +79,9 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 	(void)fn1EDA_0FD0(LG16(0x4D0E), abLoc82, &dx_720);
 
 	/* push 0 ; push 0 ; push 2Bh ; push 18h ; call 13A3h */
-	wLoc88 = fn1AB8_13A3(0x0018, 0x002B, 0x0000, 0x0000);
+	wLoc88 = bgi_clamp_rectangle_coords(0x0018, 0x002B, 0x0000, 0x0000);
 	/* push 0 ; push 0 ; push 2Bh ; push 2Bh ; call 13A3h (result unused) */
-	wLoc8A = fn1AB8_13A3(0x002B, 0x002B, 0x0000, 0x0000);
+	wLoc8A = bgi_clamp_rectangle_coords(0x002B, 0x002B, 0x0000, 0x0000);
 	(void)wLoc8A;
 
 	/* push [4D0Eh] ; call 023Fh -> DX:AX scratch block */
@@ -112,13 +112,13 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 		}
 		else if (b >= 0x05 && b <= 0x19)
 		{
-			/* fn1EDA_10BB(NULL, 1, buf); fn1AB8_13D7(0, scratch, 0, 0);
+			/* fn1EDA_10BB(NULL, 1, buf); bgi_signed_rectangle_intersect(0, scratch, 0, 0);
 			 * then allocate wLoc88 bytes -> table[5904h + (b-4)*4] and
-			 * fn1AB8_1E6B(block, 18h, 2Bh, 0, 0). */
+			 * bgi_draw_clip_rectangle(block, 18h, 2Bh, 0, 0). */
 			u8 *pScratch = (u8 *)far_ptr(FAR_PTR(wLoc84, wLoc86));
 
 			(void)fn1EDA_10BB((u8 *)0, 0x01, pScratch, abLoc82);
-			fn1AB8_13D7(0x00, pScratch, 0x0000, 0x0000);
+			bgi_signed_rectangle_intersect(0x00, pScratch, 0x0000, 0x0000);
 			{
 				u32 blk = fn1EDA_023F(wLoc88, 0x0000, 0x0000, &ds_552);
 				u16 idx = (u16)(b - 0x04);
@@ -127,7 +127,7 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 				LG16((u16)(0x5904 + (u16)(idx * 4))) = (u16)blk;
 				LG16((u16)(0x5906 + (u16)(idx * 4))) = (u16)(blk >> 16);
 				pBlk = far_ptr(LG32((u16)(0x5904 + (u16)(idx * 4))));
-				fn1AB8_1E6B(pBlk, 0x0018, 0x002B, 0x0000, 0x0000);
+				bgi_draw_clip_rectangle(pBlk, 0x0018, 0x002B, 0x0000, 0x0000);
 			}
 		}
 		else if (b >= 0x1A && b <= 0x1D)
@@ -171,7 +171,7 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 // the buffer.
 u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 {
-	u16 wLoc06 = 0x0000;    /* [bp-0006h] fn1AB8_13A3 window size / 023F size */
+	u16 wLoc06 = 0x0000;    /* [bp-0006h] bgi_clamp_rectangle_coords window size / 023F size */
 	u16 wLoc04 = 0x0000;    /* [bp-0004h] 023F block offset                   */
 	u16 wLoc02 = 0x0000;    /* [bp-0002h] 023F block segment                  */
 	u16 ds_109 = 0x0000;    /* dropped DGROUP selector out of 1EDA calls      */
@@ -181,19 +181,19 @@ u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 
 	/* call 10E1h ; cwd ; compare DX:AX(10E1) against DX:AX=[58BAh] */
 	{
-		u16 ax11 = fn1AB8_10E1();
+		u16 ax11 = bgi_get_text_rows();
 		if (!(((ax11 & 0x8000u) == 0x0000) && (LG16(0x58BA) < ax11)))
 			goto l05B8_06B5;
 	}
 
-	/* fn1AB8_1E3C([58BAh]+1, [58B4h]) ; fn1AB8_1E3C([58BAh]+1, [58B6h]) */
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4), &dl_370) != 0x00)
+	/* bgi_draw_line([58BAh]+1, [58B4h]) ; bgi_draw_line([58BAh]+1, [58B6h]) */
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4), &dl_370) != 0x00)
 		goto l05B8_06B5;
-	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6), &dl_371) != 0x00)
+	if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6), &dl_371) != 0x00)
 		goto l05B8_06B5;
 
 	/* push [58B4h] ; push [58B8h] ; push [58B6h] ; push [58BAh] ; call 13A3h */
-	wLoc06 = fn1AB8_13A3(LG16(0x58BA), LG16(0x58B6),
+	wLoc06 = bgi_clamp_rectangle_coords(LG16(0x58BA), LG16(0x58B6),
 	                     LG16(0x58B8), LG16(0x58B4));
 	/* push [bp-6h] ; call 023Fh -> DX:AX block */
 	{
@@ -202,7 +202,7 @@ u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 		wLoc02 = (u16)(blk >> 16);
 	}
 	/* push [58B4h]..[58BAh] ; les di,[bp-4h] ; push es/di ; call 1E6Bh */
-	fn1AB8_1E6B((u8 *)far_ptr(FAR_PTR(wLoc02, wLoc04)),
+	bgi_draw_clip_rectangle((u8 *)far_ptr(FAR_PTR(wLoc02, wLoc04)),
 	            LG16(0x58BA), LG16(0x58B6), LG16(0x58B8), LG16(0x58B4));
 
 	for (;;)
@@ -212,14 +212,14 @@ u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 		u16 ax11;
 
 		/* call 10E1h ; cwd ; cmp DX:AX([58BAh]) vs DX:AX(10E1), signed */
-		ax11 = fn1AB8_10E1();
+		ax11 = bgi_get_text_rows();
 		if (!(((ax11 & 0x8000u) == 0x0000) && (LG16(0x58BA) < ax11)))
 			break;
 
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4),
+		if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B4),
 		                &dl_372) != 0x00)
 			break;
-		if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
+		if (bgi_draw_line((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
 		                &dl_374) != 0x00)
 			break;
 
@@ -227,7 +227,7 @@ u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 		 * les di,[bp-4h] ; push es/di ; push 0 ; call 13D7h */
 		LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
 		LG16(0x58BA) = (u16)(LG16(0x58BA) + 0x0001);
-		fn1AB8_13D7(0x00,
+		bgi_signed_rectangle_intersect(0x00,
 		            (u8 *)far_ptr(FAR_PTR(wLoc02, wLoc04)),
 		            LG16(0x58B8), LG16(0x58B4));
 		/* push [58E6h] ; call 02D8h */
@@ -245,7 +245,7 @@ l05B8_06B5:
 
 // 0C74:06B7: u16 engine_arm_window_geometry(u16 wArg04, u16 wArg06)
 // Arm the window geometry at DGROUP 0x58B1..0x58BA (from the two arguments),
-// clear the target rectangle through fn1AB8_13D7 and run the 05B8 driver.
+// clear the target rectangle through bgi_signed_rectangle_intersect and run the 05B8 driver.
 u16 engine_arm_window_geometry /* was fn0C74_06B7 */(u16 wArg04, u16 wArg06)
 {
 	u16 ds_58 = 0x0000;   /* dropped DGROUP selector out of engine_scroll_blit */
@@ -264,7 +264,7 @@ u16 engine_arm_window_geometry /* was fn0C74_06B7 */(u16 wArg04, u16 wArg06)
 	/* push [bp+8h] ; push [bp+6h] ; les di,[58E8h] ; push es/di ; push 0 ;
 	 * call 13D7h */
 	p = far_ptr(LG32(0x58E8));
-	fn1AB8_13D7(0x00, p, wArg04, wArg06);
+	bgi_signed_rectangle_intersect(0x00, p, wArg04, wArg06);
 
 	/* push cs ; call 05B8h */
 	(void)engine_scroll_blit(&ds_58);
@@ -335,7 +335,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 	u8  abFrame[0x30EE];   /* [bp-0x30EE .. bp-1] whole local frame image */
 	u16 dx_rt;             /* fn1EDA_0D80 dxOut scratch                   */
 	u8 *es_849 = NULL;     /* fn1EDA_0CD4 esOut                           */
-	u8  dl_scratch;        /* fn1AB8_1E3C dlOut scratch                   */
+	u8  dl_scratch;        /* bgi_draw_line dlOut scratch                   */
 
 #define F8(mag)    (*(u8  *)&abFrame[(0x30EE - (mag))])
 #define F16(mag)   (*(u16 *)&abFrame[(0x30EE - (mag))])
@@ -372,8 +372,8 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 			F16(0x10) = (u16)(fn1EDA_0D80((u16)(wArg04 - wArg08 + 0x0001),
 			                              &dx_rt) + wArg08);
 
-			/* fn1AB8_1E3C(wLoc10, wLoc0E) -> AL stored at bLoc30E7 */
-			F8(0x30E7) = (u8)fn1AB8_1E3C(F16(0x10), F16(0x0E), &dl_scratch);
+			/* bgi_draw_line(wLoc10, wLoc0E) -> AL stored at bLoc30E7 */
+			F8(0x30E7) = (u8)bgi_draw_line(F16(0x10), F16(0x0E), &dl_scratch);
 
 			/* asm 0802h: call 0CD4h ; jz 081Ah -- the jz (table bit
 			 * CLEAR, i.e. the color is destructible) takes the 081Ah
@@ -390,7 +390,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 				/* Destructible color (asm 081Ah): erase the pixel,
 				 * then with probability 1/3 spawn a falling
 				 * debris particle of the same color nearby. */
-				fn1AB8_1E54(0x00, F16(0x10), F16(0x0E));
+				bgi_get_line_attributes(0x00, F16(0x10), F16(0x0E));
 				if (fn1EDA_0D80(0x0003, &dx_rt) == 0x0001)
 				{
 					if (LG8(0x58B0) != 0x00)
@@ -415,7 +415,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 					if (F16(0x10) > 0x0177)
 						F16(0x10) = 0x0001;   /* asm: clamped to 1, not 177h */
 
-					if (fn1AB8_1E3C(F16(0x10), F16(0x0E),
+					if (bgi_draw_line(F16(0x10), F16(0x0E),
 					                &dl_scratch) == 0x00)
 					{
 						u16 n = (u16)(F16(0x06) + 0x0001);
@@ -424,7 +424,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 						AATTR(n) = F8(0x30E7);
 						AX_ARR(n) = F16(0x0E);
 						AY_ARR(n) = F16(0x10);
-						fn1AB8_1E54(AATTR(n), AY_ARR(n), AX_ARR(n));
+						bgi_get_line_attributes(AATTR(n), AY_ARR(n), AX_ARR(n));
 					}
 
 					if (LG8(0x58B0) != 0x00)
@@ -445,10 +445,10 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 					if (AY_ARR(idx) != 0x01F4)
 					{
 						/* draw at the stored point (colour 0) */
-						fn1AB8_1E54(0x00, AY_ARR(idx), AX_ARR(idx));
+						bgi_get_line_attributes(0x00, AY_ARR(idx), AX_ARR(idx));
 						F16(0x0E) = fn1EDA_0D80(0x0014, &dx_rt);
 						if (F16(0x0E) == 0x0001 ||
-						    fn1AB8_1E3C((u16)(AY_ARR(idx) + 0x0001),
+						    bgi_draw_line((u16)(AY_ARR(idx) + 0x0001),
 						                AX_ARR(idx),
 						                &dl_scratch) != 0x00)
 						{
@@ -458,7 +458,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 						         LG16(0x58BA))
 						{
 							AY_ARR(idx) = (u16)(AY_ARR(idx) + 0x0001);
-							fn1AB8_1E54(AATTR(idx), AY_ARR(idx),
+							bgi_get_line_attributes(AATTR(idx), AY_ARR(idx),
 							            AX_ARR(idx));
 						}
 						else
@@ -486,7 +486,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 			for (;;)
 			{
 				if (AY_ARR(F16(0x08)) != 0x01F4)
-					fn1AB8_1E54(0x00, AY_ARR(F16(0x08)),
+					bgi_get_line_attributes(0x00, AY_ARR(F16(0x08)),
 					            AX_ARR(F16(0x08)));
 				if (F16(0x08) == F16(0x30EE))
 					break;

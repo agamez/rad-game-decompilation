@@ -17,7 +17,7 @@
  *   116A/1051/0AD8/1216/0F71/1265/129E/0CD4/0E07), seg1E78 (keyboard and PIT
  *   through fn1E78_0000/02FB/030D), seg1206 (mouse through fn1206_0217/00FF/
  *   012D/00D1, INT 33h via fn1E5F_000B), seg1AB8 (video/text through
- *   fn1AB8_17AE/1CBA/1342/1536/14F4/10CE/1D82/1175), seg13E2 (BGI startup
+ *   bgi_init_graphics_driver/1CBA/1342/1536/14F4/10CE/1D82/1175), seg13E2 (BGI startup
  *   0220/0001/0193/003B), the video-mode / mouse init in seg13C8 / 13C1 /
  *   133F, the AdLib teardown in seg11C8, and the menus / fatal-error / file
  *   load in seg0C74 and seg0C43.  No PAL call is issued in this file.
@@ -190,7 +190,7 @@ void fn0800_4255(void *es)
 	/* call far 1E78h:0000h -- keyboard state init. */
 	fn1E78_0000();
 	/* call far 1AB8h:17AEh -- BGI/video device-table init. */
-	fn1AB8_17AE();
+	bgi_init_graphics_driver();
 	/* call far 13E2h:0220h ; call far 13C8h:0139h -- 0139h receives 0220h's
 	 * return (the DGROUP selector) as its DS argument. */
 	fn13C8_0139((void *)(uintptr_t)fn13E2_0220());
@@ -315,18 +315,18 @@ l0800_42CB:
 	{
 		/* l0800_4394: push 0Fh ; push 3Fh ; push 3Fh ; push 3Fh ;
 		 * call far 1AB8h:1CBAh (install the 16 VGA palette pins). */
-		(void)fn1AB8_1CBA(0x3F, 0x3F, 0x3F, 0x0F);
+		(void)bgi_get_pixel(0x3F, 0x3F, 0x3F, 0x0F);
 		/* push 0Fh ; push 0Fh ; call far 1AB8h:1342h */
-		(void)fn1AB8_1342(0x0F, 0x000F);
+		(void)bgi_set_text_character_color(0x0F, 0x000F);
 		/* push 1h ; push 0h ; push 4h ; call far 1AB8h:1536h */
-		(void)fn1AB8_1536(0x0004, 0x0000, 0x0001, &ds_384);
+		(void)bgi_load_video_driver_file(0x0004, 0x0000, 0x0001, &ds_384);
 		/* push 1h ; push 1h ; call far 1AB8h:14F4h */
-		fn1AB8_14F4(0x0001, 0x0001);
+		bgi_set_text_rectangle(0x0001, 0x0001);
 		/* call far 1AB8h:10CEh ; cwd ; mov cx,2h ; idiv cx ; push ax ;
 		 * push 1BAh ; push cs:423Eh ; call far 1AB8h:1D82h (centre the
 		 * "Chargement en cours..." banner vertically). */
-		quot_10CE = (s16)((s16)fn1AB8_10CE() / 0x0002);
-		(void)fn1AB8_1D82(&g_seg0800[0x423E], 0x01BA,
+		quot_10CE = (s16)((s16)bgi_get_text_cols() / 0x0002);
+		(void)bgi_get_char_size_info(&g_seg0800[0x423E], 0x01BA,
 		                  (u16)quot_10CE, &ch_746);
 	}
 
@@ -335,7 +335,7 @@ l0800_42CB:
 	 * call far 1AB8h:1175h ; mov byte [58B0h],1h ;
 	 * mov word [598Eh],1h ; mov word [5990h],0. */
 	LG16(0x58E2) = 0x0000;
-	fn1AB8_1175(0x000F, 0x0001);
+	bgi_set_text_font_size(0x000F, 0x0001);
 	LG8(0x58B0) = 0x01;
 	LG16(0x598E) = 0x0001;
 	LG16(0x5990) = 0x0000;

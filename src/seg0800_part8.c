@@ -78,7 +78,7 @@ u16 fn0800_2401(void)
 	u16 ds = 0x0000;      /* dropped DGROUP selector                        */
 	u16 ds_158 = 0x0000;  /* fn1206_0066 dsOut                              */
 	u16 bp_154 = 0x0000;  /* fn1206_0066 bpOut                              */
-	u16 ds_459 = 0x0000;  /* fn1AB8_1536 dsOut                              */
+	u16 ds_459 = 0x0000;  /* bgi_load_video_driver_file dsOut                              */
 	u16 ds_551 = 0x0000;  /* fn0800_04E3 dsOut                              */
 	u16 bp_1652 = 0x0000; /* fn1206_0066 bpOut (second)                     */
 	u16 ds_618 = 0x0000;  /* fn1206_0066 dsOut (second)                     */
@@ -98,18 +98,18 @@ u16 fn0800_2401(void)
 	u16 bx_1673 = 0x0000; /* engine_probe_march_right bpOut                              */
 	u16 bx_1661 = 0x0000; /* engine_frame_dispatch bpOut                              */
 
-	u8  ch_1643;          /* fn1AB8_1D82 chOut (cs:237Ah)                   */
-	u8  ch_1644;          /* fn1AB8_1D82 chOut (cs:238Eh)                   */
-	u8  ch_1645;          /* fn1AB8_1D82 chOut (cs:23ACh)                   */
-	u8  ch_1646;          /* fn1AB8_1D82 chOut (cs:23C3h)                   */
-	u8  ch_1649;          /* fn1AB8_1D82 chOut (cs:23E8h, first)            */
-	u8  ch_1650;          /* fn1AB8_1D82 chOut (cs:23E8h, second)           */
+	u8  ch_1643;          /* bgi_get_char_size_info chOut (cs:237Ah)                   */
+	u8  ch_1644;          /* bgi_get_char_size_info chOut (cs:238Eh)                   */
+	u8  ch_1645;          /* bgi_get_char_size_info chOut (cs:23ACh)                   */
+	u8  ch_1646;          /* bgi_get_char_size_info chOut (cs:23C3h)                   */
+	u8  ch_1649;          /* bgi_get_char_size_info chOut (cs:23E8h, first)            */
+	u8  ch_1650;          /* bgi_get_char_size_info chOut (cs:23E8h, second)           */
 	u8  ch_1653;          /* fn1206_0038 chOut                              */
 	u8  ch_1655;          /* fn1206_015B chOut (wait loop)                  */
 	u8  ch_1656;          /* fn1206_015B chOut (mouse branch)               */
 
-	u16 ax_10CE_a;        /* first fn1AB8_10CE() -----------------+         */
-	u16 ax_10CE_b;        /* second fn1AB8_10CE() ----------------+         */
+	u16 ax_10CE_a;        /* first bgi_get_text_cols() -----------------+         */
+	u16 ax_10CE_b;        /* second bgi_get_text_cols() ----------------+         */
 	u16 w_m82;            /* [bp-...] 10CE()/2 - 0x82             |         */
 	u16 w_p82;            /* [bp-...] 10CE()/2 + 0x82             |         */
 	u16 ax_632;           /* fn0800_04CC(DGROUP:53D9h)                      */
@@ -186,26 +186,26 @@ u16 fn0800_2401(void)
 
 	/* l0800_2480: paint the help frame. */
 	(void)fn1206_0066(&bp_154, &ds_158);
-	ax_10CE_a = fn1AB8_10CE();
+	ax_10CE_a = bgi_get_text_cols();
 	w_m82 = (u16)(((s16)ax_10CE_a / 0x0002) - 0x0082);
-	ax_10CE_b = fn1AB8_10CE();
+	ax_10CE_b = bgi_get_text_cols();
 	w_p82 = (u16)(((s16)ax_10CE_b / 0x0002) + 0x0082);
 	/* push A ; push 96h ; push C ; push 0E6h ; call 1315h */
 	(void)fn0800_1315(0x00E6, w_p82, 0x0096, w_m82);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:1536h */
-	(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_459);
+	(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_459);
 	/* push 4h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x04);
+	(void)bgi_get_text_cursor_attributes(0x04);
 	/* cs:237Ah = {19,"ENTREE EN MODE AUTO"} */
-	(void)fn1AB8_1D82(&g_seg0800[0x237A], 0x00A4, 0x0140, &ch_1643);
+	(void)bgi_get_char_size_info(&g_seg0800[0x237A], 0x00A4, 0x0140, &ch_1643);
 	/* push 1h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x01);
+	(void)bgi_get_text_cursor_attributes(0x01);
 	/* cs:238Eh = {29,"Pressez une touche quelconque"} */
-	(void)fn1AB8_1D82(&g_seg0800[0x238E], 0x00B4, 0x0140, &ch_1644);
+	(void)bgi_get_char_size_info(&g_seg0800[0x238E], 0x00B4, 0x0140, &ch_1644);
 	/* cs:23ACh = {22,"pour l'action suivante"} */
-	(void)fn1AB8_1D82(&g_seg0800[0x23AC], 0x00C0, 0x0140, &ch_1645);
+	(void)bgi_get_char_size_info(&g_seg0800[0x23AC], 0x00C0, 0x0140, &ch_1645);
 	/* cs:23C3h = {29,"ou ESC pour reprendre la main"} */
-	(void)fn1AB8_1D82(&g_seg0800[0x23C3], 0x00CC, 0x0140, &ch_1646);
+	(void)bgi_get_char_size_info(&g_seg0800[0x23C3], 0x00CC, 0x0140, &ch_1646);
 
 	/* l0800_2505: wait for a key press. */
 	while (fn1E78_02FB() == 0x00)
@@ -238,7 +238,7 @@ u16 fn0800_2401(void)
 				      ((u16)LG8((u16)(wRow * 0x001D + wCol + 0x5CE0)) << 0x0002))));
 			/* push (53D4h*16h+1) ; push (53D6h*16h+1) ; push es ;
 			 * push di ; push 0 ; call far 1AB8h:13D7h */
-			(void)fn1AB8_13D7(0x00, blk,
+			(void)bgi_signed_rectangle_intersect(0x00, blk,
 			                  (u16)(wRow * 0x0016 + 0x0001),
 			                  (u16)(wCol * 0x0016 + 0x0001));
 			if (LG16(0x53D4) == 0x1C)
@@ -264,15 +264,15 @@ u16 fn0800_2401(void)
 	}
 
 	/* l0800_25B2: draw the menu frame and the mode banner. */
-	(void)fn1AB8_1536(0x0001, 0x0000, 0x0000, &ds_459);
-	fn1AB8_14F4(0x0001, 0x0001);
+	(void)bgi_load_video_driver_file(0x0001, 0x0000, 0x0000, &ds_459);
+	bgi_set_text_rectangle(0x0001, 0x0001);
 	/* push 0Fh ; push 184h ; push 114h ; push 18Fh ; call 005Ah */
 	fn0800_005A(0x018F, 0x0114, 0x0184, 0x000F);
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 	/* cs:23E8h = {24,"MODE AUTO (ESC = RETOUR)"} */
-	(void)fn1AB8_1D82(&g_seg0800[0x23E8], 0x0189, 0x0093, &ch_1649);
-	(void)fn1AB8_1C32(0x0C);
-	(void)fn1AB8_1D82(&g_seg0800[0x23E8], 0x018A, 0x0094, &ch_1650);
+	(void)bgi_get_char_size_info(&g_seg0800[0x23E8], 0x0189, 0x0093, &ch_1649);
+	(void)bgi_get_text_cursor_attributes(0x0C);
+	(void)bgi_get_char_size_info(&g_seg0800[0x23E8], 0x018A, 0x0094, &ch_1650);
 	(void)fn0800_04E3(&ds_551);
 	/* copy 6 bytes DGROUP:5ECEh -> DGROUP:5ED6h */
 	(void)fn1EDA_0A39(0x06, &g_dgroup[0x5ED6], &g_dgroup[0x5ECE], &dx_1651);

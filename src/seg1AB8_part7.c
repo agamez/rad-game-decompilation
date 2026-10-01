@@ -14,7 +14,7 @@
  *   - the DGROUP state bytes/words accessed through the LG macros;
  *   - the runtime 16:16 graphics-driver dispatch pointer staged at DGROUP
  *     0xB820/0xB822 (`call dword ptr [0B820h]`, twelve call sites), modelled
- *     by the file-static fn1AB8_call_0B820 stand-in below (same treatment as
+ *     by the file-static bgi_call_graphics_driver stand-in below (same treatment as
  *     chunks 5b/6);
  *   - the runtime 16:16 slots at DGROUP 0xB83A/0xB83C (far driver record) and
  *     the caller-supplied far pointers carried as the port's `off | seg<<16`
@@ -50,15 +50,15 @@ typedef struct {
  * LG32(0xB820) = offset | segment<<16.  The loaded driver is the relocated
  * blob headed at 1AB8:2073; Reko left that region as data and the port does
  * not recover it as C.  The only recovered target is the default
- * fn1AB8_008B (1AB8:008B, "graphics not initialized"), which fn1AB8_0813
+ * bgi_error_not_initialized (1AB8:008B, "graphics not initialized"), which bgi_init_graphics_error
  * stages.  When that default is staged the call is issued; otherwise the
  * external driver call has no recovered implementation and is a no-op that
  * leaves the staged register values unchanged.  This is the same flat-model
- * treatment as chunks 5b/6 (fn1AB8_call_0B820 there). */
-static void fn1AB8_call_0B820(TRegs1AB8 * r)
+ * treatment as chunks 5b/6 (bgi_call_graphics_driver there). */
+static void bgi_call_graphics_driver(TRegs1AB8 * r)  /* was fn1AB8_call_0B820 */
 {
 	if (LG16(0xB820) == 0x008B && LG16(0xB822) == 0x1AB8)
-		(void)fn1AB8_008B();
+		(void)bgi_error_not_initialized();
 	else {
 		/* The EGAVGA.BGI driver is installed: dispatch into the PAL's
 		 * BGI implementation (the original enters the relocated 16-bit
@@ -73,8 +73,8 @@ static void fn1AB8_call_0B820(TRegs1AB8 * r)
 	}
 }
 
-// 1AB8:1C6A: u8 * fn1AB8_1C6A(void)
-u8 * fn1AB8_1C6A(void)
+// 1AB8:1C6A: u8 * bgi_get_char_info(void)
+u8 * bgi_get_char_info(void)  /* was fn1AB8_1C6A */
 {
 	TRegs1AB8 r;
 
@@ -89,14 +89,14 @@ u8 * fn1AB8_1C6A(void)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x003A;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	/* Runtime 16:16 far address in a u32 slot: off | seg<<16 (port
 	 * convention, chunks 1/2/5).  Materialize it for flat access. */
 	return (u8 *)far_ptr(((u32)r.es << 16) | (u32)r.bx);
 }
 
-// 1AB8:1C93: u16 fn1AB8_1C93(void)
-u16 fn1AB8_1C93(void)
+// 1AB8:1C93: u16 bgi_get_current_page(void)
+u16 bgi_get_current_page(void)  /* was fn1AB8_1C93 */
 {
 	TRegs1AB8 r;
 
@@ -107,12 +107,12 @@ u16 fn1AB8_1C93(void)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x0000;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return (u16)(r.cx - 0x0001);
 }
 
-// 1AB8:1CA4: void fn1AB8_1CA4(u8 bArg04)
-void fn1AB8_1CA4(u8 bArg04)
+// 1AB8:1CA4: void bgi_select_text_font(u8 bArg04)
+void bgi_select_text_font(u8 bArg04)  /* was fn1AB8_1CA4 */
 {
 	TRegs1AB8 r;
 
@@ -124,11 +124,11 @@ void fn1AB8_1CA4(u8 bArg04)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x001A;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:1CBA: u16 fn1AB8_1CBA(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
-u16 fn1AB8_1CBA(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+// 1AB8:1CBA: u16 bgi_get_pixel(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+u16 bgi_get_pixel(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)  /* was fn1AB8_1CBA */
 {
 	TRegs1AB8 r;
 
@@ -142,12 +142,12 @@ u16 fn1AB8_1CBA(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 	r.dx = wArg04;
 	r.es = 0x0000;
 	r.si = 0x001A;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return r.dx;
 }
 
-// 1AB8:1CD7: u8 fn1AB8_1CD7(s16 wArg04, u16 wArg06)
-u8 fn1AB8_1CD7(s16 wArg04, u16 wArg06)
+// 1AB8:1CD7: u8 bgi_text_cell_color(s16 wArg04, u16 wArg06)
+u8 bgi_text_cell_color(s16 wArg04, u16 wArg06)  /* was fn1AB8_1CD7 */
 {
 	TRegs1AB8 r;
 
@@ -159,12 +159,12 @@ u8 fn1AB8_1CD7(s16 wArg04, u16 wArg06)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x001A;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return (u8)(r.ax >> 8);   /* SLICE(ax, byte, 8) */
 }
 
-// 1AB8:1CED: void fn1AB8_1CED(u8 * ptrArg04)
-void fn1AB8_1CED(u8 * ptrArg04)
+// 1AB8:1CED: void bgi_set_text_style_attribute(u8 * ptrArg04)
+void bgi_set_text_style_attribute(u8 * ptrArg04)  /* was fn1AB8_1CED */
 {
 	TRegs1AB8 r;
 
@@ -177,11 +177,11 @@ void fn1AB8_1CED(u8 * ptrArg04)
 	r.dx = 0x0000;
 	r.es = far_seg_of(ptrArg04);
 	r.si = 0x001C;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:1CFF: void fn1AB8_1CFF(u8 bArg04, u16 wArg06, u16 wArg08)
-void fn1AB8_1CFF(u8 bArg04, u16 wArg06, u16 wArg08)
+// 1AB8:1CFF: void bgi_set_color_attributes(u8 bArg04, u16 wArg06, u16 wArg08)
+void bgi_set_color_attributes(u8 bArg04, u16 wArg06, u16 wArg08)  /* was fn1AB8_1CFF */
 {
 	TRegs1AB8 r;
 
@@ -196,11 +196,11 @@ void fn1AB8_1CFF(u8 bArg04, u16 wArg06, u16 wArg08)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x0022;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:1D5B: void fn1AB8_1D5B(u8 bArg04, u8 bArg06)
-void fn1AB8_1D5B(u8 bArg04, u8 bArg06)
+// 1AB8:1D5B: void bgi_set_text_color_attributes(u8 bArg04, u8 bArg06)
+void bgi_set_text_color_attributes(u8 bArg04, u8 bArg06)  /* was fn1AB8_1D5B */
 {
 	TRegs1AB8 r;
 
@@ -213,17 +213,17 @@ void fn1AB8_1D5B(u8 bArg04, u8 bArg06)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x001E;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	/* second dispatch: mov al,[bp+8h] ; mov [0B842h],al ; mov ah,al ;
 	 *                  mov si,20h ; call [0B820h] */
 	LG8(0xB842) = bArg06;
 	r.ax = (u16)(((u16)bArg06 << 8) | (u16)bArg06);
 	r.si = 0x0020;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:1D82: u8 fn1AB8_1D82(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)
-u8 fn1AB8_1D82(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)
+// 1AB8:1D82: u8 bgi_get_char_size_info(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)
+u8 bgi_get_char_size_info(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)  /* was fn1AB8_1D82 */
 {
 	TRegs1AB8 r;
 
@@ -235,7 +235,7 @@ u8 fn1AB8_1D82(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)
 	r.dx = 0x0000;
 	r.es = 0x0000;
 	r.si = 0x0008;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	/* second dispatch: les bx,[bp+6h] ; mov cl,es:[bx] ; xor ch,ch ;
 	 *                  inc bx ; mov si,26h ; call [0B820h] */
 	r.bx = (u16)(uintptr_t)ptrArg04;
@@ -243,13 +243,13 @@ u8 fn1AB8_1D82(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u8 * chOut)
 	r.cx = (u16)(*ptrArg04);   /* mov cl,es:[bx] ; xor ch,ch */
 	r.bx = (u16)(r.bx + 1);    /* inc bx */
 	r.si = 0x0026;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	*chOut = (u8)(r.cx >> 8);    /* out chOut = ch_33 */
 	return (u8)(r.ax >> 8);      /* SLICE(ax, byte, 8) */
 }
 
-// 1AB8:1DA6: u16 fn1AB8_1DA6(u8 bArg04, u8 bArg06, u8 bArg08)
-u16 fn1AB8_1DA6(u8 bArg04, u8 bArg06, u8 bArg08)
+// 1AB8:1DA6: u16 bgi_get_text_color_selector(u8 bArg04, u8 bArg06, u8 bArg08)
+u16 bgi_get_text_color_selector(u8 bArg04, u8 bArg06, u8 bArg08)  /* was fn1AB8_1DA6 */
 {
 	TRegs1AB8 r;
 	u16 bx_15;
@@ -288,12 +288,12 @@ l1AB8_1DE3:
 	 * selector loaded from the [0xB83A]/[0xB83C] far pointer; the raw
 	 * `retf 6h` returns AX, which is the unrecovered driver result.  See
 	 * docs/notes-1AB8.md ("## chunk 7", uncertain site 1). */
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return es_11;
 }
 
-// 1AB8:1E0B: u16 fn1AB8_1E0B(u8 * ptrArg04)
-u16 fn1AB8_1E0B(u8 * ptrArg04)
+// 1AB8:1E0B: u16 bgi_advance_text_pointer(u8 * ptrArg04)
+u16 bgi_advance_text_pointer(u8 * ptrArg04)  /* was fn1AB8_1E0B */
 {
 	TRegs1AB8 r;
 
@@ -306,12 +306,12 @@ u16 fn1AB8_1E0B(u8 * ptrArg04)
 	r.ax = 0x0000;
 	r.dx = 0x0000;
 	r.si = 0x0028;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return r.bx;               /* mov ax,bx */
 }
 
-// 1AB8:1E26: u16 fn1AB8_1E26(void)
-u16 fn1AB8_1E26(void)
+// 1AB8:1E26: u16 bgi_get_string_length(void)
+u16 bgi_get_string_length(void)  /* was fn1AB8_1E26 */
 {
 	TRegs1AB8 r;
 
@@ -325,6 +325,6 @@ u16 fn1AB8_1E26(void)
 	r.dx = 0x0000;
 	r.es = 0x1AB8;
 	r.si = 0x0028;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return r.cx;               /* mov ax,cx */
 }

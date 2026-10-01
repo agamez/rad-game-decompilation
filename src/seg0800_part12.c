@@ -47,7 +47,7 @@
 /* 0800:36E6: void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
  * Draw the four beveled sides of a button box at (wArg06,wArg08) with extent
  * (wArg04,wArg02): set the fill attribute, select the frame, lay the twelve
- * fn1AB8_1AF6 bevels in three colour groups (0Bh between the groups), and the
+ * bgi_set_pixel bevels in three colour groups (0Bh between the groups), and the
  * outline box.  Called from fn0800_391E. */
 void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
@@ -65,53 +65,53 @@ void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	u16 dx_430;
 
 	/* push 1h ; push 3h ; call far 1AB8h:1175h */
-	fn1AB8_1175(0x03, 0x01);
+	bgi_set_text_font_size(0x03, 0x01);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
-	fn1AB8_10F4(0x01, 0x00, 0x00);
+	bgi_set_text_background_color(0x01, 0x00, 0x00);
 	/* push [bp+0Ah] ; [bp+8h] ; [bp+6h] ; [bp+4h] ; call far 1AB8h:1B3Eh */
-	fn1AB8_1B3E(wArg02, wArg04, wArg06, wArg08);
+	bgi_draw_rectangle(wArg02, wArg04, wArg06, wArg08);
 	/* push 8h ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x08);
+	(void)bgi_get_text_cursor_attributes(0x08);
 
 	/* push [bp+0Ah]-3 ; [bp+8h] ; [bp+6h]+3 ; [bp+8h] ; call 1AF6h */
-	(void)fn1AB8_1AF6(wArg06, (u16)(wArg04 + 0x0003), wArg06,
+	(void)bgi_set_pixel(wArg06, (u16)(wArg04 + 0x0003), wArg06,
 	                  (u16)(wArg08 - 0x0003), &dx_419);
 	/* push [bp+0Ah]-2 ; [bp+8h]+1 ; [bp+6h]+1 ; [bp+8h]+1 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg06 + 0x0001), (u16)(wArg04 + 0x0001),
+	(void)bgi_set_pixel((u16)(wArg06 + 0x0001), (u16)(wArg04 + 0x0001),
 	                  (u16)(wArg06 + 0x0001), (u16)(wArg08 - 0x0002), &dx_420);
 	/* push [bp+0Ah]-1 ; [bp+8h]+2 ; [bp+6h] ; [bp+8h]+2 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg06 + 0x0002), wArg04,
+	(void)bgi_set_pixel((u16)(wArg06 + 0x0002), wArg04,
 	                  (u16)(wArg06 + 0x0002), (u16)(wArg08 - 0x0001), &dx_421);
 	/* push [bp+0Ah]-3 ; [bp+8h] ; [bp+0Ah]-3 ; [bp+4h]+2 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0002), (u16)(wArg08 - 0x0003), wArg06,
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0002), (u16)(wArg08 - 0x0003), wArg06,
 	                  (u16)(wArg08 - 0x0003), &dx_422);
 	/* push [bp+0Ah]-2 ; [bp+8h]+1 ; [bp+0Ah]-2 ; [bp+4h]+1 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0001), (u16)(wArg08 - 0x0002),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0001), (u16)(wArg08 - 0x0002),
 	                  (u16)(wArg06 + 0x0001), (u16)(wArg08 - 0x0002), &dx_423);
 	/* push [bp+0Ah]-1 ; [bp+8h]+2 ; [bp+0Ah]-1 ; [bp+4h] ; call 1AF6h */
-	(void)fn1AB8_1AF6(wArg02, (u16)(wArg08 - 0x0001),
+	(void)bgi_set_pixel(wArg02, (u16)(wArg08 - 0x0001),
 	                  (u16)(wArg06 + 0x0002), (u16)(wArg08 - 0x0001), &dx_424);
 
 	/* push 0Bh ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x0B);
+	(void)bgi_get_text_cursor_attributes(0x0B);
 
 	/* push [bp+6h]+3 ; [bp+8h] ; [bp+6h]+3 ; [bp+4h]+1 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0003), wArg06,
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0003), wArg06,
 	                  (u16)(wArg04 + 0x0003), &dx_425);
 	/* push [bp+6h]+2 ; [bp+8h]+1 ; [bp+6h]+2 ; [bp+4h] ; call 1AF6h */
-	(void)fn1AB8_1AF6(wArg02, (u16)(wArg04 + 0x0002),
+	(void)bgi_set_pixel(wArg02, (u16)(wArg04 + 0x0002),
 	                  (u16)(wArg06 + 0x0001), (u16)(wArg04 + 0x0002), &dx_426);
 	/* push [bp+6h]+1 ; [bp+8h]+2 ; [bp+6h]+1 ; [bp+4h]-1 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg02 - 0x0001), (u16)(wArg04 + 0x0001),
+	(void)bgi_set_pixel((u16)(wArg02 - 0x0001), (u16)(wArg04 + 0x0001),
 	                  (u16)(wArg06 + 0x0002), (u16)(wArg04 + 0x0001), &dx_427);
 	/* push [bp+0Ah]-2 ; [bp+6h]+2 ; [bp+4h]+2 ; [bp+0Ah]-2 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0002), (u16)(wArg04 + 0x0002),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0002), (u16)(wArg04 + 0x0002),
 	                  (u16)(wArg02 + 0x0002), (u16)(wArg08 - 0x0002), &dx_428);
 	/* push [bp+0Ah]-1 ; [bp+6h]+1 ; [bp+4h]+1 ; [bp+0Ah]-1 ; call 1AF6h */
-	(void)fn1AB8_1AF6((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0001),
+	(void)bgi_set_pixel((u16)(wArg02 + 0x0001), (u16)(wArg04 + 0x0001),
 	                  (u16)(wArg02 + 0x0001), (u16)(wArg08 - 0x0001), &dx_429);
 	/* push [bp+0Ah] ; [bp+4h] ; [bp+6h] ; [bp+4h] ; call 1AF6h */
-	(void)fn1AB8_1AF6(wArg02, wArg04, wArg02, wArg08, &dx_430);
+	(void)bgi_set_pixel(wArg02, wArg04, wArg02, wArg08, &dx_430);
 }
 
 /* 0800:3850: u8 fn0800_3850(u8 * chOut, u16 * bpOut, u16 * dsOut)
@@ -184,7 +184,7 @@ u16 fn0800_391E(void)
 	u8  abStream[0x100];  /* [bp-0110h] RAD.DOC stream block (04F5 et al.) */
 	u8 *abBuf = g_dgroup + 0xFA00;   /* [bp-0210h] line buffer (0896 dest, 1D82 src); [bp-0210h] is SS-resident, and SS==DS in the tiny model, so stage at DGROUP 0xFA00 for the ES:BX materialization */
 	u16 wLoc02;           /* [bp-2h]  x anchor, 2Ah                        */
-	u16 wLoc04;           /* [bp-4h]  fn1AB8_10CE() - 2Ah                  */
+	u16 wLoc04;           /* [bp-4h]  bgi_get_text_cols() - 2Ah                  */
 	u16 wLoc06;           /* [bp-6h]  y anchor, 14h                        */
 	u16 wLoc08;           /* [bp-8h]  16Ah                                 */
 	u16 wLoc0A;           /* [bp-0Ah] wLoc02 + 30h                         */
@@ -246,7 +246,7 @@ u16 fn0800_391E(void)
 	/* l0800_3959: frame setup. */
 	wLoc02 = 0x002A;                          /* mov [bp-2h],2Ah */
 	wLoc06 = 0x0014;                          /* mov [bp-6h],14h */
-	wLoc04 = (u16)(fn1AB8_10CE() - 0x002A);   /* sub ax,2Ah      */
+	wLoc04 = (u16)(bgi_get_text_cols() - 0x002A);   /* sub ax,2Ah      */
 	wLoc08 = 0x016A;                          /* mov [bp-8h],16Ah */
 	fn1206_0066(&bp_85, &ds_89);
 	/* push [bp-2h] ; [bp-6h] ; [bp-4h] ; [bp-8h] ; call 1315h */
@@ -255,9 +255,9 @@ u16 fn0800_391E(void)
 	fn0800_36E6((u16)(wLoc08 - 0x0032), (u16)(wLoc04 - 0x0008),
 	            (u16)(wLoc06 + 0x000A), (u16)(wLoc02 + 0x0008));
 	/* push 1h ; push 7h ; call far 1AB8h:1175h */
-	fn1AB8_1175(0x07, 0x01);
+	bgi_set_text_font_size(0x07, 0x01);
 	/* push [bp-2h]+8 ; [bp-6h]+0Dh ; [bp-4h]-9 ; [bp-8h]-34h ; call 1B3Eh */
-	fn1AB8_1B3E((u16)(wLoc08 - 0x0034), (u16)(wLoc04 - 0x0009),
+	bgi_draw_rectangle((u16)(wLoc08 - 0x0034), (u16)(wLoc04 - 0x0009),
 	            (u16)(wLoc06 + 0x000D), (u16)(wLoc02 + 0x0008));
 	/* mov ax,[bp-2h] ; add ax,30h ; mov [bp-0Ah],ax ; [bp-6h]+0Ch -> [bp-0Ch] */
 	wLoc0A = (u16)(wLoc02 + 0x0030);
@@ -273,16 +273,16 @@ l0800_3A06:
 	/* l0800_3A06: outer loop head -- hide cursor and re-frame. */
 	fn1206_0066(&bp_250, &ds_254);
 	/* push 1h ; push 7h ; call far 1AB8h:1175h */
-	fn1AB8_1175(0x07, 0x01);
+	bgi_set_text_font_size(0x07, 0x01);
 	/* push [bp-2h]+8 ; [bp-6h]+0Dh ; [bp-4h]-9 ; [bp-8h]-34h ; call 1B3Eh */
-	fn1AB8_1B3E((u16)(wLoc08 - 0x0034), (u16)(wLoc04 - 0x0009),
+	bgi_draw_rectangle((u16)(wLoc08 - 0x0034), (u16)(wLoc04 - 0x0009),
 	            (u16)(wLoc06 + 0x000D), (u16)(wLoc02 + 0x0008));
 	/* mov al,[4D06h] ; xor ah,ah ; push ax ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(LG8(0x4D06));
+	(void)bgi_get_text_cursor_attributes(LG8(0x4D06));
 	/* push 0h ; push 1h ; call far 1AB8h:14F4h */
-	fn1AB8_14F4(0x01, 0x00);
+	bgi_set_text_rectangle(0x01, 0x00);
 	/* push 2h ; push 0h ; push 4h ; call far 1AB8h:1536h */
-	(void)fn1AB8_1536(0x04, 0x00, 0x02, &ds_334);
+	(void)bgi_load_video_driver_file(0x04, 0x00, 0x02, &ds_334);
 	/* mov byte ptr [bp-0Fh],1h */
 	bLoc0F = 0x01;
 	goto l0800_3A5D;
@@ -301,7 +301,7 @@ l0800_3A5D:
 	}
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_987, &ds_334);
 	/* push [bp-0Ah] ; (index*0Dh + [bp-0Ch]) ; ss:bp-0210h ; call 1D82h */
-	(void)fn1AB8_1D82(abBuf,
+	(void)bgi_get_char_size_info(abBuf,
 	                  (u16)((u16)bLoc0F * 0x000D + wLoc0C), wLoc0A, &ch_412);
 	/* cmp byte ptr [bp-0Fh],14h ; jnz 3A5Ah */
 	if (bLoc0F != 0x14)

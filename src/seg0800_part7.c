@@ -21,7 +21,7 @@
  *   string at ds:5ED6h becomes &g_dgroup[0x5ED6], and the number source at
  *   ds:5CB2h becomes LG8(0x5CB2).
  *   The two SS-resident line buffers are staged in DGROUP (SS==DS in the
- *   tiny model) so the far pointers fn1AB8_1D82 / fn1AB8_1E0B / fn0800_19E1
+ *   tiny model) so the far pointers bgi_get_char_size_info / bgi_advance_text_pointer / fn0800_19E1
  *   materialize for them resolve to 0x2014:offset instead of ES=0 (a
  *   zeroed far arena): the "Version enregistree" banner is read by the
  *   driver's text op through such a pointer, and with a stack staging it
@@ -33,7 +33,7 @@
  * `retf 4`, i.e. they consume only the last-pushed far source pointer and
  * leave the first-pushed far destination pointer on the stack.  The frozen
  * prototypes take both pointers explicitly (src, dest) and reproduce the
- * same copies; the leftover destination is what the following fn1AB8_1D82 /
+ * same copies; the leftover destination is what the following bgi_get_char_size_info /
  * fn0800_19E1 call reads as its own first argument, exactly as in the
  * original (Reko models it as ptrLoc020A_611 / ptrLoc020C_636).
  */
@@ -93,21 +93,21 @@ u16 fn0800_21E7(void)
 	void *bp_568;
 
 	/* push 1h ; push 0h ; push 18h ; call far 1AB8h:1536h */
-	fn1AB8_1536(0x0018, 0x0000, 0x0001, &ds_102);
+	bgi_load_video_driver_file(0x0018, 0x0000, 0x0001, &ds_102);
 	/* push 1h ; push 1h ; call far 1AB8h:14F4h */
-	fn1AB8_14F4(0x0001, 0x0001);
+	bgi_set_text_rectangle(0x0001, 0x0001);
 	/* push 9Ch ; push 14h ; push 1E0h ; push 16Ah ; call 1315h */
 	(void)fn0800_1315(0x016A, 0x01E0, 0x0014, 0x009C);
 	/* push 0Ah ; call far 1AB8h:1C32h */
-	(void)fn1AB8_1C32(0x0A);
+	(void)bgi_get_text_cursor_attributes(0x0A);
 	/* push 140h ; push 47h ; push cs:2155h ("RAD") ; call far 1AB8h:1D82h */
-	(void)fn1AB8_1D82(&g_seg0800[0x2155], 0x0047, 0x0140, &ch_650);
+	(void)bgi_get_char_size_info(&g_seg0800[0x2155], 0x0047, 0x0140, &ch_650);
 
 	/* cmp byte ptr [0002h],1Eh ; jbe 2273h */
 	if (LG8(0x0002) > 0x1E)
 	{
 		/* push 2h ; push 0h ; push 4h ; call far 1AB8h:1536h */
-		fn1AB8_1536(0x0004, 0x0000, 0x0002, &ds_102);
+		bgi_load_video_driver_file(0x0004, 0x0000, 0x0002, &ds_102);
 		/* push 140h ; push 96h ; push ss:bp-0200h ; push cs:2159h
 		 * ("Version enregistree : ") ; call far 1EDAh:0A1Fh */
 		fn1EDA_0A1F(&g_seg0800[0x2159], buf200);
@@ -119,7 +119,7 @@ u16 fn0800_21E7(void)
 		/* push cs:2170h (" tableaux") ; call far 1EDAh:0AACh */
 		fn1EDA_0AAC(&g_seg0800[0x2170], buf200);
 		/* call far 1AB8h:1D82h -- draw buf200 at (96h,140h) */
-		(void)fn1AB8_1D82(buf200, 0x0096, 0x0140, &ch_651);
+		(void)bgi_get_char_size_info(buf200, 0x0096, 0x0140, &ch_651);
 	}
 
 	/* cmp word ptr [5990h],0h ; jnz 2281h

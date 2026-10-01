@@ -32,7 +32,7 @@
  * The four dispatch functions (1E3C/1E54/1E6B/1E9F) reach the runtime
  * graphics driver through the 16:16 far code pointer held at DGROUP
  * 0xB820/0xB822 (`call dword ptr [0B820h]`), modelled by the file-static
- * fn1AB8_call_0B820 stand-in below (same treatment as chunks 5b/6/7).  The
+ * bgi_call_graphics_driver stand-in below (same treatment as chunks 5b/6/7).  The
  * stand-in, the register-image type, and the C000 ROM stand-in are all
  * file-static, so no src/seg1AB8_shared.h is required.
  */
@@ -67,15 +67,15 @@ typedef struct {
  * DGROUP 0xB820/0xB822 hold the driver entry as a 16:16 far code pointer, so
  * LG32(0xB820) = offset | segment<<16.  The loaded driver (relocated blob
  * headed at 1AB8:2073) is not recovered as C; the only recovered target is
- * the default fn1AB8_008B (1AB8:008B, "graphics not initialized") staged by
- * fn1AB8_0813.  When that default is staged the call is issued; otherwise the
+ * the default bgi_error_not_initialized (1AB8:008B, "graphics not initialized") staged by
+ * bgi_init_graphics_error.  When that default is staged the call is issued; otherwise the
  * external driver call has no recovered implementation and is a no-op that
  * leaves the staged register values unchanged.  Same flat-model treatment as
- * chunks 5b/6/7 (fn1AB8_call_0B820 there). */
-static void fn1AB8_call_0B820(TRegs1AB8 * r)
+ * chunks 5b/6/7 (bgi_call_graphics_driver there). */
+static void bgi_call_graphics_driver(TRegs1AB8 * r)  /* was fn1AB8_call_0B820 */
 {
 	if (LG16(0xB820) == 0x008B && LG16(0xB822) == 0x1AB8)
-		(void)fn1AB8_008B();
+		(void)bgi_error_not_initialized();
 	else {
 		/* The EGAVGA.BGI driver is installed: dispatch into the PAL's
 		 * BGI implementation (the original enters the relocated 16-bit
@@ -91,8 +91,8 @@ static void fn1AB8_call_0B820(TRegs1AB8 * r)
 	}
 }
 
-// 1AB8:1E3C: u16 fn1AB8_1E3C(u16 wArg04, u16 wArg06, u8 * dlOut)
-u16 fn1AB8_1E3C(u16 wArg04, u16 wArg06, u8 * dlOut)
+// 1AB8:1E3C: u16 bgi_draw_line(u16 wArg04, u16 wArg06, u8 * dlOut)
+u16 bgi_draw_line(u16 wArg04, u16 wArg06, u8 * dlOut)  /* was fn1AB8_1E3C */
 {
 	TRegs1AB8 r;
 
@@ -105,13 +105,13 @@ u16 fn1AB8_1E3C(u16 wArg04, u16 wArg06, u8 * dlOut)
 	r.si = 0x002E;
 	r.di = 0x0000;
 	r.es = 0x0000;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	*dlOut = (u8)r.dx;          /* out dlOut = dl */
 	return (u16)(u8)r.dx;       /* xor ah,ah ; mov al,dl */
 }
 
-// 1AB8:1E54: u8 fn1AB8_1E54(u8 bArg04, u16 wArg06, u16 wArg08)
-u8 fn1AB8_1E54(u8 bArg04, u16 wArg06, u16 wArg08)
+// 1AB8:1E54: u8 bgi_get_line_attributes(u8 bArg04, u16 wArg06, u16 wArg08)
+u8 bgi_get_line_attributes(u8 bArg04, u16 wArg06, u16 wArg08)  /* was fn1AB8_1E54 */
 {
 	TRegs1AB8 r;
 
@@ -127,12 +127,12 @@ u8 fn1AB8_1E54(u8 bArg04, u16 wArg06, u16 wArg08)
 	r.si = 0x0030;
 	r.di = 0x0000;
 	r.es = 0x0000;
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return (u8)r.dx;
 }
 
-// 1AB8:1E6B: void fn1AB8_1E6B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)
-void fn1AB8_1E6B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)
+// 1AB8:1E6B: void bgi_draw_clip_rectangle(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)
+void bgi_draw_clip_rectangle(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)  /* was fn1AB8_1E6B */
 {
 	TRegs1AB8 r;
 	u16 cx_10;
@@ -175,18 +175,18 @@ void fn1AB8_1E6B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E)
 	r.si = 0x0034;
 	r.di = (u16)(di_13 - dx_11);
 	r.es = far_seg_of(ptrArg04);
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 }
 
-// 1AB8:1E9F: u16 fn1AB8_1E9F(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
-u16 fn1AB8_1E9F(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
+// 1AB8:1E9F: u16 bgi_draw_char_pixel(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
+u16 bgi_draw_char_pixel(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)  /* was fn1AB8_1E9F */
 {
 	TRegs1AB8 r;
 
 	/* original: les bx,[bp+8h] ; mov cx,[bp+0Eh] ; mov dx,[bp+0Ch] ;
 	 *           mov al,[bp+6h] ; mov si,36h ; call [0B820h]
 	 * (only AL of AX is set by the original; Reko recovers the word
-	 *  result as the driver's DX output -- the sole caller, fn1AB8_13D7
+	 *  result as the driver's DX output -- the sole caller, bgi_signed_rectangle_intersect
 	 *  at 1AB8:147E, ignores it.) */
 	r.ax = (u16)bArg04;
 	r.bx = (u16)(uintptr_t)ptrArg06;
@@ -195,12 +195,12 @@ u16 fn1AB8_1E9F(u8 bArg04, u8 * ptrArg06, u16 wArg0A, u16 wArg0C)
 	r.si = 0x0036;
 	r.di = 0x0000;
 	r.es = far_seg_of(ptrArg06);
-	fn1AB8_call_0B820(&r);
+	bgi_call_graphics_driver(&r);
 	return r.dx;
 }
 
-// 1AB8:1EE3: void fn1AB8_1EE3(void)
-void fn1AB8_1EE3(void)
+// 1AB8:1EE3: void bgi_init_video_mode_info(void)
+void bgi_init_video_mode_info(void)  /* was fn1AB8_1EE3 */
 {
 	u8 bl_18;
 
@@ -210,7 +210,7 @@ void fn1AB8_1EE3(void)
 	LG8(0xB89A) = 0xFF;
 	LG8(0xB89C) = 0xFF;
 	LG8(0xB89B) = 0x00;
-	fn1AB8_1F19();
+	bgi_detect_video_mode();
 
 	/* original: mov bl,[0B89Ch] ; cmp bl,0FFh ; jz 1F18h ;
 	 *           xor bh,bh ;
@@ -225,8 +225,8 @@ void fn1AB8_1EE3(void)
 	LG8(0xB89D) = g_seg1AB8[(u16)bl_18 + 0x1ED5];
 }
 
-// 1AB8:1F19: void fn1AB8_1F19(void)
-void fn1AB8_1F19(void)
+// 1AB8:1F19: void bgi_detect_video_mode(void)
+void bgi_detect_video_mode(void)  /* was fn1AB8_1F19 */
 {
 	u8 bMode;
 	u8 bPage;
@@ -240,19 +240,19 @@ void fn1AB8_1F19(void)
 
 	/* l1AB8_1F21: call 200Eh ; jnc 1F2Ch ; [1F26] mov [0B89Ch],6h ; ret
 	 * (200E clears CF, so the set-6 return is never reached here.) */
-	if (fn1AB8_200E())
+	if (bgi_check_video_memory())
 	{
 		LG8(0xB89C) = 0x06;
 		return;
 	}
 
 	/* l1AB8_1F2C: call 1F80h ; jnc 1F35h ; call 1F9Eh ; ret */
-	if (fn1AB8_1F80(&cl, &bx))
+	if (bgi_get_vga_info(&cl, &bx))
 		goto l1AB8_1F31;
 
 	/* l1AB8_1F35: call 2043h ; and ax,ax ; jz 1F42h ;
 	 *             mov [0B89Ch],0Ah ; ret */
-	if (fn1AB8_2043() != 0x0000)
+	if (bgi_detect_video_adapter() != 0x0000)
 	{
 		LG8(0xB89C) = 0x0A;
 		return;
@@ -261,18 +261,18 @@ void fn1AB8_1F19(void)
 	/* l1AB8_1F42: mov [0B89Ch],1h ; call 1FEDh ; jnc 1F51h ;
 	 *             mov [0B89Ch],2h */
 	LG8(0xB89C) = 0x01;
-	if (fn1AB8_1FED())
+	if (bgi_get_display_combo_code())
 		LG8(0xB89C) = 0x02;
 	return;                             /* l1AB8_1F51 */
 
 l1AB8_1F52:
 	/* original: call 1F80h ; jc 1F31h */
-	if (fn1AB8_1F80(&cl, &bx))
+	if (bgi_get_vga_info(&cl, &bx))
 		goto l1AB8_1F31;
 
 	/* l1AB8_1F57: call 2011h ; and al,al ; jz 1F64h ;
 	 *             mov [0B89Ch],7h ; ret */
-	if (fn1AB8_2011() != 0x00)
+	if (bgi_detect_vga_adapter() != 0x00)
 	{
 		LG8(0xB89C) = 0x07;
 		return;
@@ -298,11 +298,11 @@ l1AB8_1F52:
 l1AB8_1F31:
 	/* original: call 1F9Eh ; ret -- reached from 1F2C and 1F52 with the
 	 * CL/BX the 1F80 int 10h AH=12h return left behind. */
-	fn1AB8_1F9E(cl, bx);
+	bgi_set_video_adapter_type(cl, bx);
 }
 
-// 1AB8:1F80: u8 fn1AB8_1F80(u8 * clOut, u16 * bxOut)
-u8 fn1AB8_1F80(u8 * clOut, u16 * bxOut)
+// 1AB8:1F80: u8 bgi_get_vga_info(u8 * clOut, u16 * bxOut)
+u8 bgi_get_vga_info(u8 * clOut, u16 * bxOut)  /* was fn1AB8_1F80 */
 {
 	u16 regs[4];
 	u8 cl_9;
@@ -334,8 +334,8 @@ u8 fn1AB8_1F80(u8 * clOut, u16 * bxOut)
 	return 0x01;        /* stc */
 }
 
-// 1AB8:1F9E: void fn1AB8_1F9E(u8 cl, u16 bx)
-void fn1AB8_1F9E(u8 cl, u16 bx)
+// 1AB8:1F9E: void bgi_set_video_adapter_type(u8 cl, u16 bx)
+void bgi_set_video_adapter_type(u8 cl, u16 bx)  /* was fn1AB8_1F9E */
 {
 	u8 bh = (u8)(bx >> 8);
 	u8 bl = (u8)bx;
@@ -350,7 +350,7 @@ void fn1AB8_1F9E(u8 cl, u16 bx)
 	}
 
 	/* l1AB8_1FA8: call 1FDEh ; jc 1FD7h */
-	if (fn1AB8_1FDE(cl))
+	if (bgi_video_mode_valid(cl))
 		return;                     /* l1AB8_1FD7 */
 	/* l1AB8_1FAD: and bl,bl ; jz 1FD7h */
 	if (bl == 0x00)
@@ -358,7 +358,7 @@ void fn1AB8_1F9E(u8 cl, u16 bx)
 
 	/* l1AB8_1FB1: mov byte ptr [0B89Ch],3h ; call 1FEDh ; jc 1FD2h */
 	LG8(0xB89C) = 0x03;
-	if (fn1AB8_1FED())
+	if (bgi_get_display_combo_code())
 		goto l1AB8_1FD2;
 
 	/* l1AB8_1FBB: mov bx,0C000h ; mov es,bx ; mov bx,39h ;
@@ -374,8 +374,8 @@ l1AB8_1FD2:
 	LG8(0xB89C) = 0x09;
 }
 
-// 1AB8:1FDE: u8 fn1AB8_1FDE(u8 cl)
-u8 fn1AB8_1FDE(u8 cl)
+// 1AB8:1FDE: u8 bgi_video_mode_valid(u8 cl)
+u8 bgi_video_mode_valid(u8 cl)  /* was fn1AB8_1FDE */
 {
 	/* original: cmp cl,2h ; jc 1FECh ;
 	 *           cmp cl,6h ; cmc ; jnc 1FECh ;
@@ -388,8 +388,8 @@ u8 fn1AB8_1FDE(u8 cl)
 	return (u8)(cl < 0x08);         /* cmp cl,8h */
 }
 
-// 1AB8:1FED: u8 fn1AB8_1FED(void)
-u8 fn1AB8_1FED(void)
+// 1AB8:1FED: u8 bgi_get_display_combo_code(void)
+u8 bgi_get_display_combo_code(void)  /* was fn1AB8_1FED */
 {
 	u16 regs[4];
 	u8 al_6;
@@ -422,16 +422,16 @@ u8 fn1AB8_1FED(void)
 	return 0x01;                    /* l1AB8_200A */
 }
 
-// 1AB8:200E: u8 fn1AB8_200E(void)
-u8 fn1AB8_200E(void)
+// 1AB8:200E: u8 bgi_check_video_memory(void)
+u8 bgi_check_video_memory(void)  /* was fn1AB8_200E */
 {
 	/* original: xor al,al ; ret -- AL=0 and CF=0.  The sole caller
-	 * (fn1AB8_1F19) branches on the carry (jnc 1F2Ch). */
+	 * (bgi_detect_video_mode) branches on the carry (jnc 1F2Ch). */
 	return 0x00;
 }
 
-// 1AB8:2011: u8 fn1AB8_2011(void)
-u8 fn1AB8_2011(void)
+// 1AB8:2011: u8 bgi_detect_vga_adapter(void)
+u8 bgi_detect_vga_adapter(void)  /* was fn1AB8_2011 */
 {
 	u8 al_6;
 	u8 ah_7;

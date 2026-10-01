@@ -14,7 +14,7 @@
  * 1E78 (beep / mouse-scan), 13C8 (mouse INT 33h) or segment 1EDA (DOS file /
  * string helpers), all replaced in their own ports.
  *
- * 0x5992 far-pointer table: the two fn1AB8_13D7 sites read a 32-bit far
+ * 0x5992 far-pointer table: the two bgi_signed_rectangle_intersect sites read a 32-bit far
  * pointer from DGROUP:0x5992[idx*4].  The table is populated at startup by
  * the (unported) 0800 loader from fn1EDA_023F and is all zero in the shipped
  * image; the pointer is reconstructed exactly as docs/notes-1AB8.md does for
@@ -61,10 +61,10 @@ void fn1229_0CCE(void)
 	/* call far 133F:0137 ; 04A7 ; 1AB8:0F80 */
 	fn133F_0137(&dx_341, &bp_342, &ds_15);
 	fn133F_04A7();
-	fn1AB8_0F80();
-	fn1AB8_1C32(0x0F);
+	bgi_set_text_window();
+	bgi_get_text_cursor_attributes(0x0F);
 	/* push 0h ; push 0h ; push 27Fh ; push 177h */
-	fn1AB8_112E(0x0177, 0x027F, 0x0000, 0x0000);
+	bgi_clip_text_rectangle(0x0177, 0x027F, 0x0000, 0x0000);
 	(void)fn1229_0AA8();
 	fn1229_0C58();
 
@@ -80,13 +80,13 @@ void fn1229_0CCE(void)
 
 	/* push 0h ; push 0h ; call 1AB8:10CE ; push ax ; call 1AB8:10E1 ;
 	 * push ax ; call far 133F:0200 */
-	ax_10CE = fn1AB8_10CE();
-	ax_10E1 = fn1AB8_10E1();
+	ax_10CE = bgi_get_text_cols();
+	ax_10E1 = bgi_get_text_rows();
 	fn133F_0200(ax_10E1, ax_10CE, 0x0000, 0x0000);
 	/* push 1h ; push 1h ; call 1AB8:10CE ; push ax ; call 1AB8:10E1 ;
 	 * push ax ; call far 133F:04B1 */
-	ax_10CE = fn1AB8_10CE();
-	ax_10E1 = fn1AB8_10E1();
+	ax_10CE = bgi_get_text_cols();
+	ax_10E1 = bgi_get_text_rows();
 	(void)fn133F_04B1(ax_10E1, ax_10CE, 0x0001, 0x0001, &ds_294);
 	/* push 16h ; push 16h */
 	fn133F_0256(0x0016, 0x0016);
@@ -144,9 +144,9 @@ u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
 
 	/* les di,[bp+6h] ; push es:di (src) ; push ss:buf (dst) ; push 0FFh */
 	fn1EDA_0A39(0xFF, buf_100, ptrArg04, &dx_1359);
-	fn1AB8_0F80();
+	bgi_set_text_window();
 	/* push 0Fh ; push 3Fh ; push 3Fh ; push 3Fh */
-	fn1AB8_1CBA(0x3F, 0x3F, 0x3F, 0x0F);
+	bgi_get_pixel(0x3F, 0x3F, 0x3F, 0x0F);
 	/* push ss:buf (src) ; push ds:6BBAh (dst) ; push 0FFh */
 	fn1EDA_0A39(0xFF, &g_dgroup[0x6BBA], buf_100, &dx_1360);
 
@@ -188,7 +188,7 @@ l1229_0E2E:
 		qy = (s16)(LG16(0x62D2) - 0x0001) / 0x16;   /* (Y-1)/16h */
 		LG8((u16)(0x5CE0 + (u16)(qy * 0x1D + qx))) = LG8(0x62CB);
 		/* les di,[di+5992h] with di = selected-slot * 4 */
-		fn1AB8_13D7(0x00,
+		bgi_signed_rectangle_intersect(0x00,
 		            far_ptr(LG32((u16)(0x5992 + ((u16)LG8(0x62CB) << 2)))),
 		            (u16)(qy * 0x16 + 0x0001),
 		            (u16)(qx * 0x16 + 0x0001));
@@ -204,7 +204,7 @@ l1229_0E2E:
 		qy = (s16)(LG16(0x62D2) - 0x0001) / 0x16;
 		LG8((u16)(0x5CE0 + (u16)(qy * 0x1D + qx))) = 0x00;
 		/* les di,[5992h] (table entry 0) */
-		fn1AB8_13D7(0x00,
+		bgi_signed_rectangle_intersect(0x00,
 		            far_ptr(LG32(0x5992)),
 		            (u16)(qy * 0x16 + 0x0001),
 		            (u16)(qx * 0x16 + 0x0001));
@@ -305,7 +305,7 @@ l1229_10EF:
 	fn133F_0137(&dx_1065, &bp_1060, &ds_1064);
 	if (LG8(0x5CB3) != 0x00)
 	{
-		fn1AB8_0F80();
+		bgi_set_text_window();
 		/* compare the working name ds:5CB4 with "NONAME" (cs:0DC5).  The
 		 * frozen fn1EDA_0B24 returns 1 when the records are equal, so the
 		 * asm `jnz 112Eh` (ZF clear, unequal) is `== 0` here. */

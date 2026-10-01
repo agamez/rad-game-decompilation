@@ -49,7 +49,7 @@
  * Fn1AB8_1AF6's four arguments follow the original push order reversed:
  *   ([58B8h]+tAF[i], [58B4h]-t9B[i], [58B8h]+t87[i], [58B4h]-t16[i*2]) */
 #define PATCH3(idx) \
-	(void)fn1AB8_1AF6( \
+	(void)bgi_set_pixel( \
 	    (u16)(LG16(0x58B8) + LG8((u16)(0x4DAF + (idx)))), \
 	    (u16)(LG16(0x58B4) - LG8((u16)(0x4D9B + (idx)))), \
 	    (u16)(LG16(0x58B8) + LG8((u16)(0x4D87 + (idx)))), \
@@ -74,21 +74,21 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 	u16 wLoc0A = 0x0000;    /* [bp-0Ah] right patch x */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut for engine_clock_tick */
 	void *dsv = NULL;       /* reusable void * dsOut for engine_scale_and_tick_clock */
-	u16 dxTmp = 0x0000;     /* fn1AB8_1AF6 dxOut */
-	u8  dlTmp = 0x00;       /* fn1AB8_1E3C dlOut */
+	u16 dxTmp = 0x0000;     /* bgi_set_pixel dxOut */
+	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
 
 	/* 3F76..3F90: flag, [58B4h]++, video latch, scan offset. */
 	bLoc01 = 0x01;                                   /* mov [bp-1],1 */
 	LG16(0x58B4) = (u16)(LG16(0x58B4) + 0x0001);     /* inc [58B4h] */
-	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
-	(void)fn1AB8_1C32(0x0C);
+	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
+	(void)bgi_get_text_cursor_attributes(0x0C);
 	wLoc04 = 0x000D;                                 /* mov [bp-4h],0Dh */
 
 	/* 3F97..4021: first scan loop. */
 	for (;;)
 	{
 		/* l0C74_3F97: patch line at x=[58B8h]+12h/13h, y=[58B4h]+wLoc04. */
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0013),
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0013),
 		            (u16)(LG16(0x58B4) + wLoc04),
 		            (u16)(LG16(0x58B8) + 0x0012),
 		            (u16)(LG16(0x58B4) + wLoc04),
@@ -100,7 +100,7 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 			break;
 
 		/* l0C74_3FDF: edge probe at ([58B8h]+13h, [58B4h]+wLoc04). */
-		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x0013),
+		if (bgi_draw_line((u16)(LG16(0x58B8) + 0x0013),
 		                (u16)(LG16(0x58B4) + wLoc04),
 		                &dlTmp) != 0x00)
 			break;
@@ -122,7 +122,7 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 	if (wLoc04 != 0xFFF3)
 	{
 		/* l0C74_402A: "then" -- shrink to the scan position. */
-		(void)fn1AB8_1C32(0x00);
+		(void)bgi_get_text_cursor_attributes(0x00);
 		{
 			u16 ax = (u16)(wLoc04 + 0x0001);         /* 402E..4032 */
 			if ((s16)ax <= 0x000D)                   /* cmp ax,0Dh ; jg 4087h */
@@ -131,7 +131,7 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 				for (;;)
 				{
 					/* l0C74_4042 */
-					fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0013),
+					bgi_set_pixel((u16)(LG16(0x58B8) + 0x0013),
 					            (u16)(LG16(0x58B4) + wLoc06),
 					            (u16)(LG16(0x58B8) + 0x0012),
 					            (u16)(LG16(0x58B4) + wLoc06),
@@ -150,14 +150,14 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 	else
 	{
 		/* l0C74_4092: "else" -- full bar redraw. */
-		(void)fn1AB8_1C32(0x0A);
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0012),
+		(void)bgi_get_text_cursor_attributes(0x0A);
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0012),
 		            (u16)(LG16(0x58B4) - 0x000B),
 		            (u16)(LG16(0x58B8) + 0x0012),
 		            (u16)(LG16(0x58B4) + 0x0001),
 		            &dxTmp);
 		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0011),
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0011),
 		            (u16)(LG16(0x58B4) - 0x000B),
 		            (u16)(LG16(0x58B8) + 0x0011),
 		            (u16)(LG16(0x58B4) + 0x0001),
@@ -168,9 +168,9 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		wLoc06 = 0x0003;
 		for (;;)
 		{
-			(void)fn1AB8_1C32(0x00);
+			(void)bgi_get_text_cursor_attributes(0x00);
 			PATCH3((u16)(wLoc06 - 0x0002));
-			(void)fn1AB8_1C32(0x0A);
+			(void)bgi_get_text_cursor_attributes(0x0A);
 			PATCH3(wLoc06);
 			PATCH3((u16)(wLoc06 - 0x0001));
 			(void)engine_scale_and_tick_clock(0x0032, 0x0190, &dsv);
@@ -180,9 +180,9 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		}
 
 		/* l0C74_420A: edge stamp + horizontal patch, then wLoc08/wLoc0A. */
-		(void)fn1AB8_1E54(0x00, (u16)(LG16(0x58B8) + 0x0011),
+		(void)bgi_get_line_attributes(0x00, (u16)(LG16(0x58B8) + 0x0011),
 		                  (u16)(LG16(0x58B4) - 0x000B));
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0010),
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0010),
 		            (u16)(LG16(0x58B4) - 0x000C),
 		            (u16)(LG16(0x58B8) + 0x0006),
 		            (u16)(LG16(0x58B4) - 0x000C),
@@ -193,14 +193,14 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		for (;;)
 		{
 			/* l0C74_425C: two vertical patches + two edge stamps, step +1. */
-			(void)fn1AB8_1C32(0x00);
-			fn1AB8_1AF6(wLoc08, (u16)(LG16(0x58B4) - 0x000D),
+			(void)bgi_get_text_cursor_attributes(0x00);
+			bgi_set_pixel(wLoc08, (u16)(LG16(0x58B4) - 0x000D),
 			            wLoc08, (u16)(LG16(0x58B4) - 0x000C), &dxTmp);
-			(void)fn1AB8_1C32(0x0A);
-			fn1AB8_1AF6(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
+			(void)bgi_get_text_cursor_attributes(0x0A);
+			bgi_set_pixel(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
 			            wLoc0A, (u16)(LG16(0x58B4) - 0x000C), &dxTmp);
-			(void)fn1AB8_1E54(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000B));
-			(void)fn1AB8_1E54(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000E));
+			(void)bgi_get_line_attributes(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000B));
+			(void)bgi_get_line_attributes(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000E));
 			wLoc08 = (u16)(wLoc08 + 0x0001);
 			wLoc0A = (u16)(wLoc0A + 0x0001);
 			(void)engine_scale_and_tick_clock(0x0064, 0x0064, &dsv);
@@ -210,14 +210,14 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		}
 
 		/* l0C74_42D1: closing patch/clock, then wLoc08/wLoc0A reset. */
-		(void)fn1AB8_1C32(0x0A);
-		fn1AB8_1AF6(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
+		(void)bgi_get_text_cursor_attributes(0x0A);
+		bgi_set_pixel(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
 		            wLoc0A, (u16)(LG16(0x58B4) - 0x000C), &dxTmp);
-		(void)fn1AB8_1E54(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000B));
-		(void)fn1AB8_1E54(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000E));
+		(void)bgi_get_line_attributes(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000B));
+		(void)bgi_get_line_attributes(0x00, wLoc0A, (u16)(LG16(0x58B4) - 0x000E));
 		(void)engine_clock_tick(0x01F4, &dsTmp);
-		(void)fn1AB8_1C32(0x00);
-		fn1AB8_1AF6(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
+		(void)bgi_get_text_cursor_attributes(0x00);
+		bgi_set_pixel(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
 		            wLoc0A, (u16)(LG16(0x58B4) - 0x000C), &dxTmp);
 		wLoc08 = (u16)(LG16(0x58B8) + 0x0010);
 		wLoc0A = (u16)(LG16(0x58B8) + 0x001E);
@@ -225,11 +225,11 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		for (;;)
 		{
 			/* l0C74_4355: two vertical patches, step -1. */
-			(void)fn1AB8_1C32(0x0A);
-			fn1AB8_1AF6(wLoc08, (u16)(LG16(0x58B4) - 0x000D),
+			(void)bgi_get_text_cursor_attributes(0x0A);
+			bgi_set_pixel(wLoc08, (u16)(LG16(0x58B4) - 0x000D),
 			            wLoc08, (u16)(LG16(0x58B4) - 0x000C), &dxTmp);
-			(void)fn1AB8_1C32(0x00);
-			fn1AB8_1AF6(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
+			(void)bgi_get_text_cursor_attributes(0x00);
+			bgi_set_pixel(wLoc0A, (u16)(LG16(0x58B4) - 0x000D),
 			            wLoc0A, (u16)(LG16(0x58B4) - 0x000C), &dxTmp);
 			wLoc08 = (u16)(wLoc08 - 0x0001);
 			wLoc0A = (u16)(wLoc0A - 0x0001);
@@ -243,9 +243,9 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		wLoc06 = 0x0014;
 		for (;;)
 		{
-			(void)fn1AB8_1C32(0x00);
+			(void)bgi_get_text_cursor_attributes(0x00);
 			PATCH3(wLoc06);
-			(void)fn1AB8_1C32(0x0A);
+			(void)bgi_get_text_cursor_attributes(0x0A);
 			PATCH3((u16)(wLoc06 - 0x0002));
 			PATCH3((u16)(wLoc06 - 0x0001));
 			(void)engine_scale_and_tick_clock(0x0032, 0x0190, &dsv);
@@ -255,29 +255,29 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 		}
 
 		/* l0C74_44CB: final edge stamps and patches. */
-		(void)fn1AB8_1E54(0x00, (u16)(LG16(0x58B8) + 0x0010),
+		(void)bgi_get_line_attributes(0x00, (u16)(LG16(0x58B8) + 0x0010),
 		                  (u16)(LG16(0x58B4) - 0x000C));
-		(void)fn1AB8_1C32(0x0A);
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0011),
+		(void)bgi_get_text_cursor_attributes(0x0A);
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0011),
 		            (u16)(LG16(0x58B4) - 0x000B),
 		            (u16)(LG16(0x58B8) + 0x0011),
 		            (u16)(LG16(0x58B4) + 0x0001), &dxTmp);
 		(void)engine_clock_tick(0x01F4, &dsTmp);
-		(void)fn1AB8_1C32(0x00);
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0011),
+		(void)bgi_get_text_cursor_attributes(0x00);
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0011),
 		            (u16)(LG16(0x58B4) - 0x000B),
 		            (u16)(LG16(0x58B8) + 0x0011),
 		            (u16)(LG16(0x58B4) + 0x0001), &dxTmp);
 		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
-		(void)fn1AB8_1C32(0x0C);
-		fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0012),
+		(void)bgi_get_text_cursor_attributes(0x0C);
+		bgi_set_pixel((u16)(LG16(0x58B8) + 0x0012),
 		            (u16)(LG16(0x58B4) - 0x000B),
 		            (u16)(LG16(0x58B8) + 0x0012),
 		            (u16)(LG16(0x58B4) + 0x0001), &dxTmp);
 		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 
 		/* 45??: shrink loop from (wLoc04+1) up to 0Dh. */
-		(void)fn1AB8_1C32(0x00);
+		(void)bgi_get_text_cursor_attributes(0x00);
 		{
 			u16 ax = (u16)(wLoc04 + 0x0001);
 			if ((s16)ax <= 0x000D)           /* cmp ax,0Dh ; jg 45C5h */
@@ -286,7 +286,7 @@ u8 engine_reel_bar_pull /* was fn0C74_3F74 */(void *bpOut, u16 *dsOut)
 				for (;;)
 				{
 					/* l0C74_4580 */
-					fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0013),
+					bgi_set_pixel((u16)(LG16(0x58B8) + 0x0013),
 					            (u16)(LG16(0x58B4) + wLoc06),
 					            (u16)(LG16(0x58B8) + 0x0012),
 					            (u16)(LG16(0x58B4) + wLoc06),
