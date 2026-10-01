@@ -1184,7 +1184,7 @@ its 2-char record kept the leading digits "14".
 
 ROOT CAUSE: fn1EDA_098A (and 3 sibling sites) wrote their "dropped DGROUP
 selector" out-param as *(void **)dsOut = an 8-byte pointer, while every caller
-stores that output in a 16-byte--no, 16-BIT local (e.g. fn0C74_02D8's
+stores that output in a 16-BIT local (e.g. fn0C74_02D8's
 u16 ds_44).  The 6 overflow bytes landed on the adjacent local dx_45 (the
 quotient-high out-param), which had just been set to 0 and was then stored
 into DGROUP:58CEh.  0x55E1 is the high word of the PIE-mapped g_dgroup
