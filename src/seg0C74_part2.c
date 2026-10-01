@@ -20,7 +20,7 @@
  *     to u8*; the far-heap node fetches themselves live in the 1EDA port.
  *   - Saved-BP / DS-register "outputs" have no flat-C equivalent (no BP
  *     chain): out pointers receive 0 and the artifact return values are 0.
- *   - fn0C74_076B addresses a 0x30EE-byte frame by literal BP displacement,
+ *   - engine_scatter_starfield addresses a 0x30EE-byte frame by literal BP displacement,
  *     including two deliberately overlapping arrays; abFrame[] reproduces
  *     that exact layout.
  */
@@ -37,13 +37,13 @@
 #include "seg11C8.h"
 #include "seg1E78.h"
 
-// 0C74:03D4: u16 fn0C74_03D4(void)
-// Probe the "RAD.DES" description stream (fn0C74_0000) and, when present,
+// 0C74:03D4: u16 engine_load_resources(void)
+// Probe the "RAD.DES" description stream (engine_probe_file) and, when present,
 // open the file into the DGROUP stream block at 0x58E8's neighbourhood.  If
 // the probe fails, format/open the file through the 0B9BC text stream first.
 // Then lay out 0x1D indexed resource records (four ranges), draw each frame
 // and finally release the scratch block.
-u16 fn0C74_03D4(void)
+u16 engine_load_resources /* was fn0C74_03D4 */(void)
 {
 	u8  abLoc82[0x82];      /* [bp+0FF7Eh] = bp-0x82 DOS stream (DAT) block  */
 	u16 wLoc88;             /* [bp+0FF78h] first fn1AB8_13A3 result (023F sz)*/
@@ -51,7 +51,7 @@ u16 fn0C74_03D4(void)
 	u16 wLoc86;             /* [bp+0FF7Ah] 023F block offset                 */
 	u16 wLoc84;             /* [bp+0FF7Ch] 023F block segment                */
 	u8  bLoc03;             /* [bp-0001h] resource index 1..1Dh              */
-	u16 dx_719;             /* fn0C74_0000 dxOut                             */
+	u16 dx_719;             /* engine_probe_file dxOut                             */
 	u16 dx_721;             /* fn1E78_016B dxOut                             */
 	u16 cx_85;              /* fn1EDA_08CE cxOut                             */
 	u16 dx_720;             /* fn1EDA_0FD0 dxOut                             */
@@ -59,7 +59,7 @@ u16 fn0C74_03D4(void)
 	u16 dx_724;             /* fn1EDA_0254 dxOut                             */
 
 	/* mov di,3B2h ; push cs ; push di ; push cs ; call 0000h */
-	if (fn0C74_0000(&g_seg0C74[0x03B2], &dx_719) == 0x00)
+	if (engine_probe_file(&g_seg0C74[0x03B2], &dx_719) == 0x00)
 	{
 		fn1AB8_0EB5();
 		fn1AB8_0E88();
@@ -97,7 +97,7 @@ u16 fn0C74_03D4(void)
 		u8 b;
 
 		/* push 5h ; push cs ; call 00B2h */
-		fn0C74_00B2(0x05);
+		engine_advance_stream_cursor(0x05);
 		b = bLoc03;
 		if (b >= 0x01 && b <= 0x04)
 		{
@@ -143,7 +143,7 @@ u16 fn0C74_03D4(void)
 		}
 
 		/* push 0 ; push 0 ; push 2Ch ; push 2Ch ; call 007Ch */
-		fn0C74_007C(0x002C, 0x002C, 0x0000, 0x0000);
+		engine_repaint_rect(0x002C, 0x002C, 0x0000, 0x0000);
 
 		if (bLoc03 == 0x1D)
 			break;
@@ -163,13 +163,13 @@ u16 fn0C74_03D4(void)
 	return 0x0000;   /* original returns the dropped DGROUP selector */
 }
 
-// 0C74:05B8: u8 * fn0C74_05B8(u16 * dsOut)
+// 0C74:05B8: u8 * engine_scroll_blit(u16 * dsOut)
 // Scroll/blit driver: when the odd counter 0x58BA is below the 10E1 measured
 // bound, allocate the 13A3-sized window buffer, fill it once via 1E6B, then
 // walk rows while the counter stays below and the next row probes empty,
 // shifting the rectangle one row at a time and ticking 02D8.  Finally free
 // the buffer.
-u8 * fn0C74_05B8(u16 * dsOut)
+u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 {
 	u16 wLoc06 = 0x0000;    /* [bp-0006h] fn1AB8_13A3 window size / 023F size */
 	u16 wLoc04 = 0x0000;    /* [bp-0004h] 023F block offset                   */
@@ -231,7 +231,7 @@ u8 * fn0C74_05B8(u16 * dsOut)
 		            (u8 *)far_ptr(FAR_PTR(wLoc02, wLoc04)),
 		            LG16(0x58B8), LG16(0x58B4));
 		/* push [58E6h] ; call 02D8h */
-		(void)fn0C74_02D8(LG16(0x58E6), &ds_109);
+		(void)engine_clock_tick(LG16(0x58E6), &ds_109);
 	}
 
 	/* push [bp-2h] ; push [bp-4h] ; push [bp-6h] ; call 0254h */
@@ -243,12 +243,12 @@ l05B8_06B5:
 	return (u8 *)0;    /* saved-BP artifact; no caller consumes it   */
 }
 
-// 0C74:06B7: u16 fn0C74_06B7(u16 wArg04, u16 wArg06)
+// 0C74:06B7: u16 engine_arm_window_geometry(u16 wArg04, u16 wArg06)
 // Arm the window geometry at DGROUP 0x58B1..0x58BA (from the two arguments),
 // clear the target rectangle through fn1AB8_13D7 and run the 05B8 driver.
-u16 fn0C74_06B7(u16 wArg04, u16 wArg06)
+u16 engine_arm_window_geometry /* was fn0C74_06B7 */(u16 wArg04, u16 wArg06)
 {
-	u16 ds_58 = 0x0000;   /* dropped DGROUP selector out of fn0C74_05B8 */
+	u16 ds_58 = 0x0000;   /* dropped DGROUP selector out of engine_scroll_blit */
 	u8 *p;                /* [58E8h] stored far pointer, flat           */
 
 	LG16(0x5968) = 0x0001;
@@ -267,15 +267,15 @@ u16 fn0C74_06B7(u16 wArg04, u16 wArg06)
 	fn1AB8_13D7(0x00, p, wArg04, wArg06);
 
 	/* push cs ; call 05B8h */
-	(void)fn0C74_05B8(&ds_58);
+	(void)engine_scroll_blit(&ds_58);
 
 	return ds_58;
 }
 
-// 0C74:070D: u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)
+// 0C74:070D: u8 * engine_scale_and_tick_clock(u16 wArg02, u16 wArg04, void * dsOut)
 // Scale wArg02 by DGROUP:58E6 then divide by 9 (the original mul/cwd/idiv
 // sequence), optionally bracket the two 02D8 ticks with 11C8:0354/033B.
-u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)
+u8 * engine_scale_and_tick_clock /* was fn0C74_070D */(u16 wArg02, u16 wArg04, void * dsOut)
 {
 	u16 ds_50 = 0x0000;   /* dropped DGROUP selector out of first 02D8  */
 	u16 ds_82 = 0x0000;   /* dropped DGROUP selector out of second 02D8 */
@@ -300,12 +300,12 @@ u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)
 	if (LG8(0x58B0) != 0x00)
 		fn11C8_0354(wArg04);
 
-	(void)fn0C74_02D8(wArg02, &ds_50);
+	(void)engine_clock_tick(wArg02, &ds_50);
 
 	if (LG8(0x58B0) != 0x00)
 		(void)fn11C8_033B();
 
-	(void)fn0C74_02D8(wArg02, &ds_82);
+	(void)engine_clock_tick(wArg02, &ds_82);
 
 	if (rad_pace_trace_on())
 	{
@@ -320,7 +320,7 @@ u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)
 	return (u8 *)0;           /* saved-BP artifact; no caller consumes it   */
 }
 
-// 0C74:076B: u16 fn0C74_076B(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+// 0C74:076B: u16 engine_scatter_starfield(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 // Scatter a starfield into the rectangle (wArg0A,wArg08)-(wArg06,wArg04):
 // try `area` random points; unoccupied ones are stored in the local point
 // tables and drawn, occupied ones nudge a previously stored point.  Finally
@@ -330,7 +330,7 @@ u8 * fn0C74_070D(u16 wArg02, u16 wArg04, void * dsOut)
 // with three intentionally overlapping arrays (X/Y word pairs indexed at
 // bp-0x2724, a byte attribute array indexed at bp-0x30E5, and scalars at
 // bp-0x30EE..bp-1).  abFrame[] reproduces that exact layout.
-u16 fn0C74_076B(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 {
 	u8  abFrame[0x30EE];   /* [bp-0x30EE .. bp-1] whole local frame image */
 	u16 dx_rt;             /* fn1EDA_0D80 dxOut scratch                   */

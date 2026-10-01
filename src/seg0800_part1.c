@@ -216,7 +216,7 @@ u16 fn0800_0147(void)
 	wLoc84 = fn1AB8_13A3(0x0015, 0x0015, 0x0000, 0x0000);
 
 	/* cs:0125 = {7,"RAD.STR"}; on failure report via cs:012Dh. */
-	if (fn0C74_0000(&g_seg0800[0x0125], &dx_270) == 0x00)
+	if (engine_probe_file(&g_seg0800[0x0125], &dx_270) == 0x00)
 		fn13E2_0193(&g_seg0800[0x012D]);
 
 	fn1EDA_0FA2(&g_seg0800[0x0125], abBuf);
@@ -225,7 +225,7 @@ u16 fn0800_0147(void)
 	bLoc03 = 0x00;
 	for (;;)
 	{
-		fn0C74_00B2(0x02);
+		engine_advance_stream_cursor(0x02);
 		/* allocate wLoc84 bytes; DX:AX = far block.  The asm's one stack
 		 * word is the size and the frozen prototype places it in wArg04
 		 * (see docs/notes-1EDA.md "## chunk 2a" uncertainty 5). */
@@ -386,7 +386,7 @@ u16 fn0800_03F8(void)
 	(void)fn0800_0147();
 
 	/* cs:03DD = {7,"RAD.BUT"}; on failure report via cs:03E5h. */
-	if (fn0C74_0000(&g_seg0800[0x03DD], &dx_333) == 0x00)
+	if (engine_probe_file(&g_seg0800[0x03DD], &dx_333) == 0x00)
 		fn13E2_0193(&g_seg0800[0x03E5]);
 
 	fn1EDA_0FA2(&g_seg0800[0x03DD], abBuf);
@@ -405,7 +405,7 @@ u16 fn0800_03F8(void)
 	bLoc03 = 0x00;
 	for (;;)
 	{
-		fn0C74_00B2(0x05);
+		engine_advance_stream_cursor(0x05);
 		dx_ax_335 = fn1EDA_023F(wLoc88, 0x0000, 0x0000, &ds_139);
 		LG16((u16)(0x5388 + (u16)bLoc03 * 4)) = (u16)dx_ax_335;
 		LG16((u16)(0x538A + (u16)bLoc03 * 4)) = (u16)(dx_ax_335 >> 16);
@@ -462,17 +462,17 @@ u8 fn0800_04E3(u16 * dsOut)
 
 	if (LG8(0x53DB) > 0x00)
 	{
-		fn0C74_004B((u32)LG8(0x53DB), abBuf);       /* x=12Fh,y=18Dh dropped */
+		engine_format_u32((u32)LG8(0x53DB), abBuf);       /* x=12Fh,y=18Dh dropped */
 		fn1AB8_1D82(abBuf, 0x018D, 0x012F, &ch);
 	}
 	if (LG8(0x53DC) > 0x00)
 	{
-		fn0C74_004B((u32)LG8(0x53DC), abBuf);       /* x=163h,y=18Dh dropped */
+		engine_format_u32((u32)LG8(0x53DC), abBuf);       /* x=163h,y=18Dh dropped */
 		fn1AB8_1D82(abBuf, 0x018D, 0x0163, &ch);
 	}
 	if (LG8(0x53DE) > 0x00)
 	{
-		fn0C74_004B((u32)LG8(0x53DE), abBuf);       /* x=197h,y=18Dh dropped */
+		engine_format_u32((u32)LG8(0x53DE), abBuf);       /* x=197h,y=18Dh dropped */
 		fn1AB8_1D82(abBuf, 0x018D, 0x0197, &ch);
 	}
 
@@ -480,17 +480,17 @@ u8 fn0800_04E3(u16 * dsOut)
 
 	if (LG8(0x53DB) > 0x00)
 	{
-		fn0C74_004B((u32)LG8(0x53DB), abBuf);       /* x=130h,y=18Eh dropped */
+		engine_format_u32((u32)LG8(0x53DB), abBuf);       /* x=130h,y=18Eh dropped */
 		fn1AB8_1D82(abBuf, 0x018E, 0x0130, &ch);
 	}
 	if (LG8(0x53DC) > 0x00)
 	{
-		fn0C74_004B((u32)LG8(0x53DC), abBuf);       /* x=164h,y=18Eh dropped */
+		engine_format_u32((u32)LG8(0x53DC), abBuf);       /* x=164h,y=18Eh dropped */
 		fn1AB8_1D82(abBuf, 0x018E, 0x0164, &ch);
 	}
 	if (LG8(0x53DE) > 0x00)
 	{
-		fn0C74_004B((u32)LG8(0x53DE), abBuf);       /* x=198h,y=18Eh dropped */
+		engine_format_u32((u32)LG8(0x53DE), abBuf);       /* x=198h,y=18Eh dropped */
 		fn1AB8_1D82(abBuf, 0x018E, 0x0198, &ch);
 	}
 

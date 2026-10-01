@@ -39,7 +39,7 @@
 //   [bp-0104h]  abLoc0104   converted-number scratch (Reko ptrLoc010A_234)
 //   [bp-0004h]  bLoc06      length-prefixed 2-digit record (Reko bLoc06)
 // The original relies on Turbo C's "stack-reuse" calling convention: the far
-// pointer the caller pushed for fn0C74_004B (SS:bp-0104h) is left on the stack
+// pointer the caller pushed for engine_format_u32 (SS:bp-0104h) is left on the stack
 // by 004B's `retf 4h` and is reused as the source pointer of the following
 // fn1EDA_0A39 call.  Reko recovered that as ptrLoc010A_234 and the flat calls
 // pass it explicitly.
@@ -66,7 +66,7 @@ u16 fn0800_0B42(void *dsOut)
 	u16 ds_216 = 0x0000;    /* DGROUP selector out of 1206:0038 (dropped) */
 
 	/* 0800:0B47: format [58CCh] into the scratch record. */
-	fn0C74_004B(LG32(0x58CC), abLoc0104);
+	engine_format_u32(LG32(0x58CC), abLoc0104);
 	/* 0800:0B5B: copy its first <=2 bytes into bLoc06. */
 	fn1EDA_0A39(0x02, bLoc06, abLoc0104, &dx_256);
 

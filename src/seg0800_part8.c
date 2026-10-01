@@ -12,7 +12,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   2401.  Every BIOS/DOS/hardware service reached from here is owned by the
  *   callee segments and replaced there: segment 0C74 (menus, the
- *   fn0C74_0000 file-open probe and the fn0C74_51xx/52xx/54xx handlers),
+ *   engine_probe_file file-open probe and the fn0C74_51xx/52xx/54xx handlers),
  *   1EDA (the DOS RAD.HLP stream layer: 0FA2/0FD0/1123/1085/1051/0A39/0B24),
  *   1AB8 (video/text), 1E78 (keyboard/PIT) and 1206 (mouse cursor, INT 33h).
  *
@@ -61,7 +61,7 @@ static double rad_auto_now(void)
 }
 
 // 0800:2401: u16 fn0800_2401(void)
-// The RAD.HLP help/menu screen.  Probe "Rad.hlp" (fn0C74_0000), open the
+// The RAD.HLP help/menu screen.  Probe "Rad.hlp" (engine_probe_file), open the
 // RAD.HLP stream block, read record [598Eh]:[5990h], then (unless the record's
 // second byte is 0x20) paint the help frame, load the mission parameters,
 // blit the mission grid and run the command loop: bytes of the loaded record
@@ -83,7 +83,7 @@ u16 fn0800_2401(void)
 	u16 bp_1652 = 0x0000; /* fn1206_0066 bpOut (second)                     */
 	u16 ds_618 = 0x0000;  /* fn1206_0066 dsOut (second)                     */
 	u16 bp_1428 = 0x0000; /* fn1206_0038/015B/0800:031B/09C2/0C71 frame ptr */
-	u16 dx_1493 = 0x0000; /* fn0C74_0000 dxOut (never written) / 030D DX    */
+	u16 dx_1493 = 0x0000; /* engine_probe_file dxOut (never written) / 030D DX    */
 	u16 dx_1641 = 0x0000; /* fn1EDA_0FD0 dxOut                              */
 	u16 ax_1647 = 0x0000; /* fn1EDA_0B24 axOut                              */
 	u16 dx_1648 = 0x0000; /* fn1EDA_0B24 dxOut                              */
@@ -93,10 +93,10 @@ u16 fn0800_2401(void)
 	u16 dx_1658 = 0x0000; /* fn1E78_030D dxOut (l0800_267B)                 */
 	u16 dx_1433 = 0x0000; /* fn0800_00C1 dxOut / fn1E78_030D DX             */
 	u16 ds_796 = 0x0000;  /* fn0800_031B dsOut                              */
-	u16 dx_1667 = 0x0000; /* fn0C74_54F0 dxOut                              */	u16 dx_1672 = 0x0000; /* fn0C74_54B1 dxOut                              */
-	u16 bx_1668 = 0x0000; /* fn0C74_54F0 bpOut                              */
-	u16 bx_1673 = 0x0000; /* fn0C74_54B1 bpOut                              */
-	u16 bx_1661 = 0x0000; /* fn0C74_522C bpOut                              */
+	u16 dx_1667 = 0x0000; /* engine_probe_march_left dxOut                              */	u16 dx_1672 = 0x0000; /* engine_probe_march_right dxOut                              */
+	u16 bx_1668 = 0x0000; /* engine_probe_march_left bpOut                              */
+	u16 bx_1673 = 0x0000; /* engine_probe_march_right bpOut                              */
+	u16 bx_1661 = 0x0000; /* engine_frame_dispatch bpOut                              */
 
 	u8  ch_1643;          /* fn1AB8_1D82 chOut (cs:237Ah)                   */
 	u8  ch_1644;          /* fn1AB8_1D82 chOut (cs:238Eh)                   */
@@ -158,7 +158,7 @@ u16 fn0800_2401(void)
 
 	/* mov di,236Ah ; push cs ; push di ; call far 0C74h:0000h
 	 * (cs:236Ah = {7,"Rad.hlp"}; al==0 -> l0800_2413 jmp 280Eh) */
-	if (fn0C74_0000(&g_seg0800[0x236A], &dx_1493) == 0x00)
+	if (engine_probe_file(&g_seg0800[0x236A], &dx_1493) == 0x00)
 		return 0x0000;
 
 	/* l0800_2416: drain the pending-key queue.  fn1E78_030D takes no stack
@@ -284,7 +284,7 @@ u16 fn0800_2401(void)
 	 * call far 0C74h:06B7h */
 	ax_632 = (u16)fn0800_04CC((u8)LG8(0x53D9));
 	ax_633 = (u16)fn0800_04CC((u8)LG8(0x53DA));
-	(void)fn0C74_06B7(ax_633, ax_632);
+	(void)engine_arm_window_geometry(ax_633, ax_632);
 	(void)fn1206_0038(&ch_1653, &dx_1654, &bp_1428, &ds);
 	/* mov al,[53DDh] ; xor ah,ah ; imul ax,ax,3Ch ; cwd ;
 	 * push dx ; push ax ; call 00C1h */
@@ -370,7 +370,7 @@ u16 fn0800_2401(void)
 			(void)fn0800_09C2(0x0E, &bp_1659, &ds_1366);
 			if (LG8(0x53DB) > 0x00)
 			{
-				if (fn0C74_522C(&bx_1661, &ds_1366) != 0x00)
+				if (engine_frame_dispatch(&bx_1661, &ds_1366) != 0x00)
 					LG8(0x53DB) = (u8)(LG8(0x53DB) - 0x01);
 			}
 			(void)fn0800_09C2(0x05, &bp_1660, &ds);
@@ -382,7 +382,7 @@ u16 fn0800_2401(void)
 			++bFE7F;
 			if (LG8(0x53DC) > 0x00)
 			{
-				if (fn0C74_542B(&ds_1293) != 0x00)
+				if (engine_frame_retract(&ds_1293) != 0x00)
 					LG8(0x53DC) = (u8)(LG8(0x53DC) - 0x01);
 			}
 			(void)fn0800_09C2(0x06, &bp_1662, &ds);
@@ -390,7 +390,7 @@ u16 fn0800_2401(void)
 		else if (al_849 == 0x3D)                  /* '=' */
 		{
 			(void)fn0800_09C2(0x10, &bp_1663, &ds_1230);
-			if (LG8(0x53DE) > 0x00 && fn0C74_5258(&ds_1230) != 0x00)
+			if (LG8(0x53DE) > 0x00 && engine_frame_pull_in_extended(&ds_1230) != 0x00)
 				LG8(0x53DE) = (u8)(LG8(0x53DE) - 0x01);
 			(void)fn0800_09C2(0x07, &bp_1664, &ds);
 		}
@@ -404,7 +404,7 @@ u16 fn0800_2401(void)
 			if (al_849 == 0x48)               /* 'H' */
 			{
 				(void)fn0800_09C2(0x09, &bp_1665, &ds_1171);
-				(void)fn0C74_51AA();
+				(void)engine_call_rocket_trajectory();
 				(void)fn0800_09C2(0x00, &bp_1666, &ds);
 			}
 			else if (al_849 == 0x4B)          /* 'K' */
@@ -412,7 +412,7 @@ u16 fn0800_2401(void)
 				(void)fn0800_09C2(0x0A, &bp_1047, &ds_1051);
 				LG8(0x58BD) = abRecord[bFE7F];
 				++bFE7F;
-				if (fn0C74_54F0(&dx_1667, &bx_1668, &ds_1077) == 0x00)
+				if (engine_probe_march_left(&dx_1667, &bx_1668, &ds_1077) == 0x00)
 				{
 					(void)fn0800_09C2(0x0E, &bp_1670, &ds_1099);
 					(void)fn0800_08C0();
@@ -425,7 +425,7 @@ u16 fn0800_2401(void)
 				(void)fn0800_09C2(0x0C, &bp_927, &ds_931);
 				LG8(0x58BD) = abRecord[bFE7F];
 				++bFE7F;
-				if (fn0C74_54B1(&dx_1672, &bx_1673, &ds_1011) == 0x00)
+				if (engine_probe_march_right(&dx_1672, &bx_1673, &ds_1011) == 0x00)
 				{
 					(void)fn0800_09C2(0x0E, &bp_1675, &ds_979);
 					(void)fn0800_08C0();
@@ -436,7 +436,7 @@ u16 fn0800_2401(void)
 			else if (al_849 == 0x50)          /* 'P' */
 			{
 				(void)fn0800_09C2(0x0D, &bp_1677, &ds_881);
-				(void)fn0C74_51B2();
+				(void)engine_edge_collision_probe();
 				(void)fn0800_09C2(0x04, &bp_1678, &ds);
 			}
 		}

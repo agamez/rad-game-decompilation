@@ -12,15 +12,15 @@
  *   NONE directly.  No int 10h / int 16h / int 21h, no raw `in`/`out` port
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   0A35..0E2E.  Every hardware-touching operation is reached indirectly
- *   through already-ported callees: fn0C74_070D -> fn0C74_02D8 and
+ *   through already-ported callees: engine_scale_and_tick_clock -> engine_clock_tick and
  *   fn11C8_0354/033B (sound, seg11C8.c); fn1E78_029C (keyboard/pacing,
  *   seg1E78.c); fn1AB8_* (video driver); fn1EDA_023F/0254 (far heap).  The
  *   PC-speaker / AdLib ports attributed to 0E2E by analysis/summary/
  *   functions.tsv are transitive (0E2E itself issues none).
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 3"):
- *   - fn0C74_0A35 addresses a 0x30EC-byte frame by literal BP displacement,
- *     with the same two deliberately overlapping arrays as fn0C74_076B
+ *   - engine_scatter_muck addresses a 0x30EC-byte frame by literal BP displacement,
+ *     with the same two deliberately overlapping arrays as engine_scatter_starfield
  *     (part 2): X/Y word pairs indexed at bp-0x2724 and a byte attribute
  *     array indexed at bp-0x30E5.  abFrame[] with the F8/F16/AATTR/AX_ARR/
  *     AY_ARR access macros reproduces the exact byte layout.
@@ -29,9 +29,9 @@
  *     same convention as seg0800_part3.c / seg1229_part1.c / seg0C74_part2.c.
  *   - fn1EDA_023F / 0254 require stack words the original never pushes (the
  *     far-return-address words used only on their fatal-error path); seeded 0.
- *   - fn0C74_0E2E reads ss:[wArg02-4] through the `push bp` caller-frame
+ *   - engine_draw_status_sprites reads ss:[wArg02-4] through the `push bp` caller-frame
  *     argument, i.e. the caller's ([bp-4]) word.  Flat C has no SS:BP chain,
- *     so the four call sites (all inside fn0C74_0FA1) pass that word's VALUE
+ *     so the four call sites (all inside engine_per_frame_muck) pass that word's VALUE
  *     (the arm-extension index) and 0E2E consumes it directly (see
  *     seg0C74_part4.c; notes-0C74.md part 4 §5).
  *   - Saved-BP / DS-register "outputs" have no flat-C equivalent (no BP
@@ -50,7 +50,7 @@
 #include "seg1E78.h"
 #include "seg11C8.h"
 
-// 0C74:0A35: u16 fn0C74_0A35(void)
+// 0C74:0A35: u16 engine_scatter_muck(void)
 // Muck/level scatter driver: for `limit` (25000/50000) random points in the
 // field rectangle, draw unoccupied points and record a bounded number of them
 // in the local X/Y/attribute tables; occupied points nudge a stored point.
@@ -59,7 +59,7 @@
 // The original addresses its 0x30EC-byte frame by literal BP displacement with
 // two deliberately overlapping arrays (X/Y word pairs at bp-0x2724, byte
 // attribute array at bp-0x30E5) plus scalars; abFrame[] reproduces that layout.
-u16 fn0C74_0A35(void)
+u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 {
 	u8  abFrame[0x30EC];   /* [bp-0x30EC .. bp-1] whole local frame image */
 	u16 dx_a, dx_b, dx_c;  /* fn1EDA_0D80 dxOut scratch */
@@ -226,13 +226,13 @@ u16 fn0C74_0A35(void)
 	return 0x0000;
 }
 
-// 0C74:0CFA: u16 fn0C74_0CFA(u8 bArg02, void * bpOut, u16 * dsOut)
-// 58B3h = 1; then for index bArg02 down to 1, tick fn0C74_070D(14h, 64h) and
+// 0C74:0CFA: u16 engine_redraw_bars_down(u8 bArg02, void * bpOut, u16 * dsOut)
+// 58B3h = 1; then for index bArg02 down to 1, tick engine_scale_and_tick_clock(14h, 64h) and
 // blit the DGROUP:5904h[bArg02] far block through fn1AB8_13D7.
-u16 fn0C74_0CFA(u8 bArg02, void * bpOut, u16 * dsOut)
+u16 engine_redraw_bars_down /* was fn0C74_0CFA */(u8 bArg02, void * bpOut, u16 * dsOut)
 {
 	u8  bLoc01;              /* [bp-1] loop index (Reko bArg02/bp-1) */
-	u16 ds_45 = 0x0000;      /* fn0C74_070D dsOut (dropped selector) */
+	u16 ds_45 = 0x0000;      /* engine_scale_and_tick_clock dsOut (dropped selector) */
 
 	LG16(0x5968) = 0x0001;   /* mov word [5968h],1h */
 
@@ -243,7 +243,7 @@ u16 fn0C74_0CFA(u8 bArg02, void * bpOut, u16 * dsOut)
 		for (;;)
 		{
 			/* push 64h ; push 14h ; call 070Dh */
-			(void)fn0C74_070D(0x0014, 0x0064, &ds_45);
+			(void)engine_scale_and_tick_clock(0x0014, 0x0064, &ds_45);
 			/* push [58B4h] ; push [58B8h] ; les di,[di+5904h] ;
 			 * push es ; push di ; push 0h ; call 13D7h */
 			(void)fn1AB8_13D7(
@@ -262,10 +262,10 @@ u16 fn0C74_0CFA(u8 bArg02, void * bpOut, u16 * dsOut)
 	return 0x0000;           /* DX register artifact; no caller consumes it */
 }
 
-// 0C74:0D43: u16 fn0C74_0D43(u8 bArg02, void * bpOut, u16 * dsOut)
-// 58B3h = 0FFFFh; then for index 1 up to bArg02, tick fn0C74_070D(14h, 64h)
+// 0C74:0D43: u16 engine_redraw_bars_up(u8 bArg02, void * bpOut, u16 * dsOut)
+// 58B3h = 0FFFFh; then for index 1 up to bArg02, tick engine_scale_and_tick_clock(14h, 64h)
 // and blit DGROUP:5904h[index].
-u16 fn0C74_0D43(u8 bArg02, void * bpOut, u16 * dsOut)
+u16 engine_redraw_bars_up /* was fn0C74_0D43 */(u8 bArg02, void * bpOut, u16 * dsOut)
 {
 	u8  bLoc01;              /* [bp-1] loop index */
 	u8  bLoc02;              /* [bp-2] upper bound = bArg02 */
@@ -280,7 +280,7 @@ u16 fn0C74_0D43(u8 bArg02, void * bpOut, u16 * dsOut)
 		bLoc01 = 0x01;
 		for (;;)
 		{
-			(void)fn0C74_070D(0x0014, 0x0064, &ds_45);
+			(void)engine_scale_and_tick_clock(0x0014, 0x0064, &ds_45);
 			(void)fn1AB8_13D7(
 			    0x00,
 			    far_ptr(LG32((u16)(0x5904 +
@@ -297,10 +297,10 @@ u16 fn0C74_0D43(u8 bArg02, void * bpOut, u16 * dsOut)
 	return 0x0000;
 }
 
-// 0C74:0D94: u8 * fn0C74_0D94(u8 bArg02, u16 * dsOut)
-// 58B3h = 1; then for index 15h down to bArg02, tick fn0C74_070D(14h, 64h)
+// 0C74:0D94: u8 * engine_redraw_bars_down_15(u8 bArg02, u16 * dsOut)
+// 58B3h = 1; then for index 15h down to bArg02, tick engine_scale_and_tick_clock(14h, 64h)
 // and blit DGROUP:5904h[index].
-u8 * fn0C74_0D94(u8 bArg02, u16 * dsOut)
+u8 * engine_redraw_bars_down_15 /* was fn0C74_0D94 */(u8 bArg02, u16 * dsOut)
 {
 	u8  bLoc01;              /* [bp-1] loop index */
 	u8  bLoc02;              /* [bp-2] lower bound = bArg02 */
@@ -315,7 +315,7 @@ u8 * fn0C74_0D94(u8 bArg02, u16 * dsOut)
 		bLoc01 = 0x15;
 		for (;;)
 		{
-			(void)fn0C74_070D(0x0014, 0x0064, &ds_45);
+			(void)engine_scale_and_tick_clock(0x0014, 0x0064, &ds_45);
 			(void)fn1AB8_13D7(
 			    0x00,
 			    far_ptr(LG32((u16)(0x5904 +
@@ -331,10 +331,10 @@ u8 * fn0C74_0D94(u8 bArg02, u16 * dsOut)
 	return NULL;             /* saved-BP register output (flat: NULL) */
 }
 
-// 0C74:0DE5: u8 * fn0C74_0DE5(u8 bArg02, u16 * dsOut)
-// 58B3h = 0FFFFh; then for index bArg02 up to 15h, tick fn0C74_070D(14h, 64h)
+// 0C74:0DE5: u8 * engine_redraw_bars_up_15(u8 bArg02, u16 * dsOut)
+// 58B3h = 0FFFFh; then for index bArg02 up to 15h, tick engine_scale_and_tick_clock(14h, 64h)
 // and blit DGROUP:5904h[index].
-u8 * fn0C74_0DE5(u8 bArg02, u16 * dsOut)
+u8 * engine_redraw_bars_up_15 /* was fn0C74_0DE5 */(u8 bArg02, u16 * dsOut)
 {
 	u8  bLoc01;              /* [bp-1] loop index */
 	u16 ds_45 = 0x0000;
@@ -347,7 +347,7 @@ u8 * fn0C74_0DE5(u8 bArg02, u16 * dsOut)
 		bLoc01 = bArg02;
 		for (;;)
 		{
-			(void)fn0C74_070D(0x0014, 0x0064, &ds_45);
+			(void)engine_scale_and_tick_clock(0x0014, 0x0064, &ds_45);
 			(void)fn1AB8_13D7(
 			    0x00,
 			    far_ptr(LG32((u16)(0x5904 +
@@ -363,18 +363,18 @@ u8 * fn0C74_0DE5(u8 bArg02, u16 * dsOut)
 	return NULL;
 }
 
-// 0C74:0E2E: u8 * fn0C74_0E2E(u16 wArg02, void * dsOut)
+// 0C74:0E2E: u8 * engine_draw_status_sprites(u16 wArg02, void * dsOut)
 // Draw the two status-field "sprites": build two rectangles with fn1AB8_13A3,
 // allocate a far block each (fn1EDA_023F), stamp the rectangles into the blocks
 // (fn1AB8_1E6B), then for the caller-frame offset down to 0 tick
-// fn0C74_070D(0Ah, 0E6h) and blit both blocks, finally free them.
+// engine_scale_and_tick_clock(0Ah, 0E6h) and blit both blocks, finally free them.
 //
 // wArg02 carries the CALLER's [bp-4] word: every call site is `push bp ;
-// call 0E2E` from fn0C74_0FA1 and the callee reads ss:[bp_caller-4], which is
+// call 0E2E` from engine_per_frame_muck and the callee reads ss:[bp_caller-4], which is
 // 0FA1's arm-extension index (12E8 abort: the index reached; 2476/2628: 14h;
 // 3175: 13h -- the asm stores those constants into [bp-4] right before the
 // call).  The flat model has no SS:BP chain, so the value is passed directly.
-u8 * fn0C74_0E2E(u16 wArg02, void * dsOut)
+u8 * engine_draw_status_sprites /* was fn0C74_0E2E */(u16 wArg02, void * dsOut)
 {
 	u16 wL4;                 /* [bp-4] first  fn1AB8_13A3 result (blk4 size) */
 	u16 wL6;                 /* [bp-6] second fn1AB8_13A3 result (blk6 size) */
@@ -419,7 +419,7 @@ u8 * fn0C74_0E2E(u16 wArg02, void * dsOut)
 	bLoc01 = (u8)wCallerL4;
 	for (;;)
 	{
-		(void)fn0C74_070D(0x000A, 0x00E6, &ds_314);
+		(void)engine_scale_and_tick_clock(0x000A, 0x00E6, &ds_314);
 		/* push (58B4h+19h+c) ; (58B8h+0Dh) ; es:di=blk4 ; 0 ; 13D7 */
 		(void)fn1AB8_13D7(0x00,
 		                  far_ptr(blk4),

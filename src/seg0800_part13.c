@@ -98,7 +98,7 @@ u16 fn0800_3CFA(void)
  * leaves the nested editor and returns; 3Bh/3Ch/3Dh/3Eh/3Fh/40h drive the
  * nested screens (0C74 menu handlers, fn0800_11EF/149F/2004/391E/21E7 and the
  * 1229 mission browser); 41h ('A') quits: repaint the exit button, run
- * fn0C74_0A35 and terminate through fn0800_0000.  Called from fn0800_4255. */
+ * engine_scatter_muck and terminate through fn0800_0000.  Called from fn0800_4255. */
 u16 fn0800_3D9D(void)
 {
 	u8 *abBuf = g_dgroup + 0xF900;   /* [bp-0106h] built menu label (0A1F/0AAC dest, 19E1 src); [bp-0106h] is SS-resident, and SS==DS in the tiny model, so stage at DGROUP 0xF900 for the ES:BX materialization */
@@ -186,7 +186,7 @@ u16 fn0800_3D9D(void)
 	(void)fn1AB8_112E(0x01C9, 0x0203, 0x016D, 0x006A);
 	/* push 79h ; push 19Bh ; call far 0C74h:06B7h (the returned DGROUP
 	 * selector is dropped in the flat model). */
-	(void)fn0C74_06B7(0x019B, 0x0079);
+	(void)engine_arm_window_geometry(0x019B, 0x0079);
 	/* push 9Ch ; push 14h ; push 1E0h ; push 16Ah ; push 140h ; push 0B4h ;
 	 * call far 1206h:01ACh (the six staged words are dropped by the frozen
 	 * prototype, see docs/notes-0800.md part 5). */
@@ -202,13 +202,13 @@ l0800_3E46:
 	/* Four identical "if no key and no 58E0h flag, service the 0C74 clock"
 	 * guards (3E58/3E6D/3E82/3E97): first two 54B1h, last two 54F0h. */
 	if (fn1E78_02FB() == 0x00 && LG8(0x58E0) == 0x00)
-		(void)fn0C74_54B1(&dx_1109, &bp_1104, &ds_1108);
+		(void)engine_probe_march_right(&dx_1109, &bp_1104, &ds_1108);
 	if (fn1E78_02FB() == 0x00 && LG8(0x58E0) == 0x00)
-		(void)fn0C74_54B1(&dx_1109, &bp_1104, &ds_1108);
+		(void)engine_probe_march_right(&dx_1109, &bp_1104, &ds_1108);
 	if (fn1E78_02FB() == 0x00 && LG8(0x58E0) == 0x00)
-		(void)fn0C74_54F0(&dx_1109, &bp_1104, &ds_1108);
+		(void)engine_probe_march_left(&dx_1109, &bp_1104, &ds_1108);
 	if (fn1E78_02FB() == 0x00 && LG8(0x58E0) == 0x00)
-		(void)fn0C74_54F0(&dx_1109, &bp_1104, &ds_1108);
+		(void)engine_probe_march_left(&dx_1109, &bp_1104, &ds_1108);
 
 	/* l0800_3EA3: if a key is pending consume it (and drain the queue). */
 	if (fn1E78_02FB() != 0x00)
@@ -243,7 +243,7 @@ l0800_3E46:
 		(void)fn0800_19E1(0x01, &g_dgroup[0x5438], LG16(0x542A),
 		                  LG16(0x541C), 0x0001, &dx_1599, &bp_1600,
 		                  &ds_1388);
-		(void)fn0C74_51AA();
+		(void)engine_call_rocket_trajectory();
 		fn1206_0066(&bp_1601, &ds_1420);
 		dx_184C = fn0800_184C(&ds_1434);
 		(void)fn0800_2C0C((s16)dx_184C, &ds_1009);
@@ -396,7 +396,7 @@ l0800_4134:
 	 * shutdown screen, then terminate through fn0800_0000. */
 	(void)fn0800_19E1(0x01, &g_dgroup[0x54D4], LG16(0x5436),
 	                  LG16(0x5428), 0x0007, &dx_1608, &bp_1609, &ds_1223);
-	(void)fn0C74_0A35();
+	(void)engine_scatter_muck();
 	fn1206_0066(&bp_1610, &ds_1250);
 	(void)fn0800_0000();
 

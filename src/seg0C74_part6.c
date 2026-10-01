@@ -5,7 +5,7 @@
  * the Reko slice 0C74_1F08.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_1F08(u16 *bpOut, u16 *dsOut)
+ *   u8 engine_per_frame_level(u16 *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 6").
  *
@@ -14,13 +14,13 @@
  *   no __cli/__sti, no int 23h and no raw IVT dispatch occur in 1F08.  The
  *   only hardware-touching work is reached indirectly through already-ported
  *   callees: the 1AB8 video driver (13A3/13D7/10F4/1AF6/1C32/1E3C/1E54/1E6B)
- *   and the 1EDA far-heap helpers (023F/0254/096F/098A).  fn0C74_02D8 / 070D /
+ *   and the 1EDA far-heap helpers (023F/0254/096F/098A).  engine_clock_tick / 070D /
  *   05B8 / 1D95 are 0C74 helpers handled by their own chunks; 1D95 and 05B8
  *   reach the video/PC-speaker paths indirectly.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 6"):
  *   - Reko's `bp_XXXX` frame-pointer locals (re-bound after each call to
- *     fn0C74_070D / 02D8 / 1D95 whose AX/pointer return is the caller's saved
+ *     engine_scale_and_tick_clock / 02D8 / 1D95 whose AX/pointer return is the caller's saved
  *     BP) are the current function's own frame; they are folded back onto the
  *     literal locals below (documented convention, notes-0C74.md part 1 §3).
  *   - The 16:16 far blocks allocated by fn1EDA_023F are carried as `u32`
@@ -32,7 +32,7 @@
  *   - fn1EDA_023F / 098A / 0254 take stack words the original never pushes
  *     (far-return-address / leftover slots, read only on the fatal
  *     divide-by-zero dispatcher path); they are seeded 0.
- *   - `push bp` before fn0C74_1D95 is a caller-frame pointer (1D95 reads
+ *   - `push bp` before engine_blit_field_edges is a caller-frame pointer (1D95 reads
  *     ss:[wArg02-4]); flat C has no SS:BP chain, so the frozen `u16 wArg02`
  *     slot receives 0 (notes-0C74.md part 4 item 5 precedent).
  *   - `bpOut` / `dsOut` register outputs are the caller's saved BP and the
@@ -57,20 +57,20 @@
 #define TICK() \
 	do { \
 		cxT = 0; dxT = 0; bxT = 0; dsv = NULL; \
-		(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004, \
+		(void)engine_clock_tick((u16)fn1EDA_098A(0x0004, \
 		        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000, \
 		                    (u16)(s16)LG16(0x58E6)), \
 		        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp); \
 	} while (0)
 
-// 0C74:1F08: u8 fn0C74_1F08(u16 * bpOut, u16 * dsOut)
+// 0C74:1F08: u8 engine_per_frame_level(u16 * bpOut, u16 * dsOut)
 //
 // Game-core per-frame update (sibling of 0FA1).  Paints the two status fields,
 // scans the left/right field edges, then depending on the state word at
 // 0x5968 (0xFFFF / 0x0001) runs the corresponding edge-extension animation and
 // finally the victory sequence; on obstacle/abort it frees both scratch blocks
 // and returns 0.  Returns the [bp-1] byte (0 = abort/keep waiting, 1 = advance).
-u8 fn0C74_1F08(u16 *bpOut, u16 *dsOut)
+u8 engine_per_frame_level /* was fn0C74_1F08 */(u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] return flag (Reko al_3377) */
 	u16 wLoc04 = 0x0000;    /* [bp-04h] primary index */
@@ -178,7 +178,7 @@ l0C74_2153:
 	                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 		goto l0C74_2249;
 
-	(void)fn0C74_070D(0x000F, 0x00E6, &dsv);
+	(void)engine_scale_and_tick_clock(0x000F, 0x00E6, &dsv);
 	fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 	            (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x000D - wLoc04));
@@ -192,7 +192,7 @@ l0C74_2153:
 l0C74_2249:
 	if (wLoc04 == 0x0014)
 		goto l0C74_2276;
-	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
+	(void)engine_blit_field_edges(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -219,7 +219,7 @@ l0C74_229A:
 	                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 		goto l0C74_22FE;
 
-	(void)fn0C74_070D(0x000F, 0x00E6, &dsv);
+	(void)engine_scale_and_tick_clock(0x000F, 0x00E6, &dsv);
 	fn1AB8_13D7(0x00, far_ptr(dwLoc14),
 	            (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x0019 + wLoc04));
@@ -247,7 +247,7 @@ l0C74_22FE:
 	{
 		wLoc06 = wLoc04;
 l0C74_2389:
-		(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+		(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 		fn1AB8_13D7(0x00, far_ptr(dwLoc14),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x0019 + wLoc06));
@@ -260,7 +260,7 @@ l0C74_2389:
 
 	/* --- 23B4: abort path of the 0FFh branch -------------------------- */
 	wLoc04 = 0x0014;
-	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
+	(void)engine_blit_field_edges(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	(void)fn1EDA_0254(wLoc22, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -288,7 +288,7 @@ l0C74_23F8:
 	                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 		goto l0C74_245C;
 
-	(void)fn0C74_070D(0x000F, 0x00E6, &dsv);
+	(void)engine_scale_and_tick_clock(0x000F, 0x00E6, &dsv);
 	fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 	            (u16)(LG16(0x58B8) + 0x000D),
 	            (u16)(LG16(0x58B4) + 0x000D - wLoc04));
@@ -316,7 +316,7 @@ l0C74_245C:
 	{
 		wLoc06 = wLoc04;
 l0C74_24E7:
-		(void)fn0C74_070D(0x000F, 0x00E6, &dsv);
+		(void)engine_scale_and_tick_clock(0x000F, 0x00E6, &dsv);
 		fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x000D - wLoc06));
@@ -329,7 +329,7 @@ l0C74_24E7:
 
 	/* --- 2512: abort path of the 01h branch --------------------------- */
 	wLoc04 = 0x0014;
-	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
+	(void)engine_blit_field_edges(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -374,7 +374,7 @@ l0C74_2580:
 		++wLoc04;
 	}
 
-	(void)fn0C74_070D(0x000F, 0x00FA, &dsv);
+	(void)engine_scale_and_tick_clock(0x000F, 0x00FA, &dsv);
 	goto l0C74_2580;
 
 	/* --- 2644: victory shrink / score sequence ------------------------ */
@@ -396,7 +396,7 @@ l0C74_2644:
 
 	wLoc08 = 0x0001;
 l0C74_26EA:
-	(void)fn0C74_070D(0x0014, 0x0032, &dsv);
+	(void)engine_scale_and_tick_clock(0x0014, 0x0032, &dsv);
 	LG16(0x58B4) = (u16)(LG16(0x58B4) - LG16(0x5968));
 	LG16(0x58B6) = (u16)(LG16(0x58B6) - LG16(0x5968));
 	fn1AB8_13D7(0x00, far_ptr(dwLoc1C), LG16(0x58B8),
@@ -444,7 +444,7 @@ l0C74_2815:
 	if (wLoc08 >= 0x0059)
 		goto l0C74_2868;
 
-	(void)fn0C74_070D(0x001E, 0x0064, &dsv);
+	(void)engine_scale_and_tick_clock(0x001E, 0x0064, &dsv);
 	LG16(0x58BA) = (u16)(LG16(0x58BA) + 0x0001);
 	++wLoc08;
 	fn1AB8_13D7(0x00, far_ptr(dwLoc18),
@@ -480,7 +480,7 @@ l0C74_28C0:
 	fn1AB8_1AF6(wLoc04, (u16)(wLoc0A + 0x0002), wLoc04, wLoc0A, &dxTmp);
 
 l0C74_28E2:
-	(void)fn0C74_070D(0x000F, 0x00FA, &dsv);
+	(void)engine_scale_and_tick_clock(0x000F, 0x00FA, &dsv);
 	goto l0C74_2888;
 
 	/* --- 28EC: final sequence ----------------------------------------- */
@@ -505,7 +505,7 @@ l0C74_28EC:
 		goto l0C74_29BF;
 	wLoc06 = (u16)(wLoc0A - 0x0001);
 l0C74_2999:
-	(void)fn0C74_070D(0x000C, 0x00E6, &dsv);
+	(void)engine_scale_and_tick_clock(0x000C, 0x00E6, &dsv);
 	fn1AB8_13D7(0x00, far_ptr(dwLoc14),
 	            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 	if (wLoc06 != wLoc2A)
@@ -531,7 +531,7 @@ l0C74_29BF:
 	{
 		wLoc06 = (u16)(wLoc0C - 0x0002);
 l0C74_2A41:
-		(void)fn0C74_070D(0x000C, 0x00E6, &dsv);
+		(void)engine_scale_and_tick_clock(0x000C, 0x00E6, &dsv);
 		fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 		            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 		if (wLoc06 != wLoc2A)
@@ -545,7 +545,7 @@ l0C74_2A41:
 	(void)fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	wLoc04 = 0x0013;
-	(void)fn0C74_1D95(wLoc04, &dsv);   /* the caller's [bp-4] word */
+	(void)engine_blit_field_edges(wLoc04, &dsv);   /* the caller's [bp-4] word */
 
 	TICK();
 
@@ -557,8 +557,8 @@ l0C74_2A41:
 	                (u16)(LG16(0x58B6) - 0x0001), &dlTmp) != 0)
 		goto l0C74_2AD4;
 
-	(void)fn0C74_05B8(&dsTmp);
-	(void)fn0C74_0A35();
+	(void)engine_scroll_blit(&dsTmp);
+	(void)engine_scatter_muck();
 	bLoc01 = 0x00;
 
 l0C74_2AD4:

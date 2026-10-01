@@ -7,12 +7,12 @@
  * and the Reko slices 0C74_<off>.c; frozen prototypes from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8   fn0C74_522C(u16 * bpOut, void * dsOut)
- *   u8   fn0C74_5258(u16 * dsOut)
- *   u8   fn0C74_542B(u16 * dsOut)
- *   u8   fn0C74_54B1(u16 * dxOut, u16 * bpOut, void * dsOut)
- *   u8   fn0C74_54F0(u16 * dxOut, u16 * bpOut, void * dsOut)
- *   void fn0C74_552F(void)
+ *   u8   engine_frame_dispatch(u16 * bpOut, void * dsOut)
+ *   u8   engine_frame_pull_in_extended(u16 * dsOut)
+ *   u8   engine_frame_retract(u16 * dsOut)
+ *   u8   engine_probe_march_right(u16 * dxOut, u16 * bpOut, void * dsOut)
+ *   u8   engine_probe_march_left(u16 * dxOut, u16 * bpOut, void * dsOut)
+ *   void engine_crt_startup(void)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 16").
  *
@@ -34,10 +34,10 @@
  *   - bpOut / dsOut / dxOut register outputs are the caller's saved BP, the
  *     dropped DGROUP selector and the threaded DX artifact; each receives 0
  *     (part 1 section 3, parts 9/10/11).  Where the frozen prototype spells the
- *     slot `void *`, a 2-byte zero is written (part 2's fn0C74_070D precedent).
+ *     slot `void *`, a 2-byte zero is written (part 2's engine_scale_and_tick_clock precedent).
  *   - The `push cs` before each `call 05B8h` is the extra stack word of a near
  *     call into an `enter`-framed routine that never reads [bp+4]; it is
- *     dropped exactly as in part 2's fn0C74_06B7.
+ *     dropped exactly as in part 2's engine_arm_window_geometry.
  */
 
 #include <stddef.h>
@@ -51,15 +51,15 @@
 #include "seg1AB8.h"
 #include "seg1EDA.h"
 
-// 0C74:522C: u8 fn0C74_522C(u16 * bpOut, void * dsOut)
+// 0C74:522C: u8 engine_frame_dispatch(u16 * bpOut, void * dsOut)
 //
 // Frame dispatch on the game-core state word [5968h]: state 1 runs the pull
-// helper fn0C74_3236 into the [bp-1h] flag, state 0FFFFh runs fn0C74_2E5A,
+// helper engine_bar_pull_sibling into the [bp-1h] flag, state 0FFFFh runs engine_bar_pull,
 // then the 05B8 scroll driver ticks.  Returns the [bp-1h] byte.
-u8 fn0C74_522C(u16 *bpOut, void *dsOut)
+u8 engine_frame_dispatch /* was fn0C74_522C */(u16 *bpOut, void *dsOut)
 {
 	u8  bLoc01 = 0x01;      /* [bp-01h] return flag, init 1 (522C) */
-	u16 bpTmp  = 0x0000;    /* fn0C74_3236 / 2E5A bpOut scratch */
+	u16 bpTmp  = 0x0000;    /* engine_bar_pull_sibling / 2E5A bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
 
 	/* 522C: mov ax,[5968h] ; cmp ax,1h ; jnz 5244h */
@@ -67,16 +67,16 @@ u8 fn0C74_522C(u16 *bpOut, void *dsOut)
 	{
 	case 0x0001:
 		/* l0C74_523C: call 3236h ; mov [bp-1h],al */
-		bLoc01 = fn0C74_3236(&bpTmp, &dsTmp);
+		bLoc01 = engine_bar_pull_sibling(&bpTmp, &dsTmp);
 		break;
 	case 0xFFFF:
 		/* l0C74_5249: call 2E5Ah ; mov [bp-1h],al */
-		bLoc01 = fn0C74_2E5A(&bpTmp, &dsTmp);
+		bLoc01 = engine_bar_pull(&bpTmp, &dsTmp);
 		break;
 	}
 
 	/* l0C74_524F: push cs ; call 05B8h */
-	(void)fn0C74_05B8(&dsTmp);
+	(void)engine_scroll_blit(&dsTmp);
 
 	/* 5259: mov al,[bp-1h] ; leave ; retf */
 	*bpOut = 0x0000;          /* saved-BP artifact (part 1 section 3) */
@@ -84,7 +84,7 @@ u8 fn0C74_522C(u16 *bpOut, void *dsOut)
 	return bLoc01;
 }
 
-// 0C74:5258: u8 fn0C74_5258(u16 * dsOut)
+// 0C74:5258: u8 engine_frame_pull_in_extended(u16 * dsOut)
 //
 // Extended "pull-in" frame update.  Dispatches on [5968h] exactly as 522C but
 // runs two edge probes per state (fn1AB8_1E3C) before invoking the state's
@@ -96,7 +96,7 @@ u8 fn0C74_522C(u16 *bpOut, void *dsOut)
 // row changed it builds a 13A3-sized 023F block, blits it with 1E6B, sets the
 // colour via 10F4/1C32, draws with 1AF6, runs the 2BBD grow animation, blits
 // the block with 13D7 and frees it with 0254.  Returns the [bp-2h] flag byte.
-u8 fn0C74_5258(u16 *dsOut)
+u8 engine_frame_pull_in_extended /* was fn0C74_5258 */(u16 *dsOut)
 {
 	u8  bLoc02 = 0x01;      /* [bp-02h] state/result flag, init 1 (5258) */
 	u16 wLoc04 = 0x0000;    /* [bp-04h] left  edge / blit x */
@@ -131,14 +131,14 @@ u8 fn0C74_5258(u16 *dsOut)
 			                (u16)(LG16(0x58B6) + 0x000C), &dlTmp) != 0x00)
 			{
 				/* l0C74_5291: call 396Eh ; mov [bp-2h],al */
-				bLoc02 = fn0C74_396E(&bpTmp, &dsTmp);
+				bLoc02 = engine_pull_in(&bpTmp, &dsTmp);
 			}
 		}
 		/* l0C74_5297: cmp byte [bp-2h],0 ; jz 52A3h */
 		if (bLoc02 != 0x00)
 		{
 			/* l0C74_529D: call 45CEh ; mov [bp-2h],al */
-			bLoc02 = fn0C74_45CE(&bpTmp, &dsTmp);
+			bLoc02 = engine_starfield_pull_in(&bpTmp, &dsTmp);
 		}
 		break;
 
@@ -152,14 +152,14 @@ u8 fn0C74_5258(u16 *dsOut)
 			                (u16)(LG16(0x58B4) - 0x000C), &dlTmp) != 0x00)
 			{
 				/* l0C74_52D3: call 3F74h ; mov [bp-2h],al */
-				bLoc02 = fn0C74_3F74(&bpTmp, &dsTmp);
+				bLoc02 = engine_reel_bar_pull(&bpTmp, &dsTmp);
 			}
 		}
 		/* l0C74_52D9: cmp byte [bp-2h],0 ; jz 52E5h */
 		if (bLoc02 != 0x00)
 		{
 			/* l0C74_52DF: call 4999h ; mov [bp-2h],al */
-			bLoc02 = fn0C74_4999(&bpTmp, &dsTmp);
+			bLoc02 = engine_bar_pull_out(&bpTmp, &dsTmp);
 		}
 		break;
 	}
@@ -242,7 +242,7 @@ l0C74_5363:
 
 	/* 53FB: push [bp-4h] ; push [bp-6h] ; push [bp-8h] ; push [bp-0Ah] ;
 	 *       call 2BBDh */
-	(void)fn0C74_2BBD(wLoc0A, wLoc08, wLoc06, wLoc04);
+	(void)engine_sprite_grow(wLoc0A, wLoc08, wLoc06, wLoc04);
 
 	/* 5405: push [bp-4h] ; push [bp-6h]-1 ; les di,[bp-0Eh] ; push es ;
 	 *       push di ; push 0h ; call far 13D7h */
@@ -260,18 +260,18 @@ l0C74_5420:
 	return bLoc02;
 }
 
-// 0C74:542B: u8 fn0C74_542B(u16 * dsOut)
+// 0C74:542B: u8 engine_frame_retract(u16 * dsOut)
 //
 // Frame "retract" update.  State 1 probes ([58BAh]+1,[58B6h]+1) and
-// ([58BAh]-1,[58B6h]+1); if both are empty it runs fn0C74_4FD7 then fn0C74_3615
+// ([58BAh]-1,[58B6h]+1); if both are empty it runs engine_column_cells_up then engine_bar_march
 // (the [bp-1h] flag comes from 4FD7), otherwise clears the flag.  State 0FFFFh
-// does the same with ([58BAh]±1,[58B4h]-1) and fn0C74_4DAC / fn0C74_37C3.
-u8 fn0C74_542B(u16 *dsOut)
+// does the same with ([58BAh]±1,[58B4h]-1) and engine_column_cells_down / engine_bar_retract.
+u8 engine_frame_retract /* was fn0C74_542B */(u16 *dsOut)
 {
 	u8  bLoc01 = 0x01;      /* [bp-01h] return flag, init 1 (542B) */
 	u16 bpTmp  = 0x0000;    /* 4FD7 / 4DAC bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
-	u16 dxTmp  = 0x0000;    /* fn0C74_3615 / 37C3 dxOut scratch */
+	u16 dxTmp  = 0x0000;    /* engine_bar_march / 37C3 dxOut scratch */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 
 	/* 542B: mov ax,[5968h] ; cmp ax,1h ; jnz 5472h */
@@ -293,8 +293,8 @@ u8 fn0C74_542B(u16 *dsOut)
 			break;
 		}
 		/* l0C74_5461: call 4FD7h ; mov [bp-1h],al ; call 3615h */
-		bLoc01 = fn0C74_4FD7(&bpTmp, &dsTmp);
-		(void)fn0C74_3615(&dxTmp, &bpTmp, &dsTmp);
+		bLoc01 = engine_column_cells_up(&bpTmp, &dsTmp);
+		(void)engine_bar_march(&dxTmp, &bpTmp, &dsTmp);
 		break;
 
 	case 0xFFFF:
@@ -313,8 +313,8 @@ u8 fn0C74_542B(u16 *dsOut)
 			break;
 		}
 		/* l0C74_549D: call 4DACh ; mov [bp-1h],al ; call 37C3h */
-		bLoc01 = fn0C74_4DAC(&bpTmp, &dsTmp);
-		(void)fn0C74_37C3(&dxTmp, &bpTmp, &dsTmp);
+		bLoc01 = engine_column_cells_down(&bpTmp, &dsTmp);
+		(void)engine_bar_retract(&dxTmp, &bpTmp, &dsTmp);
 		break;
 	}
 
@@ -323,17 +323,17 @@ u8 fn0C74_542B(u16 *dsOut)
 	return bLoc01;
 }
 
-// 0C74:54B1: u8 fn0C74_54B1(u16 * dxOut, u16 * bpOut, void * dsOut)
+// 0C74:54B1: u8 engine_probe_march_right(u16 * dxOut, u16 * bpOut, void * dsOut)
 //
 // Latch [58BCh]=1, then probe ([58BAh]+1,[58B6h]+1) and
 // ([58BAh]+1,[58B6h]+17h); when the first is empty and the second is occupied
-// run fn0C74_2AD9.  Always tail-runs fn0C74_3615 and returns its [bp-1h] byte.
-u8 fn0C74_54B1(u16 *dxOut, u16 *bpOut, void *dsOut)
+// run engine_level_edge_march.  Always tail-runs engine_bar_march and returns its [bp-1h] byte.
+u8 engine_probe_march_right /* was fn0C74_54B1 */(u16 *dxOut, u16 *bpOut, void *dsOut)
 {
-	u8  bLoc01 = 0x00;      /* [bp-01h] fn0C74_3615 result */
-	u16 bpTmp  = 0x0000;    /* fn0C74_3615 bpOut scratch */
+	u8  bLoc01 = 0x00;      /* [bp-01h] engine_bar_march result */
+	u16 bpTmp  = 0x0000;    /* engine_bar_march bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
-	u16 dxTmp  = 0x0000;    /* fn0C74_3615 dxOut scratch */
+	u16 dxTmp  = 0x0000;    /* engine_bar_march dxOut scratch */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 
 	/* 54B1: mov byte [58BCh],1h */
@@ -348,12 +348,12 @@ u8 fn0C74_54B1(u16 *dxOut, u16 *bpOut, void *dsOut)
 		                (u16)(LG16(0x58B6) + 0x0017), &dlTmp) != 0x00)
 		{
 			/* l0C74_54E2: call 2AD9h */
-			(void)fn0C74_2AD9(&dsTmp);
+			(void)engine_level_edge_march(&dsTmp);
 		}
 	}
 
 	/* l0C74_54E5: call 3615h ; mov [bp-1h],al */
-	bLoc01 = fn0C74_3615(&dxTmp, &bpTmp, &dsTmp);
+	bLoc01 = engine_bar_march(&dxTmp, &bpTmp, &dsTmp);
 
 	/* l54EC: mov al,[bp-1h] ; leave ; retf */
 	*dxOut = 0x0000;          /* threaded DX artifact (parts 9/10) */
@@ -362,18 +362,18 @@ u8 fn0C74_54B1(u16 *dxOut, u16 *bpOut, void *dsOut)
 	return bLoc01;
 }
 
-// 0C74:54F0: u8 fn0C74_54F0(u16 * dxOut, u16 * bpOut, void * dsOut)
+// 0C74:54F0: u8 engine_probe_march_left(u16 * dxOut, u16 * bpOut, void * dsOut)
 //
 // Mirror of 54B1 along the other axis: latch [58BCh]=1, probe
 // ([58BAh]+1,[58B4h]-1) and ([58BAh]+1,[58B4h]-17h); when the first is empty
-// and the second is occupied run fn0C74_2AD9.  Always tail-runs fn0C74_37C3
+// and the second is occupied run engine_level_edge_march.  Always tail-runs engine_bar_retract
 // and returns its [bp-1h] byte.
-u8 fn0C74_54F0(u16 *dxOut, u16 *bpOut, void *dsOut)
+u8 engine_probe_march_left /* was fn0C74_54F0 */(u16 *dxOut, u16 *bpOut, void *dsOut)
 {
-	u8  bLoc01 = 0x00;      /* [bp-01h] fn0C74_37C3 result */
-	u16 bpTmp  = 0x0000;    /* fn0C74_37C3 bpOut scratch */
+	u8  bLoc01 = 0x00;      /* [bp-01h] engine_bar_retract result */
+	u16 bpTmp  = 0x0000;    /* engine_bar_retract bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
-	u16 dxTmp  = 0x0000;    /* fn0C74_37C3 dxOut scratch */
+	u16 dxTmp  = 0x0000;    /* engine_bar_retract dxOut scratch */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 
 	/* 54F0: mov byte [58BCh],1h */
@@ -388,12 +388,12 @@ u8 fn0C74_54F0(u16 *dxOut, u16 *bpOut, void *dsOut)
 		                (u16)(LG16(0x58B4) - 0x0017), &dlTmp) != 0x00)
 		{
 			/* l0C74_5521: call 2AD9h */
-			(void)fn0C74_2AD9(&dsTmp);
+			(void)engine_level_edge_march(&dsTmp);
 		}
 	}
 
 	/* l0C74_5524: call 37C3h ; mov [bp-1h],al */
-	bLoc01 = fn0C74_37C3(&dxTmp, &bpTmp, &dsTmp);
+	bLoc01 = engine_bar_retract(&dxTmp, &bpTmp, &dsTmp);
 
 	/* l552B: mov al,[bp-1h] ; leave ; retf */
 	*dxOut = 0x0000;          /* threaded DX artifact (parts 9/10) */
@@ -402,11 +402,11 @@ u8 fn0C74_54F0(u16 *dxOut, u16 *bpOut, void *dsOut)
 	return bLoc01;
 }
 
-// 0C74:552F: void fn0C74_552F(void)
+// 0C74:552F: void engine_crt_startup(void)
 //
 // CRT startup hook (called from fn0800_4255): arm the input-poll latch
 // DGROUP:58B2h.
-void fn0C74_552F(void)
+void engine_crt_startup /* was fn0C74_552F */(void)
 {
 	/* 552F: push bp ; mov bp,sp ; mov byte [58B2h],1h ; leave ; retf */
 	LG8(0x58B2) = 0x01;

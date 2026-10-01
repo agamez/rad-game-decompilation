@@ -225,7 +225,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 		 * (it reads AL only). */
 		ax_749 = fn0800_04CC((u8)LG8(0x53D9));
 		ax_753 = fn0800_04CC((u8)LG8(0x53DA));
-		(void)fn0C74_06B7((u16)ax_753, (u16)ax_749);
+		(void)engine_arm_window_geometry((u16)ax_753, (u16)ax_749);
 		(void)fn1206_0038(&ch_2287, &dx_2288, &bp_1005, &ds_1065);
 
 		/* l0800_2E12: call 0B24h ; jz 2E37h.  Not "DEMO" -> wait. */
@@ -306,7 +306,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				(void)fn0800_09C2(0x0E, &bp_2302, &ds_1839);
 				if (LG8(0x53DB) > 0x00)
 				{
-					if (fn0C74_522C(&bp_2304, &ds_1839) != 0x00)
+					if (engine_frame_dispatch(&bp_2304, &ds_1839) != 0x00)
 						LG8(0x53DB) = (u8)(LG8(0x53DB) - 0x01);
 				}
 				(void)fn0800_09C2(0x05, &bp_2303, &ds_1065);
@@ -317,7 +317,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				(void)fn0800_09C2(0x0F, &bp_2305, &ds_1774);
 				if (LG8(0x53DC) > 0x00)
 				{
-					if (fn0C74_542B(&ds_1774) != 0x00)
+					if (engine_frame_retract(&ds_1774) != 0x00)
 						LG8(0x53DC) = (u8)(LG8(0x53DC) - 0x01);
 				}
 				(void)fn0800_09C2(0x06, &bp_2306, &ds_1065);
@@ -327,7 +327,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				/* l0800_2F23: F3. */
 				(void)fn0800_09C2(0x10, &bp_2307, &ds_1711);
 				if (LG8(0x53DE) > 0x00 &&
-				    fn0C74_5258(&ds_1711) != 0x00)
+				    engine_frame_pull_in_extended(&ds_1711) != 0x00)
 					LG8(0x53DE) = (u8)(LG8(0x53DE) - 0x01);
 				(void)fn0800_09C2(0x07, &bp_2308, &ds_1065);
 				break;
@@ -386,14 +386,14 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				{
 					/* l0800_3017: 'H'. */
 					(void)fn0800_09C2(0x09, &bp_2317, &ds_1422);
-					(void)fn0C74_51AA();
+					(void)engine_call_rocket_trajectory();
 					(void)fn0800_09C2(0x00, &bp_2318, &ds_1065);
 				}
 				else if (LG8(0x53D2) == 0x4B)
 				{
 					/* l0800_302C: 'K'. */
 					(void)fn0800_09C2(0x0A, &bp_2319, &ds_1312);
-					if (fn0C74_54F0(&dx_2320, &bp_2321,
+					if (engine_probe_march_left(&dx_2320, &bp_2321,
 					                &ds_1328) == 0x00)
 					{
 						(void)fn0800_09C2(0x0E, &bp_2323, &ds_1350);
@@ -406,7 +406,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				{
 					/* l0800_3052: 'M'. */
 					(void)fn0800_09C2(0x0C, &bp_2325, &ds_1202);
-					if (fn0C74_54B1(&dx_2326, &bp_2327,
+					if (engine_probe_march_right(&dx_2326, &bp_2327,
 					                &ds_1218) == 0x00)
 					{
 						(void)fn0800_09C2(0x0E, &bp_2329, &ds_1240);
@@ -419,7 +419,7 @@ u16 fn0800_2C0C(s16 dx, u16 *dsOut)
 				{
 					/* l0800_3078: 'P'. */
 					(void)fn0800_09C2(0x0D, &bp_2331, &ds_1152);
-					(void)fn0C74_51B2();
+					(void)engine_edge_collision_probe();
 					(void)fn0800_09C2(0x04, &bp_2332, &ds_1065);
 				}
 				break;

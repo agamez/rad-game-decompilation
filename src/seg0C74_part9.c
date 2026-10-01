@@ -7,8 +7,8 @@
  * and the Reko slices 0C74_3236.c / 0C74_3615.c; frozen prototypes from
  * src/seg0C74.h (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
- *   u8 fn0C74_3615(u16 *dxOut, u16 *bpOut, u16 *dsOut)
+ *   u8 engine_bar_pull_sibling(u16 *bpOut, u16 *dsOut)
+ *   u8 engine_bar_march(u16 *dxOut, u16 *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 9").
  *
@@ -23,7 +23,7 @@
  *   070D/02D8/2BBD/0CFA.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 9"):
- *   - Reko's bp_XXXX frame-pointer locals (re-bound after each fn0C74_070D /
+ *   - Reko's bp_XXXX frame-pointer locals (re-bound after each engine_scale_and_tick_clock /
  *     02D8 call whose AX return is the caller's saved BP) are the current
  *     function's own frame; they are folded back onto the literal locals,
  *     per the part 1 section 3 convention.
@@ -39,10 +39,10 @@
  *     a single u32 and cast to a host pointer, matching parts 2/3/8.
  *   - bpOut / dsOut register outputs are the caller's saved BP and the dropped
  *     DGROUP selector; both receive 0 (part 1 section 3).
- *   - fn0C74_3615's `dxOut` is the DX register left by the last call; Reko
+ *   - engine_bar_march's `dxOut` is the DX register left by the last call; Reko
  *     models it across the 1E3C / 13D7 / 11C8:033B returns but no observed
  *     caller (542B / 54B1) reads it.  The flat port writes 0 and records the
- *     loss (same treatment as fn0C74_0000's dxOut, notes-0C74 part 1 section 6).
+ *     loss (same treatment as engine_probe_file's dxOut, notes-0C74 part 1 section 6).
  */
 
 #include <stddef.h>
@@ -59,7 +59,7 @@
 #include "seg11C8.h"
 #include "seg1206.h"
 
-// 0C74:3236: u8 fn0C74_3236(u16 * bpOut, u16 * dsOut)
+// 0C74:3236: u8 engine_bar_pull_sibling(u16 * bpOut, u16 * dsOut)
 //
 // Second game-core "bar" update (sibling of 2E5A).  Five 1E3C edge probes gate
 // the body: two 13A3/023F scratch blocks are allocated and stamped, the block #2
@@ -69,7 +69,7 @@
 // the remaining rows are wiped to 0, then the live bar is pulled down 16h rows
 // (drawing a DGROUP:0x58E4 sprite per step) and both scratch blocks are freed.
 // Returns the [bp-1] byte (0 = gate failed).
-u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
+u8 engine_bar_pull_sibling /* was fn0C74_3236 */(u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] return flag */
 	u8  bLoc02 = 0x00;      /* [bp-02h] row / animation counter */
@@ -166,7 +166,7 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 			                (u16)(LG16(0x58B4) + 0x001E + bLoc02),
 			                &dlTmp) != 0x00)
 				break;
-			(void)fn0C74_070D(0x000A, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x000A, 0x00E6, &dsv);
 			(void)fn1AB8_13D7(0x00, far_ptr(blk2),
 			                  (u16)(LG16(0x58B8) + 0x000D),
 			                  (u16)(LG16(0x58B4) + 0x0019 + bLoc02));
@@ -192,7 +192,7 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 			(void)fn1AB8_13D7(0x00, far_ptr(blk2),
 			                  (u16)(LG16(0x58B8) + 0x000D),
 			                  (u16)(wLoc12 - 0x0005));
-			(void)fn0C74_070D(0x0014, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x00E6, &dsv);
 			if (bLoc03 == 0x16)
 				break;
 			++bLoc03;
@@ -203,7 +203,7 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 		if (fn1AB8_1E3C((u16)(wLoc18 + 0x0001), (u16)(wLoc12 + 0x0001),
 		                &dlTmp) == 0x00)
 		{
-			(void)fn0C74_2BBD(wLoc18, wLoc14, wLoc16,
+			(void)engine_sprite_grow(wLoc18, wLoc14, wLoc16,
 			                  (u16)(wLoc12 + 0x0001));
 		}
 
@@ -218,7 +218,7 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 			bLoc03 = (u8)ax_3541;
 			while (1)
 			{
-				(void)fn0C74_070D(0x0005, 0x00E6, &dsv);
+				(void)engine_scale_and_tick_clock(0x0005, 0x00E6, &dsv);
 				(void)fn1AB8_13D7(0x00, far_ptr(blk2),
 				                  (u16)(LG16(0x58B8) + 0x000D),
 				                  (u16)(LG16(0x58B4) + 0x0019 + bLoc03));
@@ -238,7 +238,7 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 		while (1)
 		{
 			(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0002), &dxTmp);
-			(void)fn0C74_02D8(0x000A, &dsTmp);
+			(void)engine_clock_tick(0x000A, &dsTmp);
 			++bLoc02;
 			if (bLoc02 == 0x05)
 			{
@@ -269,7 +269,7 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 	return bLoc01;
 }
 
-// 0C74:3615: u8 fn0C74_3615(u16 * dxOut, u16 * bpOut, u16 * dsOut)
+// 0C74:3615: u8 engine_bar_march(u16 * dxOut, u16 * bpOut, u16 * dsOut)
 //
 // Third game-core "bar" update.  Gates on [58B6h] < 27Eh, clears [58B1h] and
 // either runs the 0CFA half-bar redraw when the state word [5968h] is 0FFFFh,
@@ -280,14 +280,14 @@ u8 fn0C74_3236(u16 *bpOut, u16 *dsOut)
 // DGROUP:0x58E4 sprite for the current counter row; after 16h rows either
 // restart (bump [58BCh]) or stop; a failed probe shrinks the position by one
 // and stops.
-u8 fn0C74_3615(u16 *dxOut, u16 *bpOut, u16 *dsOut)
+u8 engine_bar_march /* was fn0C74_3615 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] result flag */
 	u8  bLoc02 = 0x00;      /* [bp-02h] animation counter (5..1) */
 	u8  bLoc03 = 0x00;      /* [bp-03h] row counter */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut for 02D8 / 0CFA / 1206 */
 	u16 dxTmp2 = 0x0000;    /* fn1206_015B dxOut */
-	u16 bpScratch = 0x0000; /* fn0C74_0CFA bpOut artifact */
+	u16 bpScratch = 0x0000; /* engine_redraw_bars_down bpOut artifact */
 	u16 bpScratch2 = 0x0000;/* fn1206_015B bpOut artifact */
 	u8  chTmp = 0x00;       /* fn1206_015B chOut */
 	u8  dlTmp = 0x00;       /* fn1AB8_1E3C dlOut */
@@ -302,7 +302,7 @@ u8 fn0C74_3615(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 		 * state runs the 0CFA half-bar redraw and returns. */
 		if (LG16(0x5968) == 0xFFFF)
 		{
-			(void)fn0C74_0CFA(0x15, &bpScratch, &dsTmp);
+			(void)engine_redraw_bars_down(0x15, &bpScratch, &dsTmp);
 			bLoc01 = 0x01;
 		}
 		/* 3640..368F: four more edge probes run into the main march. */
@@ -325,7 +325,7 @@ u8 fn0C74_3615(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 			for (;;)
 			{
 				/* 36A3: push ([58E6h] << 1) ; call 02D8h */
-				(void)fn0C74_02D8((u16)(LG16(0x58E6) << 1), &dsTmp);
+				(void)engine_clock_tick((u16)(LG16(0x58E6) << 1), &dsTmp);
 
 				/* 36AD..36CC: cycle the animation counter 5..1; the
 				 * sound branch is guarded by DGROUP:0x58B0. */

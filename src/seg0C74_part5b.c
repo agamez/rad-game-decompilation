@@ -5,7 +5,7 @@
  * the Reko slice 0C74_1D95.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u16 fn0C74_1D95(u16 wArg02, void * dsOut)
+ *   u16 engine_blit_field_edges(u16 wArg02, void * dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 5b").
  *
@@ -13,18 +13,18 @@
  *   NONE directly.  No `int 10h/16h/21h`, no raw `in`/`out` port instruction,
  *   no __cli/__sti and no int 23h occur in 1D95.  All hardware work is reached
  *   indirectly through already-ported callees: the 1AB8 video driver
- *   (13A3/13D7/1E6B) and the 1EDA far-heap helpers (023F/0254); fn0C74_070D
+ *   (13A3/13D7/1E6B) and the 1EDA far-heap helpers (023F/0254); engine_scale_and_tick_clock
  *   owns the PC-speaker/AdLib pacing (parts 2/3).
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 5b"):
  *   - `ss:[wArg02-4]` is the CALLER's [bp-4] local, read through the `push bp`
- *     argument at every call site (fn0C74_1F08: 2250/23BA/2518/2A7B).  The
+ *     argument at every call site (engine_per_frame_level: 2250/23BA/2518/2A7B).  The
  *     .asm uses that word for a well-defined purpose: it is added to / subtracted
  *     from the [58B4h] Y coordinates of the two rectangles, and its low byte is
  *     the blit-loop counter.  The frozen `u16 wArg02` carries only the pushed BP
  *     word and flat C has no SS:BP chain (cross-part callers seed it 0), so the
  *     read is modelled as the documented constant `wCallerL4 = 0` -- the same
- *     treatment as fn0C74_0E2E (notes-0C74.md part 3 item 5).
+ *     treatment as engine_draw_status_sprites (notes-0C74.md part 3 item 5).
  *   - The 16:16 far blocks returned by fn1EDA_023F are carried as `u32`
  *     (`offset | segment<<16`, low word at the lower address, matching the
  *     original [bp-0Ah]/[bp-08h] and [bp-0Eh]/[bp-0Ch]) and materialised with
@@ -45,14 +45,14 @@
 #include "seg1AB8.h"
 #include "seg1EDA.h"
 
-// 0C74:1D95: u16 fn0C74_1D95(u16 wArg02, void * dsOut)
+// 0C74:1D95: u16 engine_blit_field_edges(u16 wArg02, void * dsOut)
 //
 // Blit the two caller-indexed field-edge rectangles: build both rects with
 // fn1AB8_13A3, allocate a far block each (fn1EDA_023F), stamp the rects into the
 // blocks (fn1AB8_1E6B), then for the caller-frame offset down to 0 tick
-// fn0C74_070D(0Ah,0E6h) and blit both blocks with fn1AB8_13D7, finally free
+// engine_scale_and_tick_clock(0Ah,0E6h) and blit both blocks with fn1AB8_13D7, finally free
 // both blocks.  Returns the saved-BP artifact (0 in flat C).
-u16 fn0C74_1D95(u16 wArg02, void * dsOut)
+u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 {
 	u16 wLoc04;              /* [bp-04h] first  fn1AB8_13A3 result (blk B size) */
 	u16 wLoc06;              /* [bp-06h] second fn1AB8_13A3 result (blk A size) */
@@ -63,7 +63,7 @@ u16 fn0C74_1D95(u16 wArg02, void * dsOut)
 	u16 dxTmp = 0x0000;      /* fn1EDA_0254 dxOut */
 	/* ss:[wArg02-4]: the original reads the caller's [bp-4] word through the
 	 * pushed BP (`push bp` at every call site).  Flat C has no SS:BP chain, so
-	 * -- exactly like the byte-identical twin fn0C74_0E2E (the UP arm
+	 * -- exactly like the byte-identical twin engine_draw_status_sprites (the UP arm
 	 * retraction, fixed in session 6) -- the callers pass their [bp-4] VALUE
 	 * directly in wArg02 and it is consumed here.  1F08's band-seal rects and
 	 * blit-loop count are built from this index; with 0 the seal degenerates
@@ -103,7 +103,7 @@ u16 fn0C74_1D95(u16 wArg02, void * dsOut)
 	bLoc01 = (u8)wCallerL4;
 	for (;;)
 	{
-		(void)fn0C74_070D(0x000A, 0x00E6, &dsTmp);
+		(void)engine_scale_and_tick_clock(0x000A, 0x00E6, &dsTmp);
 		/* push (58B4h+19h+c) ; (58B8h+0Dh) ; es:di=block B ; 0 ; 13D7 */
 		(void)fn1AB8_13D7(0x00,
 		                  far_ptr(dwLoc0E),

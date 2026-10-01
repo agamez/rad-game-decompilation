@@ -8,10 +8,10 @@
  * 0C74_51B2.c; frozen prototypes from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8  fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
- *   u8  fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
- *   u16 fn0C74_51AA(void)
- *   u16 fn0C74_51B2(void)
+ *   u8  engine_column_cells_down(u16 *bpOut, u16 *dsOut)
+ *   u8  engine_column_cells_up(u16 *bpOut, u16 *dsOut)
+ *   u16 engine_call_rocket_trajectory(void)
+ *   u16 engine_edge_collision_probe(void)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 15").
  *
@@ -21,10 +21,10 @@
  *   4DAC..51B2.  Every hardware-touching action is reached through
  *   already-ported callees: the 1AB8 video/text driver
  *   (13A3/13D7/1AF6/1C32/1E3C/1E54/1E6B) and the 1EDA far-heap helpers
- *   (023F/0254); 4DAC/4FD7 tick and delay through fn0C74_070D / 02D8.
+ *   (023F/0254); 4DAC/4FD7 tick and delay through engine_scale_and_tick_clock / 02D8.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 15"):
- *   - Reko's bp_XXXX frame-pointer locals (re-bound after each fn0C74_070D /
+ *   - Reko's bp_XXXX frame-pointer locals (re-bound after each engine_scale_and_tick_clock /
  *     02D8 call whose AX return is the caller's saved BP) are the current
  *     function's own frame; they are folded back onto the literal locals,
  *     per the notes-0C74 part 1 section 3 convention.
@@ -38,7 +38,7 @@
  *     dispatcher path); they are seeded 0 (parts 4/6/7/8/9).
  *   - bpOut / dsOut register outputs are the caller's saved BP and the dropped
  *     DGROUP selector; both receive 0 (part 1 section 3).
- *   - fn0C74_51AA is a one-line far wrapper around fn0C74_1B3B; the dropped DS
+ *   - engine_call_rocket_trajectory is a one-line far wrapper around engine_rocket_trajectory; the dropped DS
  *     output receives a u16 scratch and the callee's AX return is forwarded.
  */
 
@@ -51,7 +51,7 @@
 #include "seg1AB8.h"
 #include "seg1EDA.h"
 
-// 0C74:4DAC: u8 fn0C74_4DAC(u16 * bpOut, u16 * dsOut)
+// 0C74:4DAC: u8 engine_column_cells_down(u16 * bpOut, u16 * dsOut)
 //
 // Draw a column of three-character cells (0Ah/02h/08h) upward while the cell
 // above stays on-screen: each step paints [58B8h]+12h/13h/14h at
@@ -64,7 +64,7 @@
 // 13A3/023F, the 0Ah..08h markers are stamped, the block rows are blitted with
 // 13D7 while the counter walks 12h..2Bh, freed with 0254 and the column erased
 // downward again.  Returns the [bp-1] byte.
-u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
+u8 engine_column_cells_down /* was fn0C74_4DAC */(u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x01;      /* [bp-01h] return flag; 4DAC: mov [bp-1h],1h */
 	u16 wLoc04 = 0x000D;    /* [bp-04h] row counter; 4DAC: mov [bp-4h],0Dh */
@@ -73,8 +73,8 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 	u32 blk    = 0;         /* [bp-0Ah]:[bp-0Ch] 023F block, low = [bp-0Ch] */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 	u16 dxTmp  = 0x0000;    /* fn1AB8_1AF6 dxOut */
-	u16 dsTmp  = 0x0000;    /* fn0C74_070D / 02D8 / 023F / 0254 dsOut */
-	void *dsv  = NULL;      /* fn0C74_070D void * dsOut */
+	u16 dsTmp  = 0x0000;    /* engine_scale_and_tick_clock / 02D8 / 023F / 0254 dsOut */
+	void *dsv  = NULL;      /* engine_scale_and_tick_clock void * dsOut */
 
 	/* l0C74_4DB9: paint the three marker cells and tick upward. */
 	for (;;)
@@ -91,7 +91,7 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 		/* 4E25: dec word ptr [bp-4h] */
 		wLoc04 = (u16)(wLoc04 - 0x0001);
 		/* 4E28: push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 4E2?: cmp word ptr [bp-4h],0E9h ; jz 4E6Fh.
 		 * The imm8 0E9h is sign-extended to 0FFE9h (Reko `~0x16`), so
 		 * the counter walks 0Dh..00h..0FFE9h (36 steps). */
@@ -120,7 +120,7 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 	if (wLoc04 == 0xFFE9)
 	{
 		/* l0C74_4ED9: push 1F4h ; call 02D8h */
-		(void)fn0C74_02D8(0x01F4, &dsTmp);
+		(void)engine_clock_tick(0x01F4, &dsTmp);
 		/* 4EDE: wLoc08 = 13A3([58B8h]+14h, [58B4h]-1,
 		 *                       [58B8h]+11h, [58B4h]-16h) */
 		wLoc08 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x0014),
@@ -147,9 +147,9 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 			                  (u16)(wLoc04 + LG16(0x58B8)),
 			                  (u16)(LG16(0x58B4) - 0x0016));
 			/* 4F5C: push 12Ch ; push 14h ; call 070Dh */
-			(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 			/* 4F64: push 28h ; call 02D8h */
-			(void)fn0C74_02D8(0x0028, &dsTmp);
+			(void)engine_clock_tick(0x0028, &dsTmp);
 			/* 4F6B: cmp word ptr [bp-4h],2Bh ; jnz 4F3Ah */
 			if (wLoc04 == 0x002B)
 				break;
@@ -174,7 +174,7 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 			                  (u16)(wLoc06 + LG16(0x58B4)),
 			                  &dxTmp);
 			/* 4FBC: push 12Ch ; push 14h ; call 070Dh */
-			(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 			/* 4FC4: cmp word ptr [bp-6h],0Dh ; jnz 4F8Ah */
 			if (wLoc06 == 0x000D)
 				break;
@@ -200,7 +200,7 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 				                  (u16)(wLoc06 + LG16(0x58B4)),
 				                  &dxTmp);
 				/* 4E??: push 12Ch ; push 14h ; call 070Dh */
-				(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+				(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 				/* 4E??: cmp word ptr [bp-6h],0Dh ; jnz 4E8Ah */
 				if (wLoc06 == 0x000D)
 					break;
@@ -217,7 +217,7 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 	return bLoc01;
 }
 
-// 0C74:4FD7: u8 fn0C74_4FD7(u16 * bpOut, u16 * dsOut)
+// 0C74:4FD7: u8 engine_column_cells_up(u16 * bpOut, u16 * dsOut)
 //
 // Sibling of 4DAC for the opposite direction.  Draw a column of 0Ah/02h/08h
 // cells upward at [58B8h]+12h/13h/14h while the row counter stays below 42h,
@@ -227,7 +227,7 @@ u8 fn0C74_4DAC(u16 *bpOut, u16 *dsOut)
 // with 13D7 while the counter walks 12h..2Bh, freed with 0254 and the column
 // erased downward (1AF6) from 2Ch to 1Dh.  Otherwise the column is erased
 // downward and the [bp-1] flag cleared.  Returns the [bp-1] byte.
-u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
+u8 engine_column_cells_up /* was fn0C74_4FD7 */(u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x01;      /* [bp-01h] return flag; 4FD7: mov [bp-1h],1h */
 	u8  bLoc02 = 0x1D;      /* [bp-02h] scan counter; 4FD7: mov [bp-2h],1Dh */
@@ -236,8 +236,8 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 	u32 blk    = 0;         /* [bp-08h]:[bp-0Ah] 023F block, low = [bp-0Ah] */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 	u16 dxTmp  = 0x0000;    /* fn1AB8_1AF6 dxOut */
-	u16 dsTmp  = 0x0000;    /* fn0C74_070D / 02D8 / 023F / 0254 dsOut */
-	void *dsv  = NULL;      /* fn0C74_070D void * dsOut */
+	u16 dsTmp  = 0x0000;    /* engine_scale_and_tick_clock / 02D8 / 023F / 0254 dsOut */
+	void *dsv  = NULL;      /* engine_scale_and_tick_clock void * dsOut */
 
 	/* l0C74_4FE3: paint the marker cells and tick upward. */
 	for (;;)
@@ -254,7 +254,7 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 		/* 5033: inc byte ptr [bp-2h] */
 		bLoc02 = (u8)(bLoc02 + 0x01);
 		/* 5035: push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 503C: cmp byte ptr [bp-2h],42h ; jz 5067h */
 		if (bLoc02 == 0x42)
 			break;
@@ -288,7 +288,7 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 				                  (u16)((u16)bLoc03 + LG16(0x58B4)),
 				                  &dxTmp);
 				/* 50AB: push 12Ch ; push 14h ; call 070Dh */
-				(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+				(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 				/* 50B6: cmp byte ptr [bp-3h],1Dh ; jnz 5083h */
 				if (bLoc03 == 0x1D)
 					break;
@@ -302,7 +302,7 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 	else
 	{
 		/* l0C74_50C2: push 1F4h ; call 02D8h */
-		(void)fn0C74_02D8(0x01F4, &dsTmp);
+		(void)engine_clock_tick(0x01F4, &dsTmp);
 		/* 50C7: wLoc06 = 13A3([58B8h]+14h, [58B4h]+41h,
 		 *                      [58B8h]+11h, [58B4h]+2Ch) */
 		wLoc06 = fn1AB8_13A3((u16)(LG16(0x58B8) + 0x0014),
@@ -329,9 +329,9 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 			                  (u16)((u16)bLoc02 + LG16(0x58B8)),
 			                  (u16)(LG16(0x58B4) + 0x002C));
 			/* 5148: push 12Ch ; push 14h ; call 070Dh */
-			(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 			/* 5150: push 28h ; call 02D8h */
-			(void)fn0C74_02D8(0x0028, &dsTmp);
+			(void)engine_clock_tick(0x0028, &dsTmp);
 			/* 5157: cmp byte ptr [bp-2h],2Bh ; jnz 5126h */
 			if (bLoc02 == 0x2B)
 				break;
@@ -357,7 +357,7 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 			                  (u16)((u16)bLoc03 + LG16(0x58B4)),
 			                  &dxTmp);
 			/* 5195: push 12Ch ; push 14h ; call 070Dh */
-			(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 			/* 51A0: cmp byte ptr [bp-3h],1Dh ; jnz 516Dh */
 			if (bLoc03 == 0x1D)
 				break;
@@ -372,31 +372,31 @@ u8 fn0C74_4FD7(u16 *bpOut, u16 *dsOut)
 	return bLoc01;
 }
 
-// 0C74:51AA: u16 fn0C74_51AA(void)
+// 0C74:51AA: u16 engine_call_rocket_trajectory(void)
 //
 // One-line far wrapper: run the rocket/explosion trajectory animation
-// (fn0C74_1B3B) and hand its AX return back to the caller.  The dropped DS
+// (engine_rocket_trajectory) and hand its AX return back to the caller.  The dropped DS
 // output receives a local scratch (flat model).
-u16 fn0C74_51AA(void)
+u16 engine_call_rocket_trajectory /* was fn0C74_51AA */(void)
 {
-	u16 dsTmp = 0x0000;     /* fn0C74_1B3B dropped-DS scratch */
+	u16 dsTmp = 0x0000;     /* engine_rocket_trajectory dropped-DS scratch */
 
-	return fn0C74_1B3B(&dsTmp);
+	return engine_rocket_trajectory(&dsTmp);
 }
 
-// 0C74:51B2: u16 fn0C74_51B2(void)
+// 0C74:51B2: u16 engine_edge_collision_probe(void)
 //
 // Screen-edge collision probe used by the seg0800 direction handlers.  Reads
 // the state word [5968h]: when it is 1 the two edge probes test the left bars
 // at [58BAh]+1 against [58B6h]+1 and [58B6h]+17h; when it is 0FFFFh they test
 // the right bars at [58BAh]+1 against [58B4h]-1 and [58B4h]-17h.  If both probes
-// are clear the animation helper fn0C74_2AD9 runs and the [bp-1] flag is set;
+// are clear the animation helper engine_level_edge_march runs and the [bp-1] flag is set;
 // any probe hit leaves the flag 0, and a state word that is neither 1 nor
 // 0FFFFh sets the flag 1 without probing.  Returns the [bp-1] byte.
-u16 fn0C74_51B2(void)
+u16 engine_edge_collision_probe /* was fn0C74_51B2 */(void)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] collision flag */
-	u16 dsTmp  = 0x0000;    /* fn0C74_2AD9 dsOut */
+	u16 dsTmp  = 0x0000;    /* engine_level_edge_march dsOut */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 
 	/* 51B2: mov ax,[5968h] ; cmp ax,1h ; jnz 51F1h */
@@ -411,7 +411,7 @@ u16 fn0C74_51B2(void)
 		                (u16)(LG16(0x58B6) + 0x0017), &dlTmp) != 0x00)
 			return (u16)bLoc01;
 		/* l0C74_51EC: call 2AD9h */
-		(void)fn0C74_2AD9(&dsTmp);
+		(void)engine_level_edge_march(&dsTmp);
 		bLoc01 = 0x01;
 	}
 	else if (LG16(0x5968) == 0xFFFF)
@@ -425,7 +425,7 @@ u16 fn0C74_51B2(void)
 		                (u16)(LG16(0x58B4) - 0x0017), &dlTmp) != 0x00)
 			return (u16)bLoc01;
 		/* l0C74_5220: call 2AD9h */
-		(void)fn0C74_2AD9(&dsTmp);
+		(void)engine_level_edge_march(&dsTmp);
 		bLoc01 = 0x01;
 	}
 	else

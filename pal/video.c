@@ -89,7 +89,7 @@ u8 *pal_vga12_canvas(void)
  * wrap.  Coordinates may legitimately exceed 320x200 (the game's effects
  * use y up to ~480); they wrap back into the visible 320x200 area, and
  * that wrap is intentional game behavior.  The RLE title art
- * (fn0C43_0056) writes the same memory via pal_vga_memory() = g_shadow,
+ * (level_decode_rle) writes the same memory via pal_vga_memory() = g_shadow,
  * so there is ONE framebuffer: g_shadow's first 65536 bytes. */
 #define DRV_STRIDE 320
 #define DRV_SIZE   65536u
@@ -1102,7 +1102,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
          * game's 640x480x16 graphics mode (VGA mode 12h).  The port has no
          * planar hardware layer, so activate the logical mode-12h canvas
          * here.  Ordering is safe: on the startup path this runs before the
-         * title loader's explicit fn0C43_0000(0x13) mode-13h set, and at the
+         * title loader's explicit level_set_video_mode(0x13) mode-13h set, and at the
          * menu/level transition it is the only video-mode set. */
         bios_video_set_mode(0x12);
         /* The driver publishes its LOGICAL screen dimensions; fn1AB8_0F93

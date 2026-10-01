@@ -5,7 +5,7 @@
  * the Reko slice 0C74_396E.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_396E(void *bpOut, u16 *dsOut)
+ *   u8 engine_pull_in(void *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 11").
  *
@@ -17,7 +17,7 @@
  *   0C74 tick/frame drivers 070D / 02D8.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 11"):
- *   - Reko's bp_XXXX frame-pointer locals (re-bound after each fn0C74_070D /
+ *   - Reko's bp_XXXX frame-pointer locals (re-bound after each engine_scale_and_tick_clock /
  *     02D8 call whose AX return is the caller's saved BP) are the current
  *     function's own frame; they are folded back onto the literal locals below
  *     (documented convention, notes-0C74.md part 1 section 3).
@@ -33,7 +33,7 @@
 #include "seg0C74.h"
 #include "seg1AB8.h"
 
-/* 0C74:396E: u8 fn0C74_396E(void * bpOut, u16 * dsOut)
+/* 0C74:396E: u8 engine_pull_in(void * bpOut, u16 * dsOut)
  *
  * Game-core "pull-in" update.  First scans a row upward (drawing a 13h/12h
  * rectangle each step through 1AF6) until either the row reaches 39h, a 1E3C
@@ -43,7 +43,7 @@
  * strokes plus three 4D0Fh-table strokes per step), the bar growth/shrink
  * phases built from 1E54/1AF6, a 02D8 wait and the closing erase pass.  Every
  * path bumps [58B4h] once.  Returns the [bp-1] byte. */
-u8 fn0C74_396E(void *bpOut, u16 *dsOut)
+u8 engine_pull_in /* was fn0C74_396E */(void *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x01;      /* [bp-01h] return flag (396E: mov [bp-1h],1h) */
 	u8  bLoc02 = 0x1D;      /* [bp-02h] scan row counter, init 1Dh */
@@ -53,8 +53,8 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 	u16 di     = 0x0000;    /* asm DI: 4D0Fh table index (bLoc03 +/- k) */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 	u16 dxTmp  = 0x0000;    /* fn1AB8_1AF6 dxOut */
-	u16 dsTmp  = 0x0000;    /* fn0C74_02D8 dsOut */
-	void *dsv  = NULL;      /* fn0C74_070D dsOut */
+	u16 dsTmp  = 0x0000;    /* engine_clock_tick dsOut */
+	void *dsv  = NULL;      /* engine_scale_and_tick_clock dsOut */
 
 	/* 3971: dec word ptr [58B4h] */
 	LG16(0x58B4) = (u16)(LG16(0x58B4) - 0x0001);
@@ -79,7 +79,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 		/* 39B4: inc byte ptr [bp-2h] */
 		bLoc02 = (u8)(bLoc02 + 0x01);
 		/* push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 39C0: cmp byte ptr [bp-2h],39h ; jz 39F0h */
 		if (bLoc02 == 0x39)
 			break;
@@ -111,7 +111,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 				                  (u16)(LG16(0x58B8) + 0x0012),
 				                  (u16)((u16)bLoc03 + LG16(0x58B4)),
 				                  &dxTmp);
-				(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+				(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 				/* 3A3C: cmp byte ptr [bp-3h],1Dh ; jnz 3A0Ch */
 				if (bLoc03 == 0x1D)
 					break;
@@ -134,7 +134,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 		                  (u16)(LG16(0x58B8) + 0x0012),
 		                  (u16)(LG16(0x58B4) + 0x002A),
 		                  &dxTmp);
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 3A76: fn1AB8_1AF6([58B8h]+11h, [58B4h]+36h,
 		 *                   [58B8h]+11h, [58B4h]+2Ah) */
 		(void)fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0011),
@@ -142,7 +142,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 		                  (u16)(LG16(0x58B8) + 0x0011),
 		                  (u16)(LG16(0x58B4) + 0x002A),
 		                  &dxTmp);
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 3A9C: mov byte ptr [bp-3h],3h */
 		bLoc03 = 0x03;
 
@@ -171,7 +171,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 			                  (u16)(LG8((u16)(di + 0x4D0F)) + LG16(0x58B4)),
 			                  &dxTmp);
 			/* push 190h ; push 32h ; call 070Dh */
-			(void)fn0C74_070D(0x0032, 0x0190, &dsv);
+			(void)engine_scale_and_tick_clock(0x0032, 0x0190, &dsv);
 			/* 3BBD: cmp byte ptr [bp-3h],14h ; jz 3BC3h */
 			if (bLoc03 == 0x14)
 				break;
@@ -220,7 +220,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 			wLoc06 = (u16)(wLoc06 + 0x0001);
 			wLoc08 = (u16)(wLoc08 + 0x0001);
 			/* push 64h ; push 64h ; call 070Dh */
-			(void)fn0C74_070D(0x0064, 0x0064, &dsv);
+			(void)engine_scale_and_tick_clock(0x0064, 0x0064, &dsv);
 			/* 3C83: cmp byte ptr [bp-3h],0Bh ; jnz 3C11h */
 			if (bLoc03 == 0x0B)
 				break;
@@ -238,7 +238,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 		(void)fn1AB8_1E54(0x00, wLoc08, (u16)(LG16(0x58B4) + 0x0036));
 		(void)fn1AB8_1E54(0x00, wLoc08, (u16)(LG16(0x58B4) + 0x0039));
 		/* 3CB0: push 1F4h ; call 02D8h */
-		(void)fn0C74_02D8(0x01F4, &dsTmp);
+		(void)engine_clock_tick(0x01F4, &dsTmp);
 		(void)fn1AB8_1C32(0x00);
 		(void)fn1AB8_1AF6(wLoc08,
 		                  (u16)(LG16(0x58B4) + 0x0038),
@@ -270,7 +270,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 			/* 3D3B: dec word ptr [bp-6h] ; dec word ptr [bp-8h] */
 			wLoc06 = (u16)(wLoc06 - 0x0001);
 			wLoc08 = (u16)(wLoc08 - 0x0001);
-			(void)fn0C74_070D(0x0064, 0x0064, &dsv);
+			(void)engine_scale_and_tick_clock(0x0064, 0x0064, &dsv);
 			if (bLoc03 == 0x0B)
 				break;
 			/* l0C74_3D09: inc byte ptr [bp-3h] */
@@ -303,7 +303,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 			                  (u16)(LG8((u16)(di + 0x4D23)) + LG16(0x58B8)),
 			                  (u16)(LG8((u16)(di + 0x4D0F)) + LG16(0x58B4)),
 			                  &dxTmp);
-			(void)fn0C74_070D(0x0032, 0x0190, &dsv);
+			(void)engine_scale_and_tick_clock(0x0032, 0x0190, &dsv);
 			/* 3E74: cmp byte ptr [bp-3h],3h ; jz 3E7Ah */
 			if (bLoc03 == 0x03)
 				break;
@@ -322,21 +322,21 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 		                  (u16)(LG16(0x58B8) + 0x0011),
 		                  (u16)(LG16(0x58B4) + 0x002A),
 		                  &dxTmp);
-		(void)fn0C74_02D8(0x01F4, &dsTmp);
+		(void)engine_clock_tick(0x01F4, &dsTmp);
 		(void)fn1AB8_1C32(0x00);
 		(void)fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0011),
 		                  (u16)(LG16(0x58B4) + 0x0036),
 		                  (u16)(LG16(0x58B8) + 0x0011),
 		                  (u16)(LG16(0x58B4) + 0x002A),
 		                  &dxTmp);
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		(void)fn1AB8_1C32(0x0C);
 		(void)fn1AB8_1AF6((u16)(LG16(0x58B8) + 0x0012),
 		                  (u16)(LG16(0x58B4) + 0x0036),
 		                  (u16)(LG16(0x58B8) + 0x0012),
 		                  (u16)(LG16(0x58B4) + 0x002A),
 		                  &dxTmp);
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		(void)fn1AB8_1C32(0x00);
 		/* 3F1A: mov al,[bp-2h] ; xor ah,ah ; dec ax ; cmp al,1Dh ;
 		 *       jc 3F6Bh */
@@ -353,7 +353,7 @@ u8 fn0C74_396E(void *bpOut, u16 *dsOut)
 				                  (u16)(LG16(0x58B8) + 0x0012),
 				                  (u16)((u16)bLoc03 + LG16(0x58B4)),
 				                  &dxTmp);
-				(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+				(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 				if (bLoc03 == 0x1D)
 					break;
 				/* l0C74_3F33: dec byte ptr [bp-3h] */

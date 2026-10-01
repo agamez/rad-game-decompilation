@@ -14,7 +14,7 @@
  *   2AD9..2BBD.  Every hardware-touching operation is reached indirectly
  *   through already-ported callees: the 1AB8 video driver (13A3/1E6B/13D7/
  *   1C32/1AF6/1E3C/1E54), the 1EDA far-heap helpers (023F/0254/096F/098A),
- *   fn1E78_029C (keyboard/pacing) and fn11C8_0354/033B (sound).  fn0C74_02D8 /
+ *   fn1E78_029C (keyboard/pacing) and fn11C8_0354/033B (sound).  engine_clock_tick /
  *   070D / 0D43 / 0D94 / 0CFA / 0DE5 / 1F08 / 076B are 0C74 helpers handled by
  *   their own chunks.
  *
@@ -46,18 +46,18 @@
 #include "seg1E78.h"
 #include "seg11C8.h"
 
-// 0C74:2AD9: u16 fn0C74_2AD9(u16 * dsOut)
+// 0C74:2AD9: u16 engine_level_edge_march(u16 * dsOut)
 //
 // Level/edge "march" driver shared by the intro and game-core loops.  When the
 // state word at 0x5968 is 1 it ticks the left field (0D43), otherwise the right
 // field (0D94); both start with a 02D8 clock tick.  It then allocates a 023F
 // block sized by the 13A3 rectangle ([58B8h],[58B4h],+1Ch,+2Bh), blits it with
-// 1E6B, and while fn0C74_1F08 reports "advance" and [58BAh]-2Bh > [58B8h],
+// 1E6B, and while engine_per_frame_level reports "advance" and [58BAh]-2Bh > [58B8h],
 // steps [58B8h] and pushes another 070D tick + 13D7 blit.  Unless 58B3h says
 // stop, it then converts [58E6h]*[4D0Ch] (signed 16x16->32, 096F), divides the
 // product by 4 (098A), ticks 02D8, advances the matching field (0DE5/0CFA) and
 // finally frees the block with 0254.
-u16 fn0C74_2AD9(u16 *dsOut)
+u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 {
 	u16 wLoc04 = 0x0000;    /* [bp-04h] fn1EDA_023F block segment (DX) */
 	u16 wLoc06 = 0x0000;    /* [bp-06h] fn1EDA_023F block offset  (AX) */
@@ -65,23 +65,23 @@ u16 fn0C74_2AD9(u16 *dsOut)
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector out */
 	u16 dsTmp2 = 0x0000;    /* dropped DGROUP selector out (2B79 branch) */
 	u16 dxTmp  = 0x0000;    /* fn1EDA_0254 dxOut */
-	void *dsv  = NULL;      /* fn0C74_070D / fn1EDA_098A dsOut */
+	void *dsv  = NULL;      /* engine_scale_and_tick_clock / fn1EDA_098A dsOut */
 	s16 cxT = 0, dxT = 0, bxT = 0;  /* fn1EDA_098A cx/dx/bx outs */
 
 	/* cmp word [5968h],1h ; jnz 2AF1h */
 	if (LG16(0x5968) == 0x0001)
 	{
 		/* push 0C8h ; call 02D8h */
-		(void)fn0C74_02D8(0x00C8, &dsTmp);
+		(void)engine_clock_tick(0x00C8, &dsTmp);
 		/* push 0Bh ; call 0D43h */
-		(void)fn0C74_0D43(0x0B, &bpv, &dsTmp);
+		(void)engine_redraw_bars_up(0x0B, &bpv, &dsTmp);
 	}
 	else
 	{
 		/* push 0C8h ; call 02D8h */
-		(void)fn0C74_02D8(0x00C8, &dsTmp);
+		(void)engine_clock_tick(0x00C8, &dsTmp);
 		/* push 0Bh ; call 0D94h */
-		(void)fn0C74_0D94(0x0B, &dsTmp);
+		(void)engine_redraw_bars_down_15(0x0B, &dsTmp);
 	}
 
 	/* push 0h ; push 0h ; push 1Ch ; push 2Bh ; call 13A3h */
@@ -102,13 +102,13 @@ u16 fn0C74_2AD9(u16 *dsOut)
 	            LG16(0x58B8), LG16(0x58B4));
 
 	/* call 1F08h ; or al,al ; jz 2B70h */
-	if (fn0C74_1F08(&bpv, &dsTmp) != 0x00)
+	if (engine_per_frame_level(&bpv, &dsTmp) != 0x00)
 	{
 		/* 2B42: mov ax,[58BAh] ; sub ax,2Bh ; cmp ax,[58B8h] ; jbe 2B70h */
 		while ((u16)(LG16(0x58BA) - 0x002B) > LG16(0x58B8))
 		{
 			/* push 0C8h ; push 14h ; call 070Dh */
-			(void)fn0C74_070D(0x0014, 0x00C8, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x00C8, &dsv);
 			/* inc word [58B8h] */
 			LG16(0x58B8) = (u16)(LG16(0x58B8) + 0x0001);
 			/* push [58B4h] ; push [58B8h] ; les di,[bp-6h] ;
@@ -132,7 +132,7 @@ u16 fn0C74_2AD9(u16 *dsOut)
 		prod = fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 		                   (u16)((s16)LG16(0x58E6) < 0 ? 0xFFFFu : 0x0000u));
 		/* mov cx,4h ; xor bx,bx ; call 098Ah ; push ax ; call 02D8h */
-		(void)fn0C74_02D8(
+		(void)engine_clock_tick(
 		    (u16)fn1EDA_098A(0x00000004, prod, 0x0000, 0x0000,
 		                     &cxT, &dxT, &bxT, &dsv),
 		    &dsTmp2);
@@ -141,12 +141,12 @@ u16 fn0C74_2AD9(u16 *dsOut)
 		if (LG16(0x5968) == 0x0001)
 		{
 			/* push 0Bh ; call 0DE5h */
-			(void)fn0C74_0DE5(0x0B, &dsTmp2);
+			(void)engine_redraw_bars_up_15(0x0B, &dsTmp2);
 		}
 		else
 		{
 			/* push 0Bh ; call 0CFAh */
-			(void)fn0C74_0CFA(0x0B, &bpv, &dsTmp2);
+			(void)engine_redraw_bars_down(0x0B, &bpv, &dsTmp2);
 		}
 
 		/* push [bp-4h] ; push [bp-6h] ; push [595Eh] ; call 0254h */
@@ -158,7 +158,7 @@ u16 fn0C74_2AD9(u16 *dsOut)
 	return 0x0000;     /* saved-BP artifact; no caller consumes it */
 }
 
-// 0C74:2BBD: u16 fn0C74_2BBD(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+// 0C74:2BBD: u16 engine_sprite_grow(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 //
 // Sprite "grow" animation.  Builds two 13A3 far blocks (sizes wLoc0C/wLoc0A)
 // and a pair of 023F scratch blocks, blits the background (block2) with 1E6B /
@@ -167,8 +167,8 @@ u16 fn0C74_2AD9(u16 *dsOut)
 // probe returned 0x0F it runs a nested 8x11x21 colour-fade that hammers
 // fn11C8_0354 (sound) and fn1AB8_1E54 (pixel plots), then restores the HUD and
 // ticks the sound.  It finally frees block1 and, if the counter stayed below
-// DGROUP:4D0Ah and wArg02 < 0x172, calls fn0C74_076B.
-u16 fn0C74_2BBD(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+// DGROUP:4D0Ah and wArg02 < 0x172, calls engine_scatter_starfield.
+u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	u16 wLoc02 = 0x0000;   /* [bp-02h] block1 segment (DX of first 023F) */
 	u16 wLoc04 = 0x0000;   /* [bp-04h] block1 offset  (AX of first 023F) */
@@ -347,7 +347,7 @@ u16 fn0C74_2BBD(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	{
 		/* push wArg08 ; push wArg06 ; push wArg04 ; push wArg02+16h ;
 		 * push cs ; call 076Bh */
-		(void)fn0C74_076B((u16)(wArg02 + 0x0016), wArg04, wArg06, wArg08);
+		(void)engine_scatter_starfield((u16)(wArg02 + 0x0016), wArg04, wArg06, wArg08);
 	}
 
 	return 0x0000;   /* saved-BP artifact; no caller consumes it */

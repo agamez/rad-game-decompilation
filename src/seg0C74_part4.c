@@ -5,21 +5,21 @@
  * the Reko slice 0C74_0FA1.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
+ *   u8 engine_per_frame_muck(void *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 4").
  *
  * Hardware / DOS services replaced (CONVENTIONS.md rule 4):
  *   NONE directly.  No `int 10h/16h/21h`, no raw `in`/`out` port instruction,
  *   no __cli/__sti and no int 23h occur in 0FA1.  The only hardware-touching
- *   call is indirect, into fn0C74_0E2E (0C74:0E2E), which owns the PC-speaker /
+ *   call is indirect, into engine_draw_status_sprites (0C74:0E2E), which owns the PC-speaker /
  *   AdLib port I/O (analysis/summary/functions.tsv: port42h/43h/61h/388h/389h)
- *   and keyboard graphics helpers; fn0C74_0E2E is a separate chunk.  All other
+ *   and keyboard graphics helpers; engine_draw_status_sprites is a separate chunk.  All other
  *   callees are file/video helpers already ported in 1AB8 / 1EDA / 0C74.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 4"):
  *   - Reko's `bp_XXXX` frame-pointer locals (re-bound after each call to
- *     fn0C74_070D / 02D8 / 0E2E, whose AX/far return is the caller's saved BP)
+ *     engine_scale_and_tick_clock / 02D8 / 0E2E, whose AX/far return is the caller's saved BP)
  *     are the current function's own frame.  They are folded back onto the
  *     literal DGROUP stack locals below (documented convention, notes-0C74.md
  *     part 1 §3).
@@ -30,7 +30,7 @@
  *   - fn1EDA_023F / 098A / 0254 require stack words the original never pushes
  *     (they are leftover-stack / far-return-address words used only on the
  *     fatal divide-by-zero path); they are seeded 0.
- *   - `push bp` before fn0C74_0E2E passes the caller's frame pointer and 0E2E
+ *   - `push bp` before engine_draw_status_sprites passes the caller's frame pointer and 0E2E
  *     reads the caller's [bp-4] through it (ss:[bp-4]).  Flat C has no SS:BP
  *     chain, so the call sites pass that word's VALUE (the arm-extension index
  *     wLoc04, seeded 14h/13h at the asm's own `mov word [bp-4],n` sites) and
@@ -46,12 +46,12 @@
 #include "seg1AB8.h"
 #include "seg1EDA.h"
 
-// 0C74:0FA1: u8 fn0C74_0FA1(void * bpOut, u16 * dsOut)
+// 0C74:0FA1: u8 engine_per_frame_muck(void * bpOut, u16 * dsOut)
 //
 // Game-core per-frame update: paints the two status fields, animates the
 // muck/level bars, runs the "level complete" sequences, then frees the scratch
 // blocks.  Returns the [bp-1] byte (0 = abort/keep waiting, 1 = advance).
-u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
+u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] return flag (Reko al_3370) */
 	u16 wLoc04 = 0x0000;    /* [bp-04h] primary index (Reko bp_1039-4) */
@@ -93,7 +93,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 
 	/* time tick: 098A(4, 096F([4D0Ch], [58E6h], 0, sign([58E6h]))) -> 02D8 */
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -157,7 +157,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 		                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 			break;
 
-		(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+		(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 		fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x000D - wLoc04));
@@ -170,7 +170,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 	/* --- 0C74:12E2 ------------------------------------------------------- */
 	if (wLoc04 != 0x0014)
 	{
-		(void)fn0C74_0E2E(wLoc04, &dsv);   /* the caller's [bp-4] word */
+		(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
 		fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 		            &dxTmp, &dsTmp);
 		fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -194,7 +194,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 			if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x000D),
 			                (u16)(LG16(0x58B4) + 0x001E + wLoc04), &dlTmp) != 0)
 				break;
-			(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 			fn1AB8_13D7(0x00, far_ptr(dwLoc14),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(LG16(0x58B4) + 0x0019 + wLoc04));
@@ -228,7 +228,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 				wLoc06 = wLoc04;
 				do
 				{
-					(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+					(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 					fn1AB8_13D7(0x00, far_ptr(dwLoc14),
 					            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 					if (wLoc06 == 0x0013)
@@ -241,7 +241,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 			fn1EDA_0254(wLoc22, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 			            &dxTmp, &dsTmp);
 			wLoc04 = 0x0014;
-			(void)fn0C74_0E2E(wLoc04, &dsv);   /* the caller's [bp-4] word */
+			(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
 			fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 			            &dxTmp, &dsTmp);
 			bLoc01 = 0x00;
@@ -262,7 +262,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 		if (fn1AB8_1E3C((u16)(LG16(0x58B8) + 0x000D),
 		                (u16)(LG16(0x58B4) + 0x000C - wLoc04), &dlTmp) != 0)
 			break;
-		(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+		(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 		fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 		            (u16)(LG16(0x58B8) + 0x000D),
 		            (u16)(LG16(0x58B4) + 0x000D - wLoc04));
@@ -292,7 +292,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 		wLoc06 = wLoc04;
 		do
 		{
-			(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 			fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 			            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 			if (wLoc06 == 0x0013)
@@ -303,7 +303,7 @@ u8 fn0C74_0FA1(void *bpOut, u16 *dsOut)
 
 	/* --- 0C74:15AB ------------------------------------------------------- */
 	wLoc04 = 0x0014;
-	(void)fn0C74_0E2E(wLoc04, &dsv);   /* the caller's [bp-4] word */
+	(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
 	fn1EDA_0254(wLoc22, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
@@ -318,7 +318,7 @@ l0C74_15D9:
 	/* --- 0C74:15E7: level-complete / score animation -------------------- */
 l0C74_15E7:
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -350,13 +350,13 @@ l0C74_1678:
 	++wLoc04;
 
 l0C74_16B6:
-	(void)fn0C74_070D(0x001E, 0x00FA, &dsv);
+	(void)engine_scale_and_tick_clock(0x001E, 0x00FA, &dsv);
 	goto l0C74_1619;
 
 	/* --- 0C74:16C1: victory sequence ------------------------------------ */
 l0C74_16C1:
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -385,7 +385,7 @@ l0C74_16C1:
 	/* --- 0C74:17C1 ------------------------------------------------------- */
 	do
 	{
-		(void)fn0C74_070D(0x003C, 0x0064, &dsv);
+		(void)engine_scale_and_tick_clock(0x003C, 0x0064, &dsv);
 		LG16(0x58BA) = (u16)(LG16(0x58BA) - 0x0001);
 		fn1AB8_13D7(0x00, far_ptr(dwLoc18),
 		            (u16)(LG16(0x58BA) - 0x000D), LG16(0x58B4));
@@ -401,7 +401,7 @@ l0C74_16C1:
 	            LG16(0x58B8), LG16(0x58B4));
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -409,7 +409,7 @@ l0C74_16C1:
 
 	/* --- 0C74:1867: shrink the bar toward the centre -------------------- */
 l0C74_1867:
-	(void)fn0C74_070D(0x0028, 0x0032, &dsv);
+	(void)engine_scale_and_tick_clock(0x0028, 0x0032, &dsv);
 	LG16(0x58B4) = (u16)(LG16(0x58B4) - LG16(0x5968));
 	LG16(0x58B6) = (u16)(LG16(0x58B6) - LG16(0x5968));
 	fn1AB8_13D7(0x00, far_ptr(dwLoc1C), LG16(0x58B8),
@@ -422,7 +422,7 @@ l0C74_1867:
 	/* --- 0C74:18B0 ------------------------------------------------------- */
 l0C74_18B0:
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -451,7 +451,7 @@ l0C74_1928:
 	fn1AB8_1AF6(wLoc04, (u16)(wLoc0A + 0x0002), wLoc04, wLoc0A, &dxTmp);
 
 l0C74_194A:
-	(void)fn0C74_070D(0x001E, 0x00FA, &dsv);
+	(void)engine_scale_and_tick_clock(0x001E, 0x00FA, &dsv);
 	goto l0C74_18F0;
 
 	/* --- 0C74:1954 ------------------------------------------------------- */
@@ -462,7 +462,7 @@ l0C74_1954:
 	            &dxTmp, &dsTmp);
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -482,7 +482,7 @@ l0C74_1954:
 		wLoc06 = (u16)(wLoc0A - 0x0001);
 		do
 		{
-			(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 			fn1AB8_13D7(0x00, far_ptr(dwLoc14),
 			            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 			if (wLoc06 == wLoc2A)
@@ -509,7 +509,7 @@ l0C74_1954:
 		wLoc06 = (u16)(wLoc0C - 0x0002);
 		do
 		{
-			(void)fn0C74_070D(0x0019, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0019, 0x00E6, &dsv);
 			fn1AB8_13D7(0x00, far_ptr(dwLoc10),
 			            (u16)(LG16(0x58B8) + 0x000D), wLoc06);
 			if (wLoc06 == wLoc2A)
@@ -522,10 +522,10 @@ l0C74_1954:
 	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	wLoc04 = 0x0013;
-	(void)fn0C74_0E2E(wLoc04, &dsv);   /* the caller's [bp-4] word */
+	(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)fn0C74_02D8((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -537,8 +537,8 @@ l0C74_1954:
 	if (fn1AB8_1E3C((u16)(LG16(0x58BA) + 0x0001), LG16(0x58B6),
 	                &dlTmp) != 0)
 		goto l0C74_1B36;
-	(void)fn0C74_05B8(&dsTmp);
-	(void)fn0C74_0A35();
+	(void)engine_scroll_blit(&dsTmp);
+	(void)engine_scatter_muck();
 
 	/* --- 0C74:1B36 ------------------------------------------------------- */
 l0C74_1B36:

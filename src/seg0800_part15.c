@@ -81,7 +81,7 @@
 // 0800:4168: u16 fn0800_4168(void)
 // Reko models a dropped DGROUP-selector parameter and return (both are
 // discarded in the flat model).  Loads the RAD.DAT data-file stream: it
-// probes cs:4160h ("RAD.DAT") with fn0C74_0000; on failure it runs
+// probes cs:4160h ("RAD.DAT") with engine_probe_file; on failure it runs
 // fn0800_0000 (the terminate path).  It then (re)initialises the stream block
 // at [bp-80h] (1EDA:0FA2), opens record 219h (1EDA:0FD0), reads it back
 // through 1EDA:04A9/116A/04A9, stores (record length - 2) into DGROUP:5CB2h
@@ -103,7 +103,7 @@ u16 fn0800_4168(void)
 
 	/* mov di,4160h ; push cs ; push di ; call far 0C74h:0000h ;
 	 * or al,al ; jnz 417Dh */
-	if (fn0C74_0000(&g_seg0800[0x4160], &dx_189) == 0x00)
+	if (engine_probe_file(&g_seg0800[0x4160], &dx_189) == 0x00)
 	{
 		/* l0800_417A: call 0000h (near) -- the terminate path. */
 		(void)fn0800_0000();
@@ -206,7 +206,7 @@ void fn0800_4255(void *es)
 	/* call far 11C8h:03CFh -- AdLib/OPL init. */
 	fn11C8_03CF();
 	/* call far 0C74h:552Fh -- menu system init. */
-	fn0C74_552F();
+	engine_crt_startup();
 	/* call far 0C43h:02FBh -- resource/palette system init. */
 	fn0C43_02FB();
 
@@ -342,7 +342,7 @@ l0800_42CB:
 	/* call far 0C74h:03D4h ; call 03F8h ; call 4168h -- the original
 	 * threads the DGROUP selector each returns as the next call's DS; the
 	 * frozen prototypes take none, so the three calls are kept in order. */
-	(void)fn0C74_03D4();
+	(void)engine_load_resources();
 	(void)fn0800_03F8();
 	(void)fn0800_4168();
 	/* push 1h ; push 16h ; call 04CCh ; push ax ;

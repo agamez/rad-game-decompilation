@@ -19,7 +19,7 @@
  *   2827.  Every BIOS/DOS/hardware service reached from here is owned by the
  *   callee segments and replaced there: segment 1E78 (keyboard/PIT: 02FB/030D),
  *   1206 (mouse cursor, INT 33h via fn1E5F_000B: 0066/0038/015B), 0C74 (menus,
- *   the fn0C74_0000 "Rad.hlp" open probe and the 51xx/52xx/54xx handlers),
+ *   the engine_probe_file "Rad.hlp" open probe and the 51xx/52xx/54xx handlers),
  *   1EDA (the RAD.HLP stream layer: 0FA2/0FD0/1123/1085/1051/0A39/0B24), 1AB8
  *   (video/text) and 13E2.
  *
@@ -58,7 +58,7 @@ u16 fn0800_2827(u16 *dsOut)
 	u8  abRecord[0x100];     /* [bp-0x100] RAD.HLP record / command queue       */
 	u8 *saved_io;            /* g_1EDA_io_buffer saved around fn1EDA_1085       */
 
-	u16 dx_1236 = 0x0000;    /* fn0C74_0000 dxOut / fn1E78_030D DX              */
+	u16 dx_1236 = 0x0000;    /* engine_probe_file dxOut / fn1E78_030D DX              */
 	u16 ds_226 = 0x0000;     /* fn1AB8_1536 dsOut                               */
 	u16 ax_1369 = 0x0000;    /* fn1EDA_0B24 axOut                               */
 	u16 dx_1370 = 0x0000;    /* fn1EDA_0B24 dxOut                               */
@@ -87,7 +87,7 @@ u16 fn0800_2827(u16 *dsOut)
 
 	/* 09C2 / 0C74 register-output scratch (all dead outputs; the original
 	 * keeps them in separate stack slots, kept separate here).  The dsOut of
-	 * fn0C74_522C / 54F0 / 54B1 is a far block pointer (Reko assigns a
+	 * engine_frame_dispatch / 54F0 / 54B1 is a far block pointer (Reko assigns a
 	 * struct pointer), so those sinks are void*; part 8 used u16 there -- see
 	 * docs/notes-0800.md "## part 9". */
 	u16 bp_1382 = 0x0000, bp_1383 = 0x0000, bp_1384 = 0x0000;
@@ -109,12 +109,12 @@ u16 fn0800_2827(u16 *dsOut)
 	{
 		/* mov di,2810h ; push cs ; push di ; call far 0C74h:0000h
 		 * (cs:2810h = {7,"Rad.hlp"}; al==0 -> l0800_2839 jmp 2B41h). */
-		if (fn0C74_0000(&g_seg0800[0x2810], &dx_1236) == 0x00)
+		if (engine_probe_file(&g_seg0800[0x2810], &dx_1236) == 0x00)
 			break;
 
 		/* l0800_283C: drain the pending-key queue.  fn1E78_030D takes no
 		 * stack argument in the original (`retf`); Reko threads the DX
-		 * register through dx_1236 (written by fn0C74_0000 above).  The
+		 * register through dx_1236 (written by engine_probe_file above).  The
 		 * frozen prototype's wArg02 slot is seeded 0. */
 		while (fn1E78_02FB() != 0x00)
 			(void)fn1E78_030D((s16)dx_1236, 0x0000, &dx_1236);
@@ -186,7 +186,7 @@ u16 fn0800_2827(u16 *dsOut)
 		 * and its result dropped. */
 		ax_422 = (u16)fn0800_04CC((u8)LG8(0x53D9));
 		ax_423 = (u16)fn0800_04CC((u8)LG8(0x53DA));
-		(void)fn0C74_06B7(ax_423, ax_422);
+		(void)engine_arm_window_geometry(ax_423, ax_422);
 		(void)fn1206_0038(&ch_1377, &dx_1378, &bp_1121, &ds);
 		/* mov al,[53DDh] ; xor ah,ah ; imul ax,ax,3Ch ; cwd ;
 		 * push dx ; push ax ; call 00C1h */
@@ -220,7 +220,7 @@ u16 fn0800_2827(u16 *dsOut)
 				(void)fn0800_09C2(0x0E, &bp_1382, &ds);
 				if (LG8(0x53DB) > 0x00)
 				{
-					if (fn0C74_522C(&bp_1384, &ds_1059) != 0x00)
+					if (engine_frame_dispatch(&bp_1384, &ds_1059) != 0x00)
 						LG8(0x53DB) = (u8)(LG8(0x53DB) - 0x01);
 				}
 				(void)fn0800_09C2(0x05, &bp_1383, &ds);
@@ -231,14 +231,14 @@ u16 fn0800_2827(u16 *dsOut)
 				++bFE7F;
 				if (LG8(0x53DC) > 0x00)
 				{
-					if (fn0C74_542B(&ds_1014) != 0x00)
+					if (engine_frame_retract(&ds_1014) != 0x00)
 						LG8(0x53DC) = (u8)(LG8(0x53DC) - 0x01);
 				}
 				(void)fn0800_09C2(0x06, &bp_1385, &ds);
 				break;
 			case 0x3D:                             /* '=' */
 				(void)fn0800_09C2(0x10, &bp_1386, &ds_923);
-				if (LG8(0x53DE) > 0x00 && fn0C74_5258(&ds_923) != 0x00)
+				if (LG8(0x53DE) > 0x00 && engine_frame_pull_in_extended(&ds_923) != 0x00)
 					LG8(0x53DE) = (u8)(LG8(0x53DE) - 0x01);
 				(void)fn0800_09C2(0x07, &bp_1387, &ds);
 				break;
@@ -248,7 +248,7 @@ u16 fn0800_2827(u16 *dsOut)
 				if (al_546 == 0x48)                /* 'H' */
 				{
 					(void)fn0800_09C2(0x09, &bp_1388, &ds_864);
-					(void)fn0C74_51AA();
+					(void)engine_call_rocket_trajectory();
 					(void)fn0800_09C2(0x00, &bp_1389, &ds);
 				}
 				else if (al_546 == 0x4B)           /* 'K' */
@@ -256,7 +256,7 @@ u16 fn0800_2827(u16 *dsOut)
 					(void)fn0800_09C2(0x0A, &bp_740, &ds_744);
 					LG8(0x58BD) = abRecord[bFE7F];
 					++bFE7F;
-					if (fn0C74_54F0(&dx_1390, &bp_1391,
+					if (engine_probe_march_left(&dx_1390, &bp_1391,
 					                &ds_770) == 0x00)
 					{
 						(void)fn0800_09C2(0x0E, &bp_1393, &ds_792);
@@ -270,7 +270,7 @@ u16 fn0800_2827(u16 *dsOut)
 					(void)fn0800_09C2(0x0C, &bp_620, &ds_624);
 					LG8(0x58BD) = abRecord[bFE7F];
 					++bFE7F;
-					if (fn0C74_54B1(&dx_1395, &bp_1396,
+					if (engine_probe_march_right(&dx_1395, &bp_1396,
 					                &ds_650) == 0x00)
 					{
 						(void)fn0800_09C2(0x0E, &bp_1398, &ds_672);
@@ -282,7 +282,7 @@ u16 fn0800_2827(u16 *dsOut)
 				else if (al_546 == 0x50)           /* 'P' */
 				{
 					(void)fn0800_09C2(0x0D, &bp_1400, &ds_574);
-					(void)fn0C74_51B2();
+					(void)engine_edge_collision_probe();
 					(void)fn0800_09C2(0x04, &bp_1401, &ds);
 				}
 				break;

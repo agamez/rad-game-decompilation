@@ -12,7 +12,7 @@
  *   None.  No int 10h / int 16h / int 21h, no `in`/`out` port instruction,
  *   no __cli/__sti and no int 23h occur in 21E7.  All text/video and
  *   string/number work goes through fn1AB8_* (video), fn1EDA_0A1F /
- *   fn1EDA_0AAC (length-prefixed string copy / append) and fn0C74_004B
+ *   fn1EDA_0AAC (length-prefixed string copy / append) and engine_format_u32
  *   (number formatting), which are replaced in those segments.
  *
  * Flat-model far pointers:
@@ -113,7 +113,7 @@ u16 fn0800_21E7(void)
 		fn1EDA_0A1F(&g_seg0800[0x2159], buf200);
 		/* push ss:bp-0100h ; push dx:ax = (u32) ds:5CB2h ;
 		 * call far 0C74h:004Bh */
-		fn0C74_004B((u32)LG8(0x5CB2), buf100);
+		engine_format_u32((u32)LG8(0x5CB2), buf100);
 		/* call far 1EDAh:0AACh -- append the formatted number to buf200 */
 		fn1EDA_0AAC(buf100, buf200);
 		/* push cs:2170h (" tableaux") ; call far 1EDAh:0AACh */

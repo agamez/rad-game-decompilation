@@ -12,7 +12,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   31B7.  Every BIOS/DOS/hardware service reached from here is owned by the
  *   callee segments and replaced there: segment 0C74 (the 51xx/52xx/54xx menu
- *   handlers and fn0C74_06B7), 1EDA (the DOS stream layer 0FA2/0FD0/1123/
+ *   handlers and engine_arm_window_geometry), 1EDA (the DOS stream layer 0FA2/0FD0/1123/
  *   108C/1051/04A9/0A39/0CD4), 1AB8 (video/text), 1206 (mouse cursor; the
  *   int 33h trampoline fn1E5F_000B is reached inside seg1206.c) and 1E78
  *   (keyboard/PIT).
@@ -231,7 +231,7 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 	ax_809 = (u16)fn0800_04CC(LG8(0x53D9));
 	w_816 = (u16)((ax_809 & 0xFF00u) | (u16)LG8(0x53DA));
 	w_817 = (u16)fn0800_04CC((u8)w_816);
-	(void)fn0C74_06B7(w_817, ax_809);
+	(void)engine_arm_window_geometry(w_817, ax_809);
 	(void)fn0800_09C2(0x0B, &bp_2204, &ds_2243);
 
 	/* l0800_3433: wait for a key or a mouse button, then one 09C2(2h). */
@@ -289,7 +289,7 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 			(void)fn0800_09C2(0x0E, &bp_2209, &ds_1658);
 			if (LG8(0x53DB) > 0x00)
 			{
-				if (fn0C74_522C(&bp_2210, &ds_1658) != 0x00)
+				if (engine_frame_dispatch(&bp_2210, &ds_1658) != 0x00)
 					LG8(0x53DB) = (u8)(LG8(0x53DB) - 0x01);
 			}
 			(void)fn0800_09C2(0x05, &bp_1120, &ds_1001);
@@ -299,7 +299,7 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 			(void)fn0800_09C2(0x0F, &bp_2224, &ds_1593);
 			if (LG8(0x53DC) > 0x00)
 			{
-				if (fn0C74_542B(&ds_1593) != 0x00)
+				if (engine_frame_retract(&ds_1593) != 0x00)
 					LG8(0x53DC) = (u8)(LG8(0x53DC) - 0x01);
 			}
 			(void)fn0800_09C2(0x06, &bp_1120, &ds_1001);
@@ -308,7 +308,7 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 			/* '=' -- consume one 53DEh counter. */
 			(void)fn0800_09C2(0x10, &bp_2225, &ds_1530);
 			if (LG8(0x53DE) > 0x00 &&
-			    fn0C74_5258(&ds_1530) != 0x00)
+			    engine_frame_pull_in_extended(&ds_1530) != 0x00)
 				LG8(0x53DE) = (u8)(LG8(0x53DE) - 0x01);
 			(void)fn0800_09C2(0x07, &bp_1120, &ds_1001);
 			break;
@@ -351,14 +351,14 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 			{
 				/* 'H' -- move the selection up/left. */
 				(void)fn0800_09C2(0x09, &bp_2231, &ds_1362);
-				(void)fn0C74_51AA();
+				(void)engine_call_rocket_trajectory();
 				(void)fn0800_09C2(0x00, &bp_1120, &ds_1001);
 			}
 			else if (al_1056 == 0x4B)
 			{
 				/* 'K' -- move the selection. */
 				(void)fn0800_09C2(0x0A, &bp_2232, &ds_1252);
-				if (fn0C74_54F0(&dx_2233, &bp_2234,
+				if (engine_probe_march_left(&dx_2233, &bp_2234,
 				                &ds_1268) == 0x00)
 				{
 					(void)fn0800_09C2(0x0E, &bp_2235,
@@ -373,7 +373,7 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 			{
 				/* 'M' -- move the selection. */
 				(void)fn0800_09C2(0x0C, &bp_2237, &ds_1142);
-				if (fn0C74_54B1(&dx_2238, &bp_2239,
+				if (engine_probe_march_right(&dx_2238, &bp_2239,
 				                &ds_1158) == 0x00)
 				{
 					(void)fn0800_09C2(0x0E, &bp_2240,
@@ -388,7 +388,7 @@ u16 fn0800_31B7(s16 dx, u16 *dsOut)
 			{
 				/* 'P' -- page the selection. */
 				(void)fn0800_09C2(0x0D, &bp_2242, &ds_1092);
-				(void)fn0C74_51B2();
+				(void)engine_edge_collision_probe();
 				(void)fn0800_09C2(0x04, &bp_1120, &ds_1001);
 			}
 			break;

@@ -63,7 +63,7 @@ u16 fn0800_11EF(void)
 	u16 bp_108;          /* fn1206_0038 bpOut (pass-through caller BP) */
 	u16 ds_112;          /* fn1206_0038 dsOut (dropped selector)       */
 	u16 dx_455;          /* fn1EDA_0A39 dxOut (save record head)       */
-	u16 dx_458;          /* fn0C74_0000 dxOut                          */
+	u16 dx_458;          /* engine_probe_file dxOut                          */
 	u16 dx_459;          /* fn1EDA_0FD0 dxOut                          */
 	u8  ch_461;          /* fn1EDA_04A9 chOut (open trap)              */
 	u8  al_235;          /* AL surviving fn1EDA_0FD0 -> fn1EDA_1085    */
@@ -101,7 +101,7 @@ u16 fn0800_11EF(void)
 	fn1206_0038(&ch_456, &dx_457, &bp_108, &ds_112);
 
 	/* mov di,11E7h ; push cs ; push di ; call far 0C74h:0000h */
-	if (fn0C74_0000(&g_seg0800[0x11E7], &dx_458) == 0x00)
+	if (engine_probe_file(&g_seg0800[0x11E7], &dx_458) == 0x00)
 		(void)fn0800_0000();      /* l0800_1249: fatal deinit */
 
 	/* l0800_124C: open the RAD.DAT stream block at [bp-0088h]. */

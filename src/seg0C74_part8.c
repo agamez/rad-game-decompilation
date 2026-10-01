@@ -5,7 +5,7 @@
  * the Reko slice 0C74_2E5A.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
+ *   u8 engine_bar_pull(u16 *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 8").
  *
@@ -19,7 +19,7 @@
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 8"):
  *   - Reko's bp_XXXX frame-pointer locals (re-bound after each call to
- *     fn0C74_070D / 02D8 whose AX return is the caller's saved BP) are the
+ *     engine_scale_and_tick_clock / 02D8 whose AX return is the caller's saved BP) are the
  *     current function's own frame; they are folded back onto the literal
  *     locals below (documented convention, notes-0C74.md part 1 section 3).
  *   - The 16:16 far blocks from fn1EDA_023F are carried as u32
@@ -47,14 +47,14 @@
 #include "seg1E78.h"
 #include "seg11C8.h"
 
-// 0C74:2E5A: u8 fn0C74_2E5A(u16 * bpOut, u16 * dsOut)
+// 0C74:2E5A: u8 engine_bar_pull(u16 * bpOut, u16 * dsOut)
 //
 // Game-core "bar pull" update: gates on five 1E3C edge probes, paints the two
 // cached regions with 1E6B and slides them left/right, shrinks the cached rows
 // 16h+1 times, wipes the remaining columns, then pulls the live bar down 16h
 // rows (drawing one of the five DGROUP:0x58F4 sprite pointers per step) and
 // frees both scratch blocks.  Returns the [bp-1] byte (0 = gate failed).
-u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
+u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] return flag */
 	u8  bLoc02 = 0x00;      /* [bp-02h] row / animation counter */
@@ -159,7 +159,7 @@ u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
 			                (u16)(LG16(0x58B4) + 0x000C - bLoc02),
 			                &dlTmp) != 0)
 				break;
-			(void)fn0C74_070D(0x000A, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x000A, 0x00E6, &dsv);
 			fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(LG16(0x58B4) + 0x000D - bLoc02));
@@ -184,7 +184,7 @@ u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
 			fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(wLoc16 + 0x0002));
-			(void)fn0C74_070D(0x0014, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0014, 0x00E6, &dsv);
 			if (bLoc03 == 0x16)
 				break;
 			++bLoc03;
@@ -193,7 +193,7 @@ u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
 		/* 3142..3161: if the latch row is empty, collapse the bar. */
 		if (fn1AB8_1E3C((u16)(wLoc1A + 0x0001), wLoc16, &dlTmp) == 0)
 		{
-			(void)fn0C74_2BBD(wLoc1A, wLoc16, wLoc18, wLoc14);
+			(void)engine_sprite_grow(wLoc1A, wLoc16, wLoc18, wLoc14);
 		}
 
 		/* 3162..31A4: wipe the remaining columns of block #2 down to 0.
@@ -203,7 +203,7 @@ u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
 		bLoc03 = (u8)(wLoc08 + 0x0016);
 		while (1)
 		{
-			(void)fn0C74_070D(0x0005, 0x00E6, &dsv);
+			(void)engine_scale_and_tick_clock(0x0005, 0x00E6, &dsv);
 			fn1AB8_13D7(0x00, far_ptr(dwLoc1E),
 			            (u16)(LG16(0x58B8) + 0x000D),
 			            (u16)(LG16(0x58B4) + 0x000D - (u16)bLoc03));
@@ -222,7 +222,7 @@ u8 fn0C74_2E5A(u16 *bpOut, u16 *dsOut)
 		while (1)
 		{
 			(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 2), &dxTmp);
-			(void)fn0C74_02D8(0x000A, &dsTmp);
+			(void)engine_clock_tick(0x000A, &dsTmp);
 			--bLoc02;
 			if (bLoc02 == 0x00)
 			{

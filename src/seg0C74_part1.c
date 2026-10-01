@@ -43,11 +43,11 @@
 #include "seg1E78.h"
 #include "seg1206.h"
 
-// 0C74:0000: u8 fn0C74_0000(u8 * ptrArg04, u16 * dxOut)
+// 0C74:0000: u8 engine_probe_file(u8 * ptrArg04, u16 * dxOut)
 // Probe for a file (DOS find-first): copy the caller's length-prefixed record
 // into a local 0FFh-clamped pattern, run fn1E5F_00DE, then return 1 when the
 // DGROUP find-flag 0xB8A6 is zero.  Uses the 44-byte DOS DTA at [bp-012Eh].
-u8 fn0C74_0000(u8 * ptrArg04, u16 * dxOut)
+u8 engine_probe_file /* was fn0C74_0000 */(u8 * ptrArg04, u16 * dxOut)
 {
 	u8  abLoc0104[0x100];   /* [bp-0102h] search pattern (Reko ptrLoc010A) */
 	u8  abLoc012E[0x2C];    /* [bp-012Eh] DOS DTA, 44 bytes (Reko fp-0x130) */
@@ -74,10 +74,10 @@ u8 fn0C74_0000(u8 * ptrArg04, u16 * dxOut)
 	return bLoc0105_91;
 }
 
-// 0C74:004B: void fn0C74_004B(u32 dwArg04, u8 * ptrArg08)
+// 0C74:004B: void engine_format_u32(u32 dwArg04, u8 * ptrArg08)
 // Format a 32-bit value into a local 100h-byte record then copy that record
 // (clamped to 0FFh) to ptrArg08.  The heavy lifting is fn1EDA_0F26 / 0A39.
-void fn0C74_004B(u32 dwArg04, u8 * ptrArg08)
+void engine_format_u32 /* was fn0C74_004B */(u32 dwArg04, u8 * ptrArg08)
 {
 	u8  abLoc0100[0x100];   /* [bp-0100h] number scratch (Reko fp-0x102) */
 	u16 dx_89;              /* fn1EDA_0A39 dxOut */
@@ -88,10 +88,10 @@ void fn0C74_004B(u32 dwArg04, u8 * ptrArg08)
 	fn1EDA_0A39(0xFF, ptrArg08, abLoc0100, &dx_89);
 }
 
-// 0C74:007C: void fn0C74_007C(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+// 0C74:007C: void engine_repaint_rect(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 // Repaint a rectangle via the 1AB8 text driver: first with the caller's four
 // coordinates, then hide-and-restore the cursor with 10CE/10E1.
-void fn0C74_007C(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+void engine_repaint_rect /* was fn0C74_007C */(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	u16 ax_10CE;
 	u16 ax_10E1;
@@ -108,10 +108,10 @@ void fn0C74_007C(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	fn1AB8_0F93(0x01, ax_10E1, ax_10CE, 0x00, 0x00);
 }
 
-// 0C74:00B2: void fn0C74_00B2(u8 bArg04)
+// 0C74:00B2: void engine_advance_stream_cursor(u8 bArg04)
 // Advance the DGROUP stream cursor at 0x58E2 and write a text run at the old
 // position: fn1AB8_1B3E(0x1DF, bArg04+old, 0x1D5, old); then old += bArg04.
-void fn0C74_00B2(u8 bArg04)
+void engine_advance_stream_cursor /* was fn0C74_00B2 */(u8 bArg04)
 {
 	u16 wOld = LG16(0x58E2);
 
@@ -121,10 +121,10 @@ void fn0C74_00B2(u8 bArg04)
 	LG16(0x58E2) = (u16)(wOld + (u16)bArg04);
 }
 
-// 0C74:00DB: void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+// 0C74:00DB: void engine_set_attr_and_emit_text(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 // Set a 1AB8 draw attribute (1175(3,1)) then emit a text run at the caller's
 // coordinates (1B3E).
-void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+void engine_set_attr_and_emit_text /* was fn0C74_00DB */(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 {
 	/* push 1h ; push 3h */
 	fn1AB8_1175(0x03, 0x01);
@@ -132,7 +132,7 @@ void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 	fn1AB8_1B3E(wArg04, wArg06, wArg08, wArg0A);
 }
 
-// 0C74:011E: u16 fn0C74_011E(u16 * dsOut)
+// 0C74:011E: u16 engine_redraw_clock_seconds(u16 * dsOut)
 // Redraw the "seconds" half of the clock field: format DGROUP:58DCh into a
 // two-digit record at [bp-0004h] (zero-padding a single digit with cs:00FCh),
 // then repaint the field and show the mouse cursor.
@@ -145,7 +145,7 @@ void fn0C74_00DB(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 // nothing, leaving the clock digits blanked during move animations (the 02D8
 // repaint path).  The original's tiny model had SS==DS so this only bites the
 // flat port.
-u16 fn0C74_011E(u16 * dsOut)
+u16 engine_redraw_clock_seconds /* was fn0C74_011E */(u16 * dsOut)
 {
 	u8  abLoc0106[0x100];   /* [bp-0106h] staged scratch (Reko ptrLoc010C_*) */
 	u8 *bLoc06 = g_dgroup + 0xF800;   /* [bp-0004h] 2-digit record (staged) */
@@ -161,8 +161,8 @@ u16 fn0C74_011E(u16 * dsOut)
 	u8 *es_344 = NULL;      /* fn1EDA_0CD4 esOut */
 	u8 *es_348 = NULL;      /* fn1EDA_0CD4 esOut */
 
-	/* fn0C74_004B(58DCh, ss:bp-0106h) ; fn1EDA_0A39(2, ss:bp-0004h, <staged>) */
-	fn0C74_004B(LG32(0x58DC), abLoc0106);
+	/* engine_format_u32(58DCh, ss:bp-0106h) ; fn1EDA_0A39(2, ss:bp-0004h, <staged>) */
+	engine_format_u32(LG32(0x58DC), abLoc0106);
 	fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_343);
 
 	/* cmp byte [bp-4h],2h ; jnc 016Ch -- pad a 1-digit record */
@@ -181,7 +181,7 @@ u16 fn0C74_011E(u16 * dsOut)
 		(void)fn1206_0066(&bp_152, &ds_152);
 
 	/* push 24Bh ; push 192h ; push 25Ch ; push 19Bh ; call 00DBh */
-	fn0C74_00DB(0x019B, 0x025C, 0x0192, 0x024B);
+	engine_set_attr_and_emit_text(0x019B, 0x025C, 0x0192, 0x024B);
 
 	(void)fn1AB8_1C32(0x08);
 	/* push 253h ; push 196h ; push ss:bp-4h ; call 1D82h */
@@ -201,15 +201,15 @@ u16 fn0C74_011E(u16 * dsOut)
 	return 0x0000;     /* BP return artifact: not meaningful in flat C */
 }
 
-// 0C74:020C: u16 fn0C74_020C(u16 * dsOut)
+// 0C74:020C: u16 engine_redraw_clock_minutes(u16 * dsOut)
 // Redraw the "minutes" half of the clock field (DGROUP:58CCh), same structure
 // as 011E but with the cs:01EAh pad record and the 0233/0244/023B/023Ch field
 // geometry.
-u16 fn0C74_020C(u16 * dsOut)
+u16 engine_redraw_clock_minutes /* was fn0C74_020C */(u16 * dsOut)
 {
 	u8  abLoc0106[0x100];   /* [bp-0106h] staged scratch (Reko ptrLoc010C_*) */
 	u8 *bLoc06 = g_dgroup + 0xF820;   /* [bp-0004h] 2-digit record (staged,
-	                                   * see the fn0C74_011E note above) */
+	                                   * see the engine_redraw_clock_seconds note above) */
 	u16 wLoc06;             /* [bp-0006h] fn1AB8_1285 AX result */
 	u16 dx_343;
 	u16 dx_345;
@@ -222,7 +222,7 @@ u16 fn0C74_020C(u16 * dsOut)
 	u8 *es_344 = NULL;      /* fn1EDA_0CD4 esOut */
 	u8 *es_348 = NULL;      /* fn1EDA_0CD4 esOut */
 
-	fn0C74_004B(LG32(0x58CC), abLoc0106);
+	engine_format_u32(LG32(0x58CC), abLoc0106);
 	fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_343);
 
 	if (bLoc06[0] < 0x02)
@@ -239,7 +239,7 @@ u16 fn0C74_020C(u16 * dsOut)
 		(void)fn1206_0066(&bp_152, &ds_152);
 
 	/* push 233h ; push 192h ; push 244h ; push 19Bh ; call 00DBh */
-	fn0C74_00DB(0x019B, 0x0244, 0x0192, 0x0233);
+	engine_set_attr_and_emit_text(0x019B, 0x0244, 0x0192, 0x0233);
 
 	(void)fn1AB8_1C32(0x08);
 	/* push 23Bh ; push 196h ; push ss:bp-4h ; call 1D82h */
@@ -257,13 +257,13 @@ u16 fn0C74_020C(u16 * dsOut)
 	return 0x0000;     /* BP return artifact: not meaningful in flat C */
 }
 
-// 0C74:02D8: u16 fn0C74_02D8(u16 wArg02, u16 * dsOut)
+// 0C74:02D8: u16 engine_clock_tick(u16 wArg02, u16 * dsOut)
 // Clock-tick redraw driver: when the 0x58BE enable byte is clear, just flash
 // the period (1E78:029C(wArg02)).  Otherwise divide wArg02 by 7, then for each
 // iteration divide DGROUP:58D8h by 60 (1EDA:098A) and repaint the seconds
 // (011E) and minutes (020C) halves whenever their quotients/remainders changed,
 // else flash the period.
-u16 fn0C74_02D8(u16 wArg02, u16 * dsOut)
+u16 engine_clock_tick /* was fn0C74_02D8 */(u16 wArg02, u16 * dsOut)
 {
 	u16 wLoc02;             /* [bp-0002h] loop index (Reko bp_106->wFFFE) */
 	u16 wLoc04;             /* [bp-0004h] loop count (Reko bp_106->wFFFC) */
@@ -327,7 +327,7 @@ u16 fn0C74_02D8(u16 wArg02, u16 * dsOut)
 				if (LG16(0x58DE) != LG16(0x58CA) ||
 				    LG16(0x58DC) != LG16(0x58C8))
 				{
-					(void)fn0C74_011E(dsOut);
+					(void)engine_redraw_clock_seconds(dsOut);
 					++repaints;
 					LG16(0x58C8) = LG16(0x58DC);
 					LG16(0x58CA) = LG16(0x58DE);
@@ -341,7 +341,7 @@ u16 fn0C74_02D8(u16 wArg02, u16 * dsOut)
 				if (LG16(0x58CE) != LG16(0x58C6) ||
 				    LG16(0x58CC) != LG16(0x58C4))
 				{
-					(void)fn0C74_020C(dsOut);
+					(void)engine_redraw_clock_minutes(dsOut);
 					++repaints;
 					LG16(0x58C4) = LG16(0x58CC);
 					LG16(0x58C6) = LG16(0x58CE);

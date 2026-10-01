@@ -7,7 +7,7 @@
  * the Reko slice 0C74_37C3.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_37C3(u16 *dxOut, u16 *bpOut, u16 *dsOut)
+ *   u8 engine_bar_retract(u16 *dxOut, u16 *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 10").
  *
@@ -20,7 +20,7 @@
  *   and the 0C74 helpers 0D43 / 02D8.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 10"):
- *   - Reko's bp_XXXX frame-pointer local (re-bound after the fn0C74_02D8 call
+ *   - Reko's bp_XXXX frame-pointer local (re-bound after the engine_clock_tick call
  *     whose AX return is the caller's saved BP) is the current function's own
  *     frame; it is folded back onto the literal locals, per the part 1
  *     section 3 convention.
@@ -29,7 +29,7 @@
  *   - bpOut / dsOut register outputs are the caller's saved BP and the dropped
  *     DGROUP selector; both receive 0 (part 1 section 3).  dxOut is the DX
  *     register left by the last call; the flat port writes 0 and records the
- *     loss (same treatment as fn0C74_0000's / 3615's dxOut).
+ *     loss (same treatment as engine_probe_file's / 3615's dxOut).
  */
 
 #include <stddef.h>
@@ -43,9 +43,9 @@
 #include "seg11C8.h"
 #include "seg1206.h"
 
-// 0C74:37C3: u8 fn0C74_37C3(u16 * dxOut, u16 * bpOut, u16 * dsOut)
+// 0C74:37C3: u8 engine_bar_retract(u16 * dxOut, u16 * bpOut, u16 * dsOut)
 //
-// Fourth game-core "bar" update and the mirror of fn0C74_3615: it shrinks the
+// Fourth game-core "bar" update and the mirror of engine_bar_march: it shrinks the
 // live bar.  It returns immediately when [58B4h] <= 1, clears [58B1h], and
 // either runs the 0D43 full redraw when the state word [5968h] is 1, or (four
 // edge probes) enters the main march: tick 02D8 with [58E6h]*2, cycle the
@@ -55,7 +55,7 @@
 // current counter and continue, or a failed probe advances the position one
 // step and stops.  After 16h rows it either bumps [58BCh] and restarts or
 // stops.  Returns the [bp-1] byte (0 = gate failed).
-u8 fn0C74_37C3(u16 *dxOut, u16 *bpOut, u16 *dsOut)
+u8 engine_bar_retract /* was fn0C74_37C3 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x00;      /* [bp-01h] result flag */
 	u8  bLoc02 = 0x00;      /* [bp-02h] animation counter (5..1) / sprite index */
@@ -63,7 +63,7 @@ u8 fn0C74_37C3(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 	u8  dlTmp = 0x00;       /* fn1AB8_1E3C dlOut */
 	u8  chTmp = 0x00;       /* fn1206_015B chOut */
 	u16 dxTmp = 0x0000;     /* fn1206_015B dxOut */
-	u16 bpScratch = 0x0000; /* fn0C74_0D43 / fn1206_015B bpOut artifact */
+	u16 bpScratch = 0x0000; /* engine_redraw_bars_up / fn1206_015B bpOut artifact */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut for 0D43 / 02D8 / 1206 */
 
 	/* 37C3..37D4: cmp word [58B4h],1h ; ja 37D5h -- only run above 1. */
@@ -77,7 +77,7 @@ u8 fn0C74_37C3(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 	 * 0D43 full redraw and returns. */
 	if (LG16(0x5968) == 0x0001)
 	{
-		(void)fn0C74_0D43(0x15, &bpScratch, &dsTmp);
+		(void)engine_redraw_bars_up(0x15, &bpScratch, &dsTmp);
 		bLoc01 = 0x01;
 		goto l0C74_3969;
 	}
@@ -113,7 +113,7 @@ l0C74_384D:
 
 l0C74_3850:
 	/* mov ax,[58E6h] ; shl ax,1h ; push ax ; call 02D8h */
-	(void)fn0C74_02D8((u16)(LG16(0x58E6) << 1), &dsTmp);
+	(void)engine_clock_tick((u16)(LG16(0x58E6) << 1), &dsTmp);
 
 	/* dec byte [bp-2h] ; cmp byte [bp-2h],0h ; jnz 3876h */
 	--bLoc02;

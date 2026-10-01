@@ -7,7 +7,7 @@
  * the Reko skeleton 0C74_4999.c; frozen prototype from src/seg0C74.h
  * (analysis/summary/iface.tsv) adopted exactly:
  *
- *   u8 fn0C74_4999(void *bpOut, u16 *dsOut)
+ *   u8 engine_bar_pull_out(void *bpOut, u16 *dsOut)
  *
  * See CONVENTIONS.md, analysis/SEGMAP.md and docs/notes-0C74.md ("## part 14").
  *
@@ -21,7 +21,7 @@
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 14"):
  *   - Reko's bp_39 / bp_172 / bp_XXXX frame-pointer locals (re-bound after
- *     each fn0C74_070D / 02D8 call whose AX return is the caller's saved BP)
+ *     each engine_scale_and_tick_clock / 02D8 call whose AX return is the caller's saved BP)
  *     are this function's own frame; they are folded back onto the literal
  *     [bp-Nh] locals below, per the notes-0C74 part 1 section 3 convention.
  *   - The far-pointer table at DGROUP:0x58F4 (4 bytes per entry) is read as a
@@ -44,7 +44,7 @@
 #include "seg1AB8.h"
 #include "seg11C8.h"
 
-/* 0C74:4999: u8 fn0C74_4999(void * bpOut, u16 * dsOut)
+/* 0C74:4999: u8 engine_bar_pull_out(void * bpOut, u16 * dsOut)
  *
  * Game-core bar "pull-out / settle" update (sibling of 396E/45CE).  Increments
  * [58B4h] and first draws a 13h/12h rectangle upward one row per step through
@@ -57,10 +57,10 @@
  * rectangle from [58B4h]/[58B8h]/[58BAh] with four 1E3C probes, lay down the
  * two 1AF6 strokes at the bar origin-1/-2, erase the column back down, then
  * pull the bar down while cycling the animation counter 5..1 (11C8 sound)
- * and blitting the DGROUP:58F4h sprite; finally calls fn0C74_076B with either
+ * and blitting the DGROUP:58F4h sprite; finally calls engine_scatter_starfield with either
  * the live or the cached rectangle depending on a signed edge compare.
  * Returns the [bp-1] byte. */
-u8 fn0C74_4999(void *bpOut, u16 *dsOut)
+u8 engine_bar_pull_out /* was fn0C74_4999 */(void *bpOut, u16 *dsOut)
 {
 	u8  bLoc01 = 0x01;      /* [bp-01h] return flag; 4999: mov [bp-1h],1h */
 	u16 wLoc04 = 0x000D;    /* [bp-04h] scan/bar counter; 4999: mov [bp-4h],0Dh */
@@ -70,8 +70,8 @@ u8 fn0C74_4999(void *bpOut, u16 *dsOut)
 	u16 wLoc0C = 0x0000;    /* [bp-0Ch] bar X origin 2 ([58B8h]+14h) */
 	u8  dlTmp  = 0x00;      /* fn1AB8_1E3C dlOut */
 	u16 dxTmp  = 0x0000;    /* fn1AB8_1AF6 dxOut */
-	u16 dsTmp  = 0x0000;    /* fn0C74_070D / 02D8 dsOut */
-	void *dsv  = NULL;      /* fn0C74_070D void * dsOut */
+	u16 dsTmp  = 0x0000;    /* engine_scale_and_tick_clock / 02D8 dsOut */
+	void *dsv  = NULL;      /* engine_scale_and_tick_clock void * dsOut */
 
 	/* 499D: push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
 	fn1AB8_10F4(0x0001, 0x0000, 0x0000);
@@ -95,7 +95,7 @@ u8 fn0C74_4999(void *bpOut, u16 *dsOut)
 		/* 49F3: dec word ptr [bp-4h] */
 		wLoc04 = (u16)(wLoc04 - 0x0001);
 		/* 49F6: push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 49FE: cmp word ptr [bp-4h],0FFF1h ; jz 4A49h */
 		if (wLoc04 == 0xFFF1)
 			goto l0C74_4A49;
@@ -139,7 +139,7 @@ l0C74_4A49:
 		                  (u16)(wLoc06 + LG16(0x58B4)),
 		                  &dxTmp);
 		/* 4A9E: push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 4AA6: cmp word ptr [bp-6h],0Dh ; jnz 4A64h */
 		if (wLoc06 == 0x000D)
 			break;
@@ -155,7 +155,7 @@ l0C74_4AAC:
 
 l0C74_4AB7:
 	/* 4AB7: push 1F4h ; call 02D8h */
-	(void)fn0C74_02D8(0x01F4, &dsTmp);
+	(void)engine_clock_tick(0x01F4, &dsTmp);
 	/* 4ABD: wLoc0A = [58B8h]+12h ; wLoc0C = [58B8h]+14h */
 	wLoc0A = (u16)(LG16(0x58B8) + 0x0012);
 	wLoc0C = (u16)(LG16(0x58B8) + 0x0014);
@@ -188,7 +188,7 @@ l0C74_4AB7:
 		                  (u16)(LG16(0x58B4) - 0x000B),
 		                  &dxTmp);
 		/* 4B29: push 28h ; call 02D8h */
-		(void)fn0C74_02D8(0x0028, &dsTmp);
+		(void)engine_clock_tick(0x0028, &dsTmp);
 		/* 4B2E: inc [bp-0Ah] ; inc [bp-0Ch] ; jmp 4ACFh */
 		wLoc0A = (u16)(wLoc0A + 0x0001);
 		wLoc0C = (u16)(wLoc0C + 0x0001);
@@ -278,7 +278,7 @@ l0C74_4BE8:
 		                  (u16)(wLoc06 + LG16(0x58B4)),
 		                  &dxTmp);
 		/* 4C7A: push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 4C82: cmp word ptr [bp-6h],0Dh ; jnz 4C40h */
 		if (wLoc06 == 0x000D)
 			break;
@@ -302,9 +302,9 @@ l0C74_4CA0:
 	for (;;)
 	{
 		/* 4CA0: push 12Ch ; push 14h ; call 070Dh */
-		(void)fn0C74_070D(0x0014, 0x012C, &dsv);
+		(void)engine_scale_and_tick_clock(0x0014, 0x012C, &dsv);
 		/* 4CA8: push 0Ah ; call 02D8h */
-		(void)fn0C74_02D8(0x000A, &dsTmp);
+		(void)engine_clock_tick(0x000A, &dsTmp);
 		/* 4CAD: inc word ptr [bp-4h] ; cmp [bp-4h],5h ; jnz 4CCBh */
 		wLoc04 = (u16)(wLoc04 + 0x0001);
 		if (wLoc04 == 0x0005)
@@ -384,7 +384,7 @@ l0C74_4CA0:
 			{
 				/* l0C74_4D78: 076B([58BAh], [58B6h],
 				 *                   [596Eh], [596Ch]) */
-				(void)fn0C74_076B(LG16(0x58BA), LG16(0x58B6),
+				(void)engine_scatter_starfield(LG16(0x58BA), LG16(0x58B6),
 				                  LG16(0x596E), LG16(0x596C));
 				/* 4D8C: mov byte ptr [58B3h],1h */
 				LG8(0x58B3) = 0x01;
@@ -392,7 +392,7 @@ l0C74_4CA0:
 			}
 		}
 		/* l0C74_4D93: 076B([5972h], [5970h], [596Eh], [596Ch]) */
-		(void)fn0C74_076B(LG16(0x5972), LG16(0x5970),
+		(void)engine_scatter_starfield(LG16(0x5972), LG16(0x5970),
 		                  LG16(0x596E), LG16(0x596C));
 		goto l0C74_4DA7;
 	}

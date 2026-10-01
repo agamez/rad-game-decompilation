@@ -75,7 +75,7 @@ u16 fn0800_0619(void)
 	{
 		/* l0800_0651: not "DEMO" -- build the record from the far pointer
 		 * stored at [5990h]:[598Eh]. */
-		fn0C74_004B(LG32(0x598E), abBuf);
+		engine_format_u32(LG32(0x598E), abBuf);
 		(void)fn1EDA_0A39(0x03, bLoc04, abBuf, &dx_572);
 	}
 	else
@@ -242,7 +242,7 @@ u8 fn0800_0877(void)
 }
 
 // 0800:08C0: u16 fn0800_08C0(void)
-// If the 53DBh counter is positive, consume one via fn0C74_522C and return 1.
+// If the 53DBh counter is positive, consume one via engine_frame_dispatch and return 1.
 /* NOTE: analysis/summary/iface.tsv documents this return as the dropped DGROUP
  * selector, but the .asm's only return write is `mov al,[bp-1h]` (the flag);
  * the frozen prototype is u16, so the flag is returned.  Every caller
@@ -255,7 +255,7 @@ u16 fn0800_08C0(void)
 
 	if (LG8(0x53DB) > 0x00)
 	{
-		if (fn0C74_522C(&bp_16, &ds_16) != 0x00)
+		if (engine_frame_dispatch(&bp_16, &ds_16) != 0x00)
 		{
 			bLoc01 = 0x01;
 			LG8(0x53DB) = (u8)(LG8(0x53DB) - 0x01);
@@ -266,7 +266,7 @@ u16 fn0800_08C0(void)
 
 // 0800:08E9: s16 fn0800_08E9(s16 dx)
 // Grid hit-test loop: for every cell, call fn1AB8_1E3C; when it reports 0x0F
-// select the cell via fn0C74_076B.  Esc sets the 58B3h latch.  Called from
+// select the cell via engine_scatter_starfield.  Esc sets the 58B3h latch.  Called from
 // fn0800_0C71 only; the return value is discarded there.
 s16 fn0800_08E9(s16 dx)
 {
@@ -298,10 +298,10 @@ s16 fn0800_08E9(s16 dx)
 			if (fn1AB8_1E3C((u16)((u16)bLoc02 * 0x0016 + 0x0001),
 			                wLoc04, &dl_67) == 0x000F)
 			{
-				/* asm 093B: fn0C74_076B(bLoc02*22+22, bLoc01*22+22,
+				/* asm 093B: engine_scatter_starfield(bLoc02*22+22, bLoc01*22+22,
 				 *                    bLoc02*22+1, bLoc01*22+1) */
 				wLoc04 = (u16)((u16)bLoc01 * 0x0016 + 0x0001);
-				dx = (s16)fn0C74_076B(
+				dx = (s16)engine_scatter_starfield(
 					(u16)((u16)bLoc02 * 0x0016 + 0x0016),
 					(u16)((u16)bLoc01 * 0x0016 + 0x0016),
 					(u16)((u16)bLoc02 * 0x0016 + 0x0001),
@@ -318,7 +318,7 @@ s16 fn0800_08E9(s16 dx)
 		}
 		if (bLoc02 == 0x11)
 		{
-			dx_134 = (s16)fn0C74_0A35();
+			dx_134 = (s16)engine_scatter_muck();
 			return dx_134;
 		}
 		++bLoc02;
@@ -398,7 +398,7 @@ u16 fn0800_0AA1(u16 * dsOut)
 	u16 bp_206 = 0x0000;
 	u16 ds_210 = 0x0000;
 
-	fn0C74_004B(LG32(0x58DC), abBuf);
+	engine_format_u32(LG32(0x58DC), abBuf);
 	(void)fn1EDA_0A39(0x02, bLoc04, abBuf, &dx_257);
 	if (bLoc04[0] < 0x02)
 	{

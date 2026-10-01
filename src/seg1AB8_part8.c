@@ -118,7 +118,7 @@ u8 fn1AB8_1E54(u8 bArg04, u16 wArg06, u16 wArg08)
 	/* original: mov ax,[bp+0Ah] ; mov bx,[bp+8h] ; mov dl,[bp+6h] ;
 	 *           mov si,30h ; call [0B820h]
 	 * Reko recovers the byte result as the driver's DL output (the body
-	 * never moves AL); the callers observed (fn0C74_0A35, fn0C74_076B)
+	 * never moves AL); the callers observed (engine_scatter_muck, engine_scatter_starfield)
 	 * discard it.  See docs/notes-1AB8.md ("## chunk 8", uncertain site). */
 	r.ax = wArg08;
 	r.bx = wArg06;
