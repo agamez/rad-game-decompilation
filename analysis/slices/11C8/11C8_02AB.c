@@ -1,14 +1,16 @@
-// 11C8:02AB: void fn11C8_02AB()
+/* was audio_sweep_adlib_ports */
+// 11C8:02AB: void audio_sweep_adlib_ports()
 // Called from:
-//      fn11C8_0394
-//      fn11C8_03BB
-void fn11C8_02AB()
+//      audio_init_soundcard
+//      audio_init_opl3
+/* was audio_sweep_adlib_ports */
+void audio_sweep_adlib_ports()
 {
 	byte bLoc03_43 = 0x01;
 	while (true)
 	{
-		fn11C8_0282(bLoc03_43);
-		fn11C8_0296(0x00);
+		audio_write_adlib_address(bLoc03_43);
+		audio_write_adlib_data(0x00);
 		if (bLoc03_43 == ~0x0A)
 			break;
 		++bLoc03_43;

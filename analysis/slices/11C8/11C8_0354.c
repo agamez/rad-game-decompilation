@@ -1,4 +1,5 @@
-// 11C8:0354: void fn11C8_0354(Register Eq_17 ds, Stack Eq_17 wArg04)
+/* was audio_write_opl3_register */
+// 11C8:0354: void audio_write_opl3_register(Register Eq_17 ds, Stack Eq_17 wArg04)
 // Called from:
 //      fn0800_031B
 //      fn0C74_070D
@@ -11,7 +12,8 @@
 //      fn0C74_37C3
 //      fn0C74_45CE
 //      fn0C74_4999
-void fn11C8_0354(Eq_17 ds, Eq_17 wArg04)
+/* was audio_write_opl3_register */
+void audio_write_opl3_register(Eq_17 ds, Eq_17 wArg04)
 {
 	byte bArg04 = (byte) wArg04;
 	byte bArg05 = SLICE(wArg04, byte, 8);
@@ -19,8 +21,8 @@ void fn11C8_0354(Eq_17 ds, Eq_17 wArg04)
 		fn1E78_02C7(wArg04);
 	else
 	{
-		fn11C8_02DB(bArg04, Mem7[ds:0x5975:byte] + 0xA0);
-		fn11C8_02DB(bArg05 | 0x10, Mem23[ds:0x5975:byte] + 0xB0);
-		fn11C8_0236(ds, 200);
+		audio_write_adlib_register(bArg04, Mem7[ds:0x5975:byte] + 0xA0);
+		audio_write_adlib_register(bArg05 | 0x10, Mem23[ds:0x5975:byte] + 0xB0);
+		audio_write_adlib_port(ds, 200);
 	}
 }

@@ -17,7 +17,7 @@
  *   (fn1E78_02FB / 030D / 029C), text/drawing through segment 1AB8 (fn1AB8_*),
  *   records/streams through segment 1EDA (fn1EDA_04F5 / 0565 / 0896 / 081A /
  *   0918 / 04A9 / 04A2 / 1384 / 05BF / 0CD4 / 096F), and the system-clock
- *   wrapper fn1E5F_00A2 (INT 21h AH=2Ch -> msdos_get_system_time, already
+ *   wrapper dos_get_system_time (INT 21h AH=2Ch -> msdos_get_system_time, already
  *   replaced in seg1E5F.c).  No PAL call is issued in this file.
  *
  * Flat-model far pointers:
@@ -398,7 +398,7 @@ l0800_3BF0:
 /* 0800:3BF2: void fn0800_3BF2(void * ptrArg04)
  * Fill the time interval at ptrArg04+8 (32-bit, DS:SI field) from the clock
  * fields at ptrArg04+0/+2/+4/+6 (hours/minutes/seconds/hundredths, read by
- * fn1E5F_00A2) using fn1EDA_096F with the multiplier 07E40h, minutes * 1770h,
+ * dos_get_system_time) using fn1EDA_096F with the multiplier 07E40h, minutes * 1770h,
  * seconds * 64h and hundredths.  Called from fn0800_3CFA. */
 void fn0800_3BF2(void *ptrArg04)
 {
@@ -413,7 +413,7 @@ void fn0800_3BF2(void *ptrArg04)
 
 	/* push es:di (base) ; +2 ; +4 ; +6 ; call far 1E5Fh:00A2h: fills the
 	 * four clock words, then the fields are read back. */
-	fn1E5F_00A2((u16 *)(base + 0x06), (u16 *)(base + 0x04),
+	dos_get_system_time((u16 *)(base + 0x06), (u16 *)(base + 0x04),
 	            (u16 *)(base + 0x02), base);
 	w0 = *(u16 *)base;
 	w2 = *(u16 *)(base + 0x02);
@@ -444,7 +444,7 @@ void fn0800_3BF2(void *ptrArg04)
 }
 
 /* 0800:3C72: u16 fn0800_3C72(void * ptrArg04, s16 * dxOut)
- * Read the current time through fn1E5F_00A2 (hours/minutes/seconds/hundredths
+ * Read the current time through dos_get_system_time (hours/minutes/seconds/hundredths
  * in [bp-6h..bp-0Ch]), convert it to the same unit as fn0800_3BF2, store it at
  * ptrArg04+0Ch, and return the 32-bit difference against ptrArg04+8 (low word
  * in AX, high word in *dxOut).  Called from fn0800_3CFA. */
@@ -464,7 +464,7 @@ u16 fn0800_3C72(void *ptrArg04, s16 *dxOut)
 	u32  diff;
 
 	/* push ss:bp-6h ; bp-8h ; bp-0Ah ; bp-0Ch ; call far 1E5Fh:00A2h */
-	fn1E5F_00A2(&wLoc0C, &wLoc0A, &wLoc08, &wLoc06);
+	dos_get_system_time(&wLoc0C, &wLoc0A, &wLoc08, &wLoc06);
 
 	/* mov ax,[bp-6h] ; xor dx,dx ; mov cx,7E40h ; mov bx,5h ; call 096Fh */
 	acc = fn1EDA_096F(wLoc06, 0x7E40, 0x0000, 0x0005);

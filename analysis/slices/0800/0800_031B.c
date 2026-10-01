@@ -23,7 +23,7 @@ word16 fn0800_031B(Eq_17 ds, union Eq_526 & bpOut, union Eq_17 & dsOut)
 			if (Mem43[ds_104:0x58B0:byte] != 0x00)
 			{
 				ss->*sp_22 = 400;
-				fn11C8_0354(ds_104, ss->*sp_22);
+				audio_write_opl3_register(ds_104, ss->*sp_22);
 			}
 			sp_100 = (word16) sp_22 + 2;
 			int16 ax_64 = (ss->*bp_106).wFFFC;
@@ -45,7 +45,7 @@ word16 fn0800_031B(Eq_17 ds, union Eq_526 & bpOut, union Eq_17 & dsOut)
 				(ss->*bp_106).bFFF9 = 0x3D;
 			else if (ax_64 == 0x08)
 				(ss->*bp_106).bFFF9 = 0x1B;
-			fn11C8_033B(ds_104);
+			audio_get_soundcard_port(ds_104);
 		}
 		word16 ax_105;
 		do

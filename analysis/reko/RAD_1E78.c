@@ -156,7 +156,7 @@ uint16 fn1E78_016B(Eq_17 ds, Eq_17 wArg04, word16 & dxOut)
 
 // 1E78:01C0: void fn1E78_01C0()
 // Called from:
-//      fn11C8_0092
+//      audio_detect_and_init_sb
 void fn1E78_01C0()
 {
 	fn1E78_0609();
@@ -215,7 +215,7 @@ uint16 fn1E78_02BF(uint8 * es_di, uint8 al, uint16 cx)
 
 // 1E78:02C7: void fn1E78_02C7(Stack Eq_17 wArg04)
 // Called from:
-//      fn11C8_0354
+//      audio_write_opl3_register
 //      fn1229_0486
 //      fn1229_0DCC
 void fn1E78_02C7(Eq_17 wArg04)
@@ -238,7 +238,7 @@ void fn1E78_02C7(Eq_17 wArg04)
 
 // 1E78:02F4: Register byte fn1E78_02F4()
 // Called from:
-//      fn11C8_033B
+//      audio_get_soundcard_port
 //      fn1229_0486
 //      fn1229_0DCC
 byte fn1E78_02F4()

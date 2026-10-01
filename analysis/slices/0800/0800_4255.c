@@ -12,7 +12,7 @@ void fn0800_4255(struct Eq_18201 * es)
 	fn1AB8_17AE(ds_12);
 	fn13C8_0139(fn13E2_0220(ds_12));
 	<unknown>* es_si_736 = fn1206_0217(fn133F_0816(fn13C1_0067()), out bp_98, out ds_102);
-	fn11C8_03CF(ds_102);
+	audio_disable_soundcard(ds_102);
 	fn0C74_552F(ds_102);
 	fn0C43_02FB(ds_102);
 	Eq_481 sp_106;
@@ -155,6 +155,6 @@ l0800_42CB:
 				ds_695 = fn0800_3D9D(ds_695);
 		}
 	}
-	fn11C8_0394(ds_102);
+	audio_init_soundcard(ds_102);
 	goto l0800_42CB;
 }

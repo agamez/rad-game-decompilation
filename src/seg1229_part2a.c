@@ -33,7 +33,7 @@
  *
  * All `dsOut` / `chOut` register outputs are dropped DGROUP selectors in
  * the flat model (stored as 0).  The Reko `bp_11` frame pointer returned by
- * fn133F_0137 is a pass-through of the caller's BP; every `bp_11 - N`
+ * vgaerr_show_cursor is a pass-through of the caller's BP; every `bp_11 - N`
  * reference is recovered as the local buffer at that bp-relative offset,
  * exactly as part 3 did for fn1229_0DCC.
  *
@@ -90,7 +90,7 @@ u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)
 
 	/* call far 133F:0137 (hide the mouse cursor); the returned BP is the
 	 * caller's own frame pointer -- all its uses are the local offsets. */
-	(void)fn133F_0137(&dx_993, &bp_11, &ds_15);
+	(void)vgaerr_show_cursor(&dx_993, &bp_11, &ds_15);
 
 	/* --- first dialog box ------------------------------------------- */
 	/* rect = (10CE/2-68h, 10E1/2-10h, 10CE/2+68h, 10E1/2+10h) */
@@ -212,7 +212,7 @@ u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut)
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_dummy, &ds_dummy);
 
 	/* l1229_1150-style epilogue: show the cursor again */
-	(void)fn133F_0141(&dx_967, &bp_962, &ds_966);
+	(void)vgaerr_hide_cursor(&dx_967, &bp_962, &ds_966);
 
 	*dxOut = dx_967;
 	*(u16 *)bpOut = bp_962;

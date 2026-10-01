@@ -11,7 +11,7 @@
  * Hardware / DOS replaced (CONVENTIONS.md rule 4):
  *   None.  No int 10h / int 16h / int 21h, no `in`/`out` port instruction,
  *   no __cli/__sti and no int 23h occur in 0000..04E3.  Every BIOS/DOS
- *   service reached from here goes through segment 1E5F (fn1E5F_0159 /
+ *   service reached from here goes through segment 1E5F (dos_get_interrupt_vector /
  *   0171, the AH=35h/25h vector wrappers), segment 1E78 (fn1E78_016B) and
  *   segment 1EDA/0C74/11C8, and is replaced in those ports, not here.
  *
@@ -50,7 +50,7 @@ u16 fn0800_0000(void)
 	bgi_swap_graphics_gateway();
 	/* push word ptr [0B8ACh] ; call far 1E78h:016Bh */
 	fn1E78_016B(LG16(0xB8AC), &dx_69);
-	fn11C8_03BB();
+	audio_init_opl3();
 	/* xor ax,ax ; call far 1EDAh:00E9h -- the process exit (no return).
 	 * The frozen prototype returns u16, so the callee pointer result is
 	 * narrowed the same way seg1AB8 does. */
@@ -97,9 +97,9 @@ u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)
 		LG16(0x58D8) = wArg02;
 		LG16(0x58DA) = wArg04;
 		/* 0800:00E2: AH=35h save vector 1Ch at ds:58C0h. */
-		fn1E5F_0159((u32 *)&g_dgroup[0x58C0], 0x1C);
+		dos_get_interrupt_vector((u32 *)&g_dgroup[0x58C0], 0x1C);
 		/* 0800:00F0: AH=25h install cs:007Bh on vector 1Ch. */
-		ax = (u16)fn1E5F_0171(&g_seg0800[0x007B], 0x1C, &dx);
+		ax = (u16)dos_set_interrupt_vector(&g_seg0800[0x007B], 0x1C, &dx);
 		LG8(0x58BE) = 0x01;
 		fn0800_timer_reset();   /* the emulated 1Ch tick phase restarts here */
 	}
@@ -116,7 +116,7 @@ void fn0800_0103(void)
 	if (LG8(0x58BE) != 0x00)
 	{
 		/* push 1Ch ; push [58C2h] ; push [58C0h] ; call far 1E5Fh:0171h */
-		fn1E5F_0171((void *)(uintptr_t)LG32(0x58C0), 0x1C, &dx_52);
+		dos_set_interrupt_vector((void *)(uintptr_t)LG32(0x58C0), 0x1C, &dx_52);
 		LG8(0x58BE) = 0x00;
 	}
 }
@@ -332,7 +332,7 @@ u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
 		if (LG16(0x5984) > 0x0198 && LG16(0x5984) < 0x01C4)
 		{
 			if (LG8(0x58B0) != 0x00)
-				fn11C8_0354(0x0190);
+				audio_write_opl3_register(0x0190);
 			/* The asm's switch has no default arm; [bp-7h] is left
 			 * uninitialised if none of 0..8 matches.  Reko keeps the
 			 * stale value; C needs a definite one, so seed 0. */
@@ -349,7 +349,7 @@ u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
 			case 7: bLoc07 = 0x3D; break;    /* '=' */
 			case 8: bLoc07 = 0x1B; break;    /* ESC */
 			}
-			fn11C8_033B();
+			audio_get_soundcard_port();
 		}
 		do
 		{

@@ -1,11 +1,13 @@
-// 11C8:03BB: void fn11C8_03BB(Register Eq_17 ds)
+/* was audio_init_opl3 */
+// 11C8:03BB: void audio_init_opl3(Register Eq_17 ds)
 // Called from:
 //      fn0800_0000
-void fn11C8_03BB(Eq_17 ds)
+/* was audio_init_opl3 */
+void audio_init_opl3(Eq_17 ds)
 {
 	if (Mem7[ds:22902:byte] != 0x00)
 	{
-		fn11C8_02CC();
-		fn11C8_02AB();
+		audio_enable_opl3();
+		audio_sweep_adlib_ports();
 	}
 }

@@ -165,11 +165,11 @@ byte fn0C74_3236(Eq_17 ds, word16 & bpOut, union Eq_17 & dsOut)
 					if (Mem879[ds_813:0x58B0:byte] != 0x00)
 					{
 						ss->*sp_863 = 0x32;
-						fn11C8_0354(ds_813, ss->*sp_863);
+						audio_write_opl3_register(ds_813, ss->*sp_863);
 					}
 				}
 				else
-					fn11C8_033B(ds_813);
+					audio_get_soundcard_port(ds_813);
 				Mem898[ds_813:22708:word16] = Mem895[ds_813:22708:word16] + 0x01;
 				Mem900[ds_813:22710:word16] = Mem898[ds_813:22710:word16] + 0x01;
 				Mem907[ss:sp_863 + 0x00:word16] = Mem900[ds_813:22708:word16];

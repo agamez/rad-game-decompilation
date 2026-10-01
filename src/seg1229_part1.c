@@ -358,7 +358,7 @@ u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
 	fn1EDA_0A1F(&g_seg1229[0x0503], buf20A);     /* cs:0503 = {1," "} */
 	fn1EDA_0AAC(buf102, buf20A);
 	fn1EDA_0AAC(&g_seg1229[0x0505], buf20A);     /* cs:0505 = {1,"("} */
-	fn13C1_0036((u32)bArg02, buf30A);
+	stub_dword_to_string((u32)bArg02, buf30A);
 	fn1EDA_0AAC(buf30A, buf20A);
 	fn1EDA_0AAC(&g_seg1229[0x0507], buf20A);     /* cs:0507 = {2,"):"} */
 

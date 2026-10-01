@@ -45,7 +45,7 @@
 
 // 0C74:0000: u8 engine_probe_file(u8 * ptrArg04, u16 * dxOut)
 // Probe for a file (DOS find-first): copy the caller's length-prefixed record
-// into a local 0FFh-clamped pattern, run fn1E5F_00DE, then return 1 when the
+// into a local 0FFh-clamped pattern, run dos_find_first_file, then return 1 when the
 // DGROUP find-flag 0xB8A6 is zero.  Uses the 44-byte DOS DTA at [bp-012Eh].
 u8 engine_probe_file /* was fn0C74_0000 */(u8 * ptrArg04, u16 * dxOut)
 {
@@ -57,11 +57,11 @@ u8 engine_probe_file /* was fn0C74_0000 */(u8 * ptrArg04, u16 * dxOut)
 	/* fn1EDA_0A39(0FFh, ss:bp-0102h, ptrArg04) -- copy ptrArg04 into abLoc0104. */
 	fn1EDA_0A39(0xFF, abLoc0104, ptrArg04, &dx_115);
 
-	/* fn1E5F_00DE(ds, ss:bp-012Eh, 3Fh, ss:bp-0102h) -- find first with the
+	/* dos_find_first_file(ds, ss:bp-012Eh, 3Fh, ss:bp-0102h) -- find first with the
 	 * DTA at abLoc012E and the pattern at abLoc0104.  Reko names its DX
 	 * result dx_53 and assigns it to dxOut; no caller reads it (the flat port
 	 * writes 0 below), so the value is discarded here. */
-	(void)fn1E5F_00DE((char *)abLoc012E, 0x3F, abLoc0104);
+	(void)dos_find_first_file((char *)abLoc012E, 0x3F, abLoc0104);
 
 	if (LG16(0xB8A6) != 0x0000)
 		bLoc0105_91 = 0x00;

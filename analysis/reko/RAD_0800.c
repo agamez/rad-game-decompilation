@@ -15,7 +15,7 @@ Eq_17 fn0800_0000(Eq_17 ds)
 	fn1AB8_0E88(ds);
 	word16 dx_69;
 	fn1E78_016B(ds, Mem7[ds:47276:word16], out dx_69);
-	fn11C8_03BB(ds);
+	audio_init_opl3(ds);
 	return fn1EDA_00E9(0x00);
 }
 
@@ -194,7 +194,7 @@ word16 fn0800_031B(Eq_17 ds, union Eq_526 & bpOut, union Eq_17 & dsOut)
 			if (Mem43[ds_104:0x58B0:byte] != 0x00)
 			{
 				ss->*sp_22 = 400;
-				fn11C8_0354(ds_104, ss->*sp_22);
+				audio_write_opl3_register(ds_104, ss->*sp_22);
 			}
 			sp_100 = (word16) sp_22 + 2;
 			int16 ax_64 = (ss->*bp_106).wFFFC;
@@ -216,7 +216,7 @@ word16 fn0800_031B(Eq_17 ds, union Eq_526 & bpOut, union Eq_17 & dsOut)
 				(ss->*bp_106).bFFF9 = 0x3D;
 			else if (ax_64 == 0x08)
 				(ss->*bp_106).bFFF9 = 0x1B;
-			fn11C8_033B(ds_104);
+			audio_get_soundcard_port(ds_104);
 		}
 		word16 ax_105;
 		do
@@ -4893,7 +4893,7 @@ void fn0800_4255(struct Eq_18201 * es)
 	fn1AB8_17AE(ds_12);
 	fn13C8_0139(fn13E2_0220(ds_12));
 	<unknown>* es_si_736 = fn1206_0217(fn133F_0816(fn13C1_0067()), out bp_98, out ds_102);
-	fn11C8_03CF(ds_102);
+	audio_disable_soundcard(ds_102);
 	fn0C74_552F(ds_102);
 	fn0C43_02FB(ds_102);
 	Eq_481 sp_106;
@@ -5036,7 +5036,7 @@ l0800_42CB:
 				ds_695 = fn0800_3D9D(ds_695);
 		}
 	}
-	fn11C8_0394(ds_102);
+	audio_init_soundcard(ds_102);
 	goto l0800_42CB;
 }
 

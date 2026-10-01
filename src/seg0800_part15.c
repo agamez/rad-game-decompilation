@@ -11,12 +11,12 @@
  * Hardware / DOS replaced (CONVENTIONS.md rule 4):
  *   None direct.  Neither function contains an int 10h / int 16h / int 21h,
  *   an `in`/`out` port instruction, __cli / __sti or int 23h, and the raw
- *   IVT dispatch fn1E5F_000B is never invoked from here.  Every BIOS / DOS /
+ *   IVT dispatch dos_interrupt_trampoline is never invoked from here.  Every BIOS / DOS /
  *   mouse service is owned by the callees and was replaced in their own
  *   segments: seg1EDA (runtime init 0000, the stream layer 0FA2/0FD0/04A9/
  *   116A/1051/0AD8/1216/0F71/1265/129E/0CD4/0E07), seg1E78 (keyboard and PIT
  *   through fn1E78_0000/02FB/030D), seg1206 (mouse through fn1206_0217/00FF/
- *   012D/00D1, INT 33h via fn1E5F_000B), seg1AB8 (video/text through
+ *   012D/00D1, INT 33h via dos_interrupt_trampoline), seg1AB8 (video/text through
  *   bgi_init_graphics_driver/1CBA/1342/1536/14F4/10CE/1D82/1175), seg13E2 (BGI startup
  *   0220/0001/0193/003B), the video-mode / mouse init in seg13C8 / 13C1 /
  *   133F, the AdLib teardown in seg11C8, and the menus / fatal-error / file
@@ -193,18 +193,18 @@ void fn0800_4255(void *es)
 	bgi_init_graphics_driver();
 	/* call far 13E2h:0220h ; call far 13C8h:0139h -- 0139h receives 0220h's
 	 * return (the DGROUP selector) as its DS argument. */
-	fn13C8_0139((void *)(uintptr_t)fn13E2_0220());
+	config_mouse_init((void *)(uintptr_t)fn13E2_0220());
 	/* call far 13C1h:0067h ; call far 133Fh:0816h -- 0067h returns the
 	 * video-mode selector that the original feeds to 0816h through a
 	 * register; the frozen 0816h prototype takes no argument, so the calls
 	 * are kept in order and the return is dropped. */
-	(void)fn13C1_0067();
-	(void)fn133F_0816();
+	(void)stub_init_video_info();
+	(void)vgaerr_init();
 	/* call far 1206h:0217h -- mouse init; returns the SI far pointer
 	 * (es_si_736) consumed by the first 1EDA:1216 call. */
 	es_si_736 = fn1206_0217(&bp_98, &ds_102);
 	/* call far 11C8h:03CFh -- AdLib/OPL init. */
-	fn11C8_03CF();
+	audio_disable_soundcard();
 	/* call far 0C74h:552Fh -- menu system init. */
 	engine_crt_startup();
 	/* call far 0C43h:02FBh -- resource/palette system init. */
@@ -231,7 +231,7 @@ void fn0800_4255(void *es)
 			goto l0800_42CB;
 	}
 	/* l0800_42C6: call far 11C8h:0394h (palette/AdLib re-arm). */
-	fn11C8_0394();
+	audio_init_soundcard();
 
 l0800_42CB:
 	/* ---- DGROUP:5CB2h/58E6h token scan ----

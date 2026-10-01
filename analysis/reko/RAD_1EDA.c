@@ -1042,7 +1042,7 @@ Eq_17 fn1EDA_0848(byte ah, Eq_481 cx, Eq_17 ds, Eq_17 ptrArg04)
 // 1EDA:086C: void fn1EDA_086C(Register Eq_17 ds, Stack Eq_17 ptrArg04)
 // Called from:
 //      fn0800_0D20
-//      fn11C8_0092
+//      audio_detect_and_init_sb
 void fn1EDA_086C(Eq_17 ds, Eq_17 ptrArg04)
 {
 	fn1EDA_0879(ptrArg04, ds);
@@ -1110,7 +1110,7 @@ ui16 fn1EDA_0896(Eq_17 ds, Eq_17 wArg04, Eq_17 ptrArg06, Eq_17 ptrArg0A)
 // Called from:
 //      fn0800_2C0C
 //      fn0C74_03D4
-//      fn11C8_0092
+//      audio_detect_and_init_sb
 //      fn133F_0056
 //      fn13E2_0193
 //      fn1AB8_008B
@@ -1372,7 +1372,7 @@ void fn1EDA_0A1F(Eq_17 ptrArg04, Eq_17 ptrArg08)
 //      fn0C74_004B
 //      fn0C74_011E
 //      fn0C74_020C
-//      fn11C8_0000
+//      audio_transfer_rom_data
 //      fn1229_0040
 //      fn1229_039D
 //      fn1229_050A
@@ -1611,7 +1611,7 @@ l1EDA_0B4A:
 //      fn0800_0D20
 //      fn0800_149F
 //      fn0800_166D
-//      fn11C8_0000
+//      audio_transfer_rom_data
 //      fn1229_0040
 void fn1EDA_0B4F(Eq_526 bArg04, Eq_17 ptrArg06)
 {
@@ -1631,7 +1631,7 @@ void fn1EDA_0B61(word16 wArg04, Eq_17 ptrArg06, Eq_17 ptrArg0A)
 
 // 1EDA:0B7C: void fn1EDA_0B7C(Stack Eq_50514 wArg04, Stack word16 wArg06, Stack Eq_17 ptrArg08, Stack Eq_17 ptrArg0C)
 // Called from:
-//      fn11C8_0000
+//      audio_transfer_rom_data
 void fn1EDA_0B7C(Eq_50514 wArg04, word16 wArg06, Eq_17 ptrArg08, Eq_17 ptrArg0C)
 {
 	Eq_17 ptrLoc0206_142;

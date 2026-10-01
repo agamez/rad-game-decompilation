@@ -87,7 +87,7 @@ l0C74_0A8F:
 			if (Mem121[ds:0x58B0:byte] != 0x00)
 			{
 				word16 dx_797;
-				fn11C8_0354(ds, fn1EDA_0D80(ds, 100, out dx_797));
+				audio_write_opl3_register(ds, fn1EDA_0D80(ds, 100, out dx_797));
 			}
 			word16 dx_795;
 			fn1E78_029C(ds, CONVERT(Mem158[ds:22758:word16], int16, int32) /16 0x04, out dx_795);
@@ -117,7 +117,7 @@ l0C74_0A8F:
 				dx = SEQ(dh_731, fn1AB8_1E54(ds, ss->*(((char *) fp + 0x0000CF19) + v40_265), (&(ss->*((char *) fp + 55516)))[v40_265].u2, (&(ss->*((char *) fp + 55514)))[v40_265].u2));
 			}
 			if (Mem303[ds:0x58B0:byte] != 0x00)
-				dx = fn11C8_033B(ds);
+				dx = audio_get_soundcard_port(ds);
 		}
 	}
 l0C74_0C97:

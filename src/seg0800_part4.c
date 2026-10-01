@@ -20,7 +20,7 @@
  * The Reko `bp` frame-pointer outputs of fn1206_0066 / fn1206_0038 are
  * pass-through copies of the caller's BP; every `bp - N` use in the
  * decompilation is recovered as the local buffer at that bp offset, exactly
- * as seg1229 parts 2a/3 did for fn133F_0137.
+ * as seg1229 parts 2a/3 did for vgaerr_show_cursor.
  *
  * fn1EDA_04A9 is the register-preserving pending-error trap (see
  * seg1EDA_part2b.c).  The 1EDA helpers leave their AX result live across it,

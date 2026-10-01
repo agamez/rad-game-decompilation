@@ -216,11 +216,11 @@ l0C74_488C:
 		if (Mem524[ds:0x58B0:byte] != 0x00)
 		{
 			ss->*sp_508 = 0x32;
-			fn11C8_0354(ds, ss->*sp_508);
+			audio_write_opl3_register(ds, ss->*sp_508);
 		}
 	}
 	else
-		fn11C8_033B(ds);
+		audio_get_soundcard_port(ds);
 	if (Mem540[ds:22708:word16] >u 0x00)
 	{
 		(ss->*((word32) bp_39 - 4)).u3 = &(ss->*((word32) bp_39 - 4)).u3->t0001.u0;
@@ -286,6 +286,6 @@ l0C74_493C:
 	(ss->*((word32) bp_39 - 4)).u3 = ss->*((word32) bp_39 - 4) - 0x01;
 	Mem668[ds:22708:word16] = Mem665[ds:22708:word16] + 0x01;
 	Mem670[ds:22710:word16] = Mem668[ds:22710:word16] + 0x01;
-	fn11C8_033B(ds);
+	audio_get_soundcard_port(ds);
 	goto l0C74_493C;
 }

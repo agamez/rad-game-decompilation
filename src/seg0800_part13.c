@@ -16,7 +16,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   3CFA/3D9D.  Every BIOS/DOS/hardware service reached from here is owned by
  *   the callee segments and replaced there: segment 1206 (mouse cursor via the
- *   INT 33h trampoline fn1E5F_000B), 1E78 (keyboard/PIT), 1AB8 (video/text),
+ *   INT 33h trampoline dos_interrupt_trampoline), 1E78 (keyboard/PIT), 1AB8 (video/text),
  *   1EDA (DOS stream + string helpers), 0C74 (menu handlers), 13E2
  *   (palette/video), 1229 (the mission browser, itself INT-heavy).  The
  *   quit-to-DOS tail calls fn0800_0000 (converted in part 1), which runs the

@@ -12,7 +12,7 @@
  *   None in this range.  No int 10h / int 16h / int 21h, no `in`/`out` port
  *   instruction, no __cli/__sti and no int 23h occur in 0B42..0D20.  The
  *   mouse traffic (INT 33h) goes through fn1206_0066 / fn1206_0038, which
- *   reach the register-frame trampoline fn1E5F_000B and are replaced in
+ *   reach the register-frame trampoline dos_interrupt_trampoline and are replaced in
  *   seg1206.c; keyboard polling goes through fn1E78_02FB / fn1E78_030D
  *   (replaced in seg1E78.c).  Every other callee is a file/video/string
  *   helper already ported in segments 0C74 / 1AB8 / 1EDA.

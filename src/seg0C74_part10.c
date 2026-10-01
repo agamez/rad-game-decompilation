@@ -16,7 +16,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   37C3.  Every hardware-touching action is reached through already-ported
  *   callees: the 1AB8 video driver (13D7 / 1E3C), fn1E78_02FB (input poll),
- *   fn1206_015B (INT 33h mouse wrapper, seg1206.c), fn11C8_033B / 0354 (sound)
+ *   fn1206_015B (INT 33h mouse wrapper, seg1206.c), audio_get_soundcard_port / 0354 (sound)
  *   and the 0C74 helpers 0D43 / 02D8.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 10"):
@@ -122,10 +122,10 @@ l0C74_3850:
 		/* 3862: mov byte [bp-2h],4h ; cmp byte [58B0h],0h ; jz 3874h */
 		bLoc02 = 0x04;
 		if (LG8(0x58B0) != 0x00)
-			fn11C8_0354(0x0032);   /* push 32h */
+			audio_write_opl3_register(0x0032);   /* push 32h */
 	}
 	else
-		(void)fn11C8_033B();
+		(void)audio_get_soundcard_port();
 
 	/* 387B: cmp word [58B4h],1h ; jbe 388Ah */
 	if (LG16(0x58B4) > 0x0001)
@@ -174,7 +174,7 @@ l0C74_391B:
 	/* inc word [58B4h] ; inc word [58B6h] ; call 11C8:033Bh ; jmp 3969h */
 	LG16(0x58B4) = (u16)(LG16(0x58B4) + 0x0001);
 	LG16(0x58B6) = (u16)(LG16(0x58B6) + 0x0001);
-	(void)fn11C8_033B();
+	(void)audio_get_soundcard_port();
 	goto l0C74_3969;
 
 l0C74_392C:

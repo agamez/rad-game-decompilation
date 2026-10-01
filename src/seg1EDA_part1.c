@@ -73,7 +73,7 @@ u16 fn1EDA_0000(void * es)
 
 	/* Save the 0x13 interrupt vectors listed at 1EDA:01EE (AH=35h).
 	 * Each entry is stored as a 32-bit value at DGROUP 0xBABC + i*4, the
-	 * flat-port convention used by fn1E5F_0159 (offset:segment in DOS). */
+	 * flat-port convention used by dos_get_interrupt_vector (offset:segment in DOS). */
 	si_30 = &g_seg1EDA[0x01EE];
 	di_29 = 0xBABC;
 	for (cx_31 = 0x13; cx_31 != 0x00; --cx_31)

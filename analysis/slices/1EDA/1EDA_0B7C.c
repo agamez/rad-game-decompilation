@@ -1,6 +1,6 @@
 // 1EDA:0B7C: void fn1EDA_0B7C(Stack Eq_50514 wArg04, Stack word16 wArg06, Stack Eq_17 ptrArg08, Stack Eq_17 ptrArg0C)
 // Called from:
-//      fn11C8_0000
+//      audio_transfer_rom_data
 void fn1EDA_0B7C(Eq_50514 wArg04, word16 wArg06, Eq_17 ptrArg08, Eq_17 ptrArg0C)
 {
 	Eq_17 ptrLoc0206_142;

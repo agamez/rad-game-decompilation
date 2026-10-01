@@ -6,15 +6,15 @@
 
 #include "radtypes.h"
 
-extern u8 fn13C8_0000(void);
-extern u16 fn13C8_000D(u16 * ptrArg06, u16 * ptrArg0A, void * dsOut);
-extern u8 fn13C8_0038(u16 * dxOut, u16 * bpOut, void * dsOut);
-extern u8 fn13C8_004F(u16 * dxOut, u16 * bpOut, void * dsOut);
-extern u16 fn13C8_0066(u16 * ptrArg06, u16 * ptrArg0A, u16 * ptrArg0E, void * bpOut, void * dsOut);
-extern u16 fn13C8_009A(u16 wArg06, u16 wArg08, void * bpOut, void * dsOut);
-extern u16 fn13C8_00BF(u16 wArg06, u16 wArg08);
-extern u16 fn13C8_00E4(u16 wArg06, u16 wArg08, void * dsOut);
-extern void * fn13C8_0111(u16 wArg06);
-extern void fn13C8_0139(void * ds);
+extern u8 config_mouse_is_present(void) /* was fn13C8_0000 */;
+extern u16 config_mouse_reset(u16 * ptrArg06, u16 * ptrArg0A, void * dsOut) /* was fn13C8_000D */;
+extern u8 config_show_cursor(u16 * dxOut, u16 * bpOut, void * dsOut) /* was fn13C8_0038 */;
+extern u8 config_hide_cursor(u16 * dxOut, u16 * bpOut, void * dsOut) /* was fn13C8_004F */;
+extern u16 config_mouse_get_position(u16 * ptrArg06, u16 * ptrArg0A, u16 * ptrArg0E, void * bpOut, void * dsOut) /* was fn13C8_0066 */;
+extern u16 config_mouse_set_position(u16 wArg06, u16 wArg08, void * bpOut, void * dsOut) /* was fn13C8_009A */;
+extern u16 config_set_h_range(u16 wArg06, u16 wArg08) /* was fn13C8_00BF */;
+extern u16 config_set_v_range(u16 wArg06, u16 wArg08, void * dsOut) /* was fn13C8_00E4 */;
+extern void * config_mouse_speed_threshold(u16 wArg06) /* was fn13C8_0111 */;
+extern void config_mouse_init(void * ds) /* was fn13C8_0139 */;
 
 #endif /* SEG13C8_H */

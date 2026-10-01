@@ -4,10 +4,12 @@
 
 #include "RAD.h"
 
-// 11C8:0000: void fn11C8_0000(Register Eq_17 ds, Stack cu8 bArg02, Stack uint16 wArg04, Stack Eq_17 ptrArg06)
+/* was audio_transfer_rom_data */
+// 11C8:0000: void audio_transfer_rom_data(Register Eq_17 ds, Stack cu8 bArg02, Stack uint16 wArg04, Stack Eq_17 ptrArg06)
 // Called from:
-//      fn11C8_0092
-void fn11C8_0000(Eq_17 ds, cu8 bArg02, uint16 wArg04, Eq_17 ptrArg06)
+//      audio_detect_and_init_sb
+/* was audio_transfer_rom_data */
+void audio_transfer_rom_data(Eq_17 ds, cu8 bArg02, uint16 wArg04, Eq_17 ptrArg06)
 {
 	<unknown> Eq_50490::* fp;
 	if (bArg02 >= 0x01)
@@ -29,10 +31,12 @@ void fn11C8_0000(Eq_17 ds, cu8 bArg02, uint16 wArg04, Eq_17 ptrArg06)
 	fn1EDA_0A39(~0x00, ptrArg06, fp - 0x0104, out dx_146);
 }
 
-// 11C8:0092: void fn11C8_0092(Register Eq_17 ds)
+/* was audio_detect_and_init_sb */
+// 11C8:0092: void audio_detect_and_init_sb(Register Eq_17 ds)
 // Called from:
-//      fn11C8_0394
-void fn11C8_0092(Eq_17 ds)
+//      audio_init_soundcard
+/* was audio_detect_and_init_sb */
+void audio_detect_and_init_sb(Eq_17 ds)
 {
 	fn1E78_01C0();
 	byte bLoc0F_324 = 0x00;
@@ -95,7 +99,7 @@ void fn11C8_0092(Eq_17 ds)
 			Eq_17 ptrLoc0118_399;
 			<unknown> Eq_50617::* fp;
 			ptrLoc0118_399.u3 = fp - 0x0110;
-			fn11C8_0000(ds, 0x03, Mem236[ds:22904:word16], ptrLoc0118_399);
+			audio_transfer_rom_data(ds, 0x03, Mem236[ds:22904:word16], ptrLoc0118_399);
 			word16 cx_587;
 			fn1EDA_08CE(ds, 0x00, ptrLoc0118_399, ptrLoc0114_392, out cx_587);
 			fn1EDA_086C(ds, ptrLoc0114_392);
@@ -108,11 +112,12 @@ void fn11C8_0092(Eq_17 ds)
 		Mem302[ds:22902:byte] = 0x00;
 }
 
-// 11C8:0236: Register word16 fn11C8_0236(Register Eq_17 ds, Stack byte bArg04)
+// 11C8:0236: Register word16 audio_write_adlib_port(Register Eq_17 ds, Stack byte bArg04)
 // Called from:
-//      fn11C8_033B
-//      fn11C8_0354
-word16 fn11C8_0236(Eq_17 ds, byte bArg04)
+//      audio_get_soundcard_port
+//      audio_write_opl3_register
+/* was audio_write_adlib_port */
+word16 audio_write_adlib_port(Eq_17 ds, byte bArg04)
 {
 	__out<byte>(Mem7[ds:22904:word16] + 0x04, 0x04);
 	__out<byte>(Mem7[ds:22904:word16] + 0x05, bArg04);
@@ -124,12 +129,14 @@ word16 fn11C8_0236(Eq_17 ds, byte bArg04)
 	return ax_30 + 0x05;
 }
 
-// 11C8:0282: void fn11C8_0282(Stack byte bArg02)
+/* was audio_write_adlib_address */
+// 11C8:0282: void audio_write_adlib_address(Stack byte bArg02)
 // Called from:
-//      fn11C8_02AB
-//      fn11C8_02CC
-//      fn11C8_02DB
-void fn11C8_0282(byte bArg02)
+//      audio_sweep_adlib_ports
+//      audio_enable_opl3
+//      audio_write_adlib_register
+/* was audio_write_adlib_address */
+void audio_write_adlib_address(byte bArg02)
 {
 	__out<byte>(0x0388, bArg02);
 	word16 cx_11;
@@ -137,12 +144,14 @@ void fn11C8_0282(byte bArg02)
 		__in<byte>(0x0388);
 }
 
-// 11C8:0296: void fn11C8_0296(Stack byte bArg02)
+/* was audio_write_adlib_data */
+// 11C8:0296: void audio_write_adlib_data(Stack byte bArg02)
 // Called from:
-//      fn11C8_02AB
-//      fn11C8_02CC
-//      fn11C8_02DB
-void fn11C8_0296(byte bArg02)
+//      audio_sweep_adlib_ports
+//      audio_enable_opl3
+//      audio_write_adlib_register
+/* was audio_write_adlib_data */
+void audio_write_adlib_data(byte bArg02)
 {
 	__out<byte>(0x0389, bArg02);
 	word16 cx_11;
@@ -150,61 +159,69 @@ void fn11C8_0296(byte bArg02)
 		__in<byte>(0x0388);
 }
 
-// 11C8:02AB: void fn11C8_02AB()
+/* was audio_sweep_adlib_ports */
+// 11C8:02AB: void audio_sweep_adlib_ports()
 // Called from:
-//      fn11C8_0394
-//      fn11C8_03BB
-void fn11C8_02AB()
+//      audio_init_soundcard
+//      audio_init_opl3
+/* was audio_sweep_adlib_ports */
+void audio_sweep_adlib_ports()
 {
 	byte bLoc03_43 = 0x01;
 	while (true)
 	{
-		fn11C8_0282(bLoc03_43);
-		fn11C8_0296(0x00);
+		audio_write_adlib_address(bLoc03_43);
+		audio_write_adlib_data(0x00);
 		if (bLoc03_43 == ~0x0A)
 			break;
 		++bLoc03_43;
 	}
 }
 
-// 11C8:02CC: void fn11C8_02CC()
+/* was audio_enable_opl3 */
+// 11C8:02CC: void audio_enable_opl3()
 // Called from:
-//      fn11C8_03BB
-void fn11C8_02CC()
+//      audio_init_opl3
+/* was audio_enable_opl3 */
+void audio_enable_opl3()
 {
-	fn11C8_0282(0xB0);
-	fn11C8_0296(0x11);
+	audio_write_adlib_address(0xB0);
+	audio_write_adlib_data(0x11);
 }
 
-// 11C8:02DB: void fn11C8_02DB(Stack byte bArg02, Stack byte bArg04)
+/* was audio_write_adlib_register */
+// 11C8:02DB: void audio_write_adlib_register(Stack byte bArg02, Stack byte bArg04)
 // Called from:
-//      fn11C8_02F0
-//      fn11C8_0354
-//      fn11C8_0394
-void fn11C8_02DB(byte bArg02, byte bArg04)
+//      audio_configure_opl3_mixer
+//      audio_write_opl3_register
+//      audio_init_soundcard
+/* was audio_write_adlib_register */
+void audio_write_adlib_register(byte bArg02, byte bArg04)
 {
-	fn11C8_0282(bArg04);
-	fn11C8_0296(bArg02);
+	audio_write_adlib_address(bArg04);
+	audio_write_adlib_data(bArg02);
 }
 
-// 11C8:02F0: void fn11C8_02F0()
+/* was audio_configure_opl3_mixer */
+// 11C8:02F0: void audio_configure_opl3_mixer()
 // Called from:
-//      fn11C8_0394
-void fn11C8_02F0()
+//      audio_init_soundcard
+/* was audio_configure_opl3_mixer */
+void audio_configure_opl3_mixer()
 {
-	fn11C8_02DB(0x01, 0x20);
-	fn11C8_02DB(0x10, 0x40);
-	fn11C8_02DB(0xF0, 0x60);
-	fn11C8_02DB(0x77, 0x80);
-	fn11C8_02DB(0x98, 0xA0);
-	fn11C8_02DB(0x01, 0x23);
-	fn11C8_02DB(0x00, 0x43);
-	fn11C8_02DB(0xF0, 99);
-	fn11C8_02DB(0x77, 131);
-	fn11C8_02DB(0x31, 0xB0);
+	audio_write_adlib_register(0x01, 0x20);
+	audio_write_adlib_register(0x10, 0x40);
+	audio_write_adlib_register(0xF0, 0x60);
+	audio_write_adlib_register(0x77, 0x80);
+	audio_write_adlib_register(0x98, 0xA0);
+	audio_write_adlib_register(0x01, 0x23);
+	audio_write_adlib_register(0x00, 0x43);
+	audio_write_adlib_register(0xF0, 99);
+	audio_write_adlib_register(0x77, 131);
+	audio_write_adlib_register(0x31, 0xB0);
 }
 
-// 11C8:033B: Register word16 fn11C8_033B(Register Eq_17 ds)
+// 11C8:033B: Register word16 audio_get_soundcard_port(Register Eq_17 ds)
 // Called from:
 //      fn0800_031B
 //      fn0C74_070D
@@ -217,18 +234,20 @@ void fn11C8_02F0()
 //      fn0C74_37C3
 //      fn0C74_45CE
 //      fn0C74_4999
-//      fn11C8_0394
-word16 fn11C8_033B(Eq_17 ds)
+//      audio_init_soundcard
+/* was audio_get_soundcard_port */
+word16 audio_get_soundcard_port(Eq_17 ds)
 {
 	word16 dx;
 	if (Mem7[ds:22902:byte] == 0x00)
 		fn1E78_02F4();
 	else
-		dx = fn11C8_0236(ds, 0x00);
+		dx = audio_write_adlib_port(ds, 0x00);
 	return dx;
 }
 
-// 11C8:0354: void fn11C8_0354(Register Eq_17 ds, Stack Eq_17 wArg04)
+/* was audio_write_opl3_register */
+// 11C8:0354: void audio_write_opl3_register(Register Eq_17 ds, Stack Eq_17 wArg04)
 // Called from:
 //      fn0800_031B
 //      fn0C74_070D
@@ -241,7 +260,8 @@ word16 fn11C8_033B(Eq_17 ds)
 //      fn0C74_37C3
 //      fn0C74_45CE
 //      fn0C74_4999
-void fn11C8_0354(Eq_17 ds, Eq_17 wArg04)
+/* was audio_write_opl3_register */
+void audio_write_opl3_register(Eq_17 ds, Eq_17 wArg04)
 {
 	byte bArg04 = (byte) wArg04;
 	byte bArg05 = SLICE(wArg04, byte, 8);
@@ -249,44 +269,50 @@ void fn11C8_0354(Eq_17 ds, Eq_17 wArg04)
 		fn1E78_02C7(wArg04);
 	else
 	{
-		fn11C8_02DB(bArg04, Mem7[ds:0x5975:byte] + 0xA0);
-		fn11C8_02DB(bArg05 | 0x10, Mem23[ds:0x5975:byte] + 0xB0);
-		fn11C8_0236(ds, 200);
+		audio_write_adlib_register(bArg04, Mem7[ds:0x5975:byte] + 0xA0);
+		audio_write_adlib_register(bArg05 | 0x10, Mem23[ds:0x5975:byte] + 0xB0);
+		audio_write_adlib_port(ds, 200);
 	}
 }
 
-// 11C8:0394: void fn11C8_0394(Register Eq_17 ds)
+/* was audio_init_soundcard */
+// 11C8:0394: void audio_init_soundcard(Register Eq_17 ds)
 // Called from:
 //      fn0800_4255
-void fn11C8_0394(Eq_17 ds)
+/* was audio_init_soundcard */
+void audio_init_soundcard(Eq_17 ds)
 {
-	fn11C8_0092(ds);
+	audio_detect_and_init_sb(ds);
 	if (Mem7[ds:22902:byte] != 0x00)
 	{
 		Mem24[ds:0x5975:byte] = 0x00;
-		fn11C8_02AB();
-		fn11C8_02DB(0x10, 0x01);
-		fn11C8_02F0();
-		fn11C8_033B(ds);
+		audio_sweep_adlib_ports();
+		audio_write_adlib_register(0x10, 0x01);
+		audio_configure_opl3_mixer();
+		audio_get_soundcard_port(ds);
 	}
 }
 
-// 11C8:03BB: void fn11C8_03BB(Register Eq_17 ds)
+/* was audio_init_opl3 */
+// 11C8:03BB: void audio_init_opl3(Register Eq_17 ds)
 // Called from:
 //      fn0800_0000
-void fn11C8_03BB(Eq_17 ds)
+/* was audio_init_opl3 */
+void audio_init_opl3(Eq_17 ds)
 {
 	if (Mem7[ds:22902:byte] != 0x00)
 	{
-		fn11C8_02CC();
-		fn11C8_02AB();
+		audio_enable_opl3();
+		audio_sweep_adlib_ports();
 	}
 }
 
-// 11C8:03CF: void fn11C8_03CF(Register Eq_17 ds)
+/* was audio_disable_soundcard */
+// 11C8:03CF: void audio_disable_soundcard(Register Eq_17 ds)
 // Called from:
 //      fn0800_4255
-void fn11C8_03CF(Eq_17 ds)
+/* was audio_disable_soundcard */
+void audio_disable_soundcard(Eq_17 ds)
 {
 	Mem10[ds:22902:byte] = 0x00;
 }

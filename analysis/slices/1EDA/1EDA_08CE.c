@@ -2,7 +2,7 @@
 // Called from:
 //      fn0800_2C0C
 //      fn0C74_03D4
-//      fn11C8_0092
+//      audio_detect_and_init_sb
 //      fn133F_0056
 //      fn13E2_0193
 //      fn1AB8_008B

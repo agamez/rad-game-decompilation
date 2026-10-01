@@ -1,7 +1,9 @@
-// 11C8:0092: void fn11C8_0092(Register Eq_17 ds)
+/* was audio_detect_and_init_sb */
+// 11C8:0092: void audio_detect_and_init_sb(Register Eq_17 ds)
 // Called from:
-//      fn11C8_0394
-void fn11C8_0092(Eq_17 ds)
+//      audio_init_soundcard
+/* was audio_detect_and_init_sb */
+void audio_detect_and_init_sb(Eq_17 ds)
 {
 	fn1E78_01C0();
 	byte bLoc0F_324 = 0x00;
@@ -64,7 +66,7 @@ void fn11C8_0092(Eq_17 ds)
 			Eq_17 ptrLoc0118_399;
 			<unknown> Eq_50617::* fp;
 			ptrLoc0118_399.u3 = fp - 0x0110;
-			fn11C8_0000(ds, 0x03, Mem236[ds:22904:word16], ptrLoc0118_399);
+			audio_transfer_rom_data(ds, 0x03, Mem236[ds:22904:word16], ptrLoc0118_399);
 			word16 cx_587;
 			fn1EDA_08CE(ds, 0x00, ptrLoc0118_399, ptrLoc0114_392, out cx_587);
 			fn1EDA_086C(ds, ptrLoc0114_392);

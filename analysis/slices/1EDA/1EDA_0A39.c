@@ -17,7 +17,7 @@
 //      fn0C74_004B
 //      fn0C74_011E
 //      fn0C74_020C
-//      fn11C8_0000
+//      audio_transfer_rom_data
 //      fn1229_0040
 //      fn1229_039D
 //      fn1229_050A

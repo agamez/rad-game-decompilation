@@ -294,12 +294,12 @@ l0C74_47E6:
 			bLoc02 = 0x04;
 			/* 48A6: cmp byte ptr [58B0h],0h ; jz 48B4h */
 			if (LG8(0x58B0) != 0x00)
-				fn11C8_0354(0x0032);
+				audio_write_opl3_register(0x0032);
 		}
 		else
 		{
 			/* l0C74_48B6 */
-			(void)fn11C8_033B();
+			(void)audio_get_soundcard_port();
 		}
 
 		/* l0C74_48BB: cmp word ptr [58B4h],0h ; jbe 48CDh */
@@ -334,7 +334,7 @@ l0C74_47E6:
 			bLoc04 = (u8)(bLoc04 - 0x01);
 			LG16(0x58B4) = (u16)(LG16(0x58B4) + 0x0001);
 			LG16(0x58B6) = (u16)(LG16(0x58B6) + 0x0001);
-			(void)fn11C8_033B();
+			(void)audio_get_soundcard_port();
 		}
 
 		/* l0C74_493C: cmp byte ptr [bp-3h],2Ch ; jz 4945h */

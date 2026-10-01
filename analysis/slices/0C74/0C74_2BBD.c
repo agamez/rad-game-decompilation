@@ -53,7 +53,7 @@ Eq_17 fn0C74_2BBD(Eq_17 ds, Eq_17 wArg02, Eq_17 wArg04, Eq_17 wArg06, Eq_17 wArg
 					while (true)
 					{
 						if (Mem349[ds_218:0x58B0:byte] != 0x00)
-							fn11C8_0354(ds_218, (uint16) bLoc12_784 * (((uint16) bLoc13_783 + 0x01) * (uint16) bLoc14_782));
+							audio_write_opl3_register(ds_218, (uint16) bLoc12_784 * (((uint16) bLoc13_783 + 0x01) * (uint16) bLoc14_782));
 						word16 dx_956;
 						fn1E78_029C(ds_218, 0x01, out dx_956);
 						if ((int32) bLoc12_784 % 0x03 == 0x00)
@@ -82,7 +82,7 @@ Eq_17 fn0C74_2BBD(Eq_17 ds, Eq_17 wArg02, Eq_17 wArg04, Eq_17 wArg06, Eq_17 wArg
 			fn1AB8_1C32(ds_218, 0x0A);
 			word16 dx_958;
 			fn1AB8_1AF6(ds_218, 0x0161, wArg04, 0x0161, wArg08, out dx_958);
-			fn11C8_033B(ds_218);
+			audio_get_soundcard_port(ds_218);
 			wLoc1C_753.u0 = 0x0161;
 		}
 	}

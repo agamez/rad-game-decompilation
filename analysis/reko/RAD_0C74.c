@@ -513,12 +513,12 @@ struct Eq_21071 Eq_17::* fn0C74_070D(Eq_17 ds, Eq_17 wArg02, Eq_17 wArg04, struc
 	Eq_17 ds_50;
 	int32 dx_ax_13 = CONVERT(Mem7[ds:22758:word16] *u16 wArg02, int16, word32);
 	if (Mem20[ds:0x58B0:byte] != 0x00)
-		fn11C8_0354(ds, wArg04);
+		audio_write_opl3_register(ds, wArg04);
 	Eq_17 bp_46 = fn0C74_02D8(ds, dx_ax_13 /16 0x09, out ds_50);
 	Eq_481 sp_54;
 	sp_54.u0 = <invalid>;
 	if (Mem41[ds_50:0x58B0:byte] != 0x00)
-		fn11C8_033B(ds_50);
+		audio_get_soundcard_port(ds_50);
 	selector ss;
 	(ss->*sp_54).u1 = (ss->*bp_46.u3).t0004.u2;
 	struct Eq_21071 Eq_17::* bp_92 = (struct Eq_21071 Eq_17::*) (ss->*(fn0C74_02D8)(ds_50, ss->*sp_54, out ds_82).u3).t0000.u2;
@@ -612,7 +612,7 @@ l0C74_07D1:
 			if (Mem136[ds:0x58B0:byte] != 0x00)
 			{
 				word16 dx_852;
-				fn11C8_0354(ds, fn1EDA_0D80(ds, 100, out dx_852));
+				audio_write_opl3_register(ds, fn1EDA_0D80(ds, 100, out dx_852));
 			}
 			word16 dx_850;
 			fn1E78_029C(ds, CONVERT(Mem173[ds:22758:word16], int16, word32) /16 0x04, out dx_850);
@@ -642,7 +642,7 @@ l0C74_07D1:
 				dx_140 = SEQ(dh_777, fn1AB8_1E54(ds, ss->*(((char *) fp + 0x0000CF19) + v40_280), (&(ss->*((char *) fp + 55516)))[v40_280].u2, (&(ss->*((char *) fp + 55514)))[v40_280].u2));
 			}
 			if (Mem318[ds:0x58B0:byte] != 0x00)
-				dx_140 = fn11C8_033B(ds);
+				dx_140 = audio_get_soundcard_port(ds);
 		}
 	}
 l0C74_09D5:
@@ -741,7 +741,7 @@ l0C74_0A8F:
 			if (Mem121[ds:0x58B0:byte] != 0x00)
 			{
 				word16 dx_797;
-				fn11C8_0354(ds, fn1EDA_0D80(ds, 100, out dx_797));
+				audio_write_opl3_register(ds, fn1EDA_0D80(ds, 100, out dx_797));
 			}
 			word16 dx_795;
 			fn1E78_029C(ds, CONVERT(Mem158[ds:22758:word16], int16, int32) /16 0x04, out dx_795);
@@ -771,7 +771,7 @@ l0C74_0A8F:
 				dx = SEQ(dh_731, fn1AB8_1E54(ds, ss->*(((char *) fp + 0x0000CF19) + v40_265), (&(ss->*((char *) fp + 55516)))[v40_265].u2, (&(ss->*((char *) fp + 55514)))[v40_265].u2));
 			}
 			if (Mem303[ds:0x58B0:byte] != 0x00)
-				dx = fn11C8_033B(ds);
+				dx = audio_get_soundcard_port(ds);
 		}
 	}
 l0C74_0C97:
@@ -3209,7 +3209,7 @@ Eq_17 fn0C74_2BBD(Eq_17 ds, Eq_17 wArg02, Eq_17 wArg04, Eq_17 wArg06, Eq_17 wArg
 					while (true)
 					{
 						if (Mem349[ds_218:0x58B0:byte] != 0x00)
-							fn11C8_0354(ds_218, (uint16) bLoc12_784 * (((uint16) bLoc13_783 + 0x01) * (uint16) bLoc14_782));
+							audio_write_opl3_register(ds_218, (uint16) bLoc12_784 * (((uint16) bLoc13_783 + 0x01) * (uint16) bLoc14_782));
 						word16 dx_956;
 						fn1E78_029C(ds_218, 0x01, out dx_956);
 						if ((int32) bLoc12_784 % 0x03 == 0x00)
@@ -3238,7 +3238,7 @@ Eq_17 fn0C74_2BBD(Eq_17 ds, Eq_17 wArg02, Eq_17 wArg04, Eq_17 wArg06, Eq_17 wArg
 			fn1AB8_1C32(ds_218, 0x0A);
 			word16 dx_958;
 			fn1AB8_1AF6(ds_218, 0x0161, wArg04, 0x0161, wArg08, out dx_958);
-			fn11C8_033B(ds_218);
+			audio_get_soundcard_port(ds_218);
 			wLoc1C_753.u0 = 0x0161;
 		}
 	}
@@ -3417,11 +3417,11 @@ byte fn0C74_2E5A(Eq_17 ds, word16 & bpOut, union Eq_17 & dsOut)
 					if (Mem878[ds_812:0x58B0:byte] != 0x00)
 					{
 						ss->*sp_862 = 0x32;
-						fn11C8_0354(ds_812, ss->*sp_862);
+						audio_write_opl3_register(ds_812, ss->*sp_862);
 					}
 				}
 				else
-					fn11C8_033B(ds_812);
+					audio_get_soundcard_port(ds_812);
 				Mem897[ds_812:22708:word16] = Mem894[ds_812:22708:word16] - 0x01;
 				Mem899[ds_812:22710:word16] = Mem897[ds_812:22710:word16] - 0x01;
 				Mem906[ss:sp_862 + 0x00:word16] = Mem899[ds_812:22708:word16];
@@ -3616,11 +3616,11 @@ byte fn0C74_3236(Eq_17 ds, word16 & bpOut, union Eq_17 & dsOut)
 					if (Mem879[ds_813:0x58B0:byte] != 0x00)
 					{
 						ss->*sp_863 = 0x32;
-						fn11C8_0354(ds_813, ss->*sp_863);
+						audio_write_opl3_register(ds_813, ss->*sp_863);
 					}
 				}
 				else
-					fn11C8_033B(ds_813);
+					audio_get_soundcard_port(ds_813);
 				Mem898[ds_813:22708:word16] = Mem895[ds_813:22708:word16] + 0x01;
 				Mem900[ds_813:22710:word16] = Mem898[ds_813:22710:word16] + 0x01;
 				Mem907[ss:sp_863 + 0x00:word16] = Mem900[ds_813:22708:word16];
@@ -3701,11 +3701,11 @@ l0C74_369A:
 								if (Mem148[ds:0x58B0:byte] != 0x00)
 								{
 									ss->*sp_132 = 0x32;
-									fn11C8_0354(ds, ss->*sp_132);
+									audio_write_opl3_register(ds, ss->*sp_132);
 								}
 							}
 							else
-								fn11C8_033B(ds);
+								audio_get_soundcard_port(ds);
 							union Eq_17 Eq_17::* sp_195 = (word16) sp_132 + 2;
 							if (Mem164[ds:22710:word16] <u 0x027E)
 							{
@@ -3773,7 +3773,7 @@ l0C74_369A:
 						}
 						Mem384[ds:22708:word16] = Mem382[ds:22708:word16] - 0x01;
 						Mem386[ds:22710:word16] = Mem384[ds:22710:word16] - 0x01;
-						dx = fn11C8_033B(ds);
+						dx = audio_get_soundcard_port(ds);
 						goto l0C74_37BE;
 					}
 				}
@@ -3846,11 +3846,11 @@ l0C74_3847:
 								if (Mem148[ds:0x58B0:byte] != 0x00)
 								{
 									ss->*sp_132 = 0x32;
-									fn11C8_0354(ds, ss->*sp_132);
+									audio_write_opl3_register(ds, ss->*sp_132);
 								}
 							}
 							else
-								fn11C8_033B(ds);
+								audio_get_soundcard_port(ds);
 							union Eq_17 Eq_17::* sp_195 = (word16) sp_132 + 2;
 							if (Mem164[ds:22708:word16] >u 0x01)
 							{
@@ -3918,7 +3918,7 @@ l0C74_3847:
 						}
 						Mem384[ds:22708:word16] = Mem382[ds:22708:word16] + 0x01;
 						Mem386[ds:22710:word16] = Mem384[ds:22710:word16] + 0x01;
-						dx = fn11C8_033B(ds);
+						dx = audio_get_soundcard_port(ds);
 						goto l0C74_3969;
 					}
 				}
@@ -4887,11 +4887,11 @@ l0C74_488C:
 		if (Mem524[ds:0x58B0:byte] != 0x00)
 		{
 			ss->*sp_508 = 0x32;
-			fn11C8_0354(ds, ss->*sp_508);
+			audio_write_opl3_register(ds, ss->*sp_508);
 		}
 	}
 	else
-		fn11C8_033B(ds);
+		audio_get_soundcard_port(ds);
 	if (Mem540[ds:22708:word16] >u 0x00)
 	{
 		(ss->*((word32) bp_39 - 4)).u3 = &(ss->*((word32) bp_39 - 4)).u3->t0001.u0;
@@ -4957,7 +4957,7 @@ l0C74_493C:
 	(ss->*((word32) bp_39 - 4)).u3 = ss->*((word32) bp_39 - 4) - 0x01;
 	Mem668[ds:22708:word16] = Mem665[ds:22708:word16] + 0x01;
 	Mem670[ds:22710:word16] = Mem668[ds:22710:word16] + 0x01;
-	fn11C8_033B(ds);
+	audio_get_soundcard_port(ds);
 	goto l0C74_493C;
 }
 
@@ -5184,11 +5184,11 @@ l0C74_4CA0:
 		if (Mem574[ds:0x58B0:byte] != 0x00)
 		{
 			ss->*sp_558 = 0x32;
-			fn11C8_0354(ds, ss->*sp_558);
+			audio_write_opl3_register(ds, ss->*sp_558);
 		}
 	}
 	else
-		fn11C8_033B(ds);
+		audio_get_soundcard_port(ds);
 	if (Mem590[ds:22710:word16] <u 0x027F)
 	{
 		Mem595[ds:22708:word16] = Mem590[ds:22708:word16] + 0x01;
@@ -5254,7 +5254,7 @@ l0C74_4D4F:
 	Mem711[ds:22708:word16] = Mem709[ds:22708:word16] - 0x01;
 	Mem713[ds:22710:word16] = Mem711[ds:22710:word16] - 0x01;
 	(ss->*((word32) bp_39 - 8)).u3 = ss->*((word32) bp_39 - 8) - 0x01;
-	fn11C8_033B(ds);
+	audio_get_soundcard_port(ds);
 	goto l0C74_4D4F;
 }
 

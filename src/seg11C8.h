@@ -6,19 +6,19 @@
 
 #include "radtypes.h"
 
-extern void fn11C8_0000(u8 bArg02, u16 wArg04, u8 * ptrArg06);
-extern void fn11C8_0092(void);
-extern u16 fn11C8_0236(u8 bArg04);
-extern void fn11C8_0282(u8 bArg02);
-extern void fn11C8_0296(u8 bArg02);
-extern void fn11C8_02AB(void);
-extern void fn11C8_02CC(void);
-extern void fn11C8_02DB(u8 bArg02, u8 bArg04);
-extern void fn11C8_02F0(void);
-extern u16 fn11C8_033B(void);
-extern void fn11C8_0354(u16 wArg04);
-extern void fn11C8_0394(void);
-extern void fn11C8_03BB(void);
-extern void fn11C8_03CF(void);
+extern void audio_transfer_rom_data(u8 bArg02, u16 wArg04, u8 * ptrArg06);
+extern void audio_detect_and_init_sb(void);
+extern u16 audio_write_adlib_port(u8 bArg04);
+extern void audio_write_adlib_address(u8 bArg02);
+extern void audio_write_adlib_data(u8 bArg02);
+extern void audio_sweep_adlib_ports(void);
+extern void audio_enable_opl3(void);
+extern void audio_write_adlib_register(u8 bArg02, u8 bArg04);
+extern void audio_configure_opl3_mixer(void);
+extern u16 audio_get_soundcard_port(void);
+extern void audio_write_opl3_register(u16 wArg04);
+extern void audio_init_soundcard(void);
+extern void audio_init_opl3(void);
+extern void audio_disable_soundcard(void);
 
 #endif /* SEG11C8_H */

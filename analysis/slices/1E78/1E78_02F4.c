@@ -1,6 +1,6 @@
 // 1E78:02F4: Register byte fn1E78_02F4()
 // Called from:
-//      fn11C8_033B
+//      audio_get_soundcard_port
 //      fn1229_0486
 //      fn1229_0DCC
 byte fn1E78_02F4()

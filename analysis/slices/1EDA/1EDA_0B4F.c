@@ -3,7 +3,7 @@
 //      fn0800_0D20
 //      fn0800_149F
 //      fn0800_166D
-//      fn11C8_0000
+//      audio_transfer_rom_data
 //      fn1229_0040
 void fn1EDA_0B4F(Eq_526 bArg04, Eq_17 ptrArg06)
 {

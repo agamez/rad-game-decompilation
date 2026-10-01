@@ -1,7 +1,9 @@
-// 11C8:0000: void fn11C8_0000(Register Eq_17 ds, Stack cu8 bArg02, Stack uint16 wArg04, Stack Eq_17 ptrArg06)
+/* was audio_transfer_rom_data */
+// 11C8:0000: void audio_transfer_rom_data(Register Eq_17 ds, Stack cu8 bArg02, Stack uint16 wArg04, Stack Eq_17 ptrArg06)
 // Called from:
-//      fn11C8_0092
-void fn11C8_0000(Eq_17 ds, cu8 bArg02, uint16 wArg04, Eq_17 ptrArg06)
+//      audio_detect_and_init_sb
+/* was audio_transfer_rom_data */
+void audio_transfer_rom_data(Eq_17 ds, cu8 bArg02, uint16 wArg04, Eq_17 ptrArg06)
 {
 	<unknown> Eq_50490::* fp;
 	if (bArg02 >= 0x01)

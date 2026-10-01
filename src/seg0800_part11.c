@@ -14,7 +14,7 @@
  *   callee segments and replaced there: segment 0C74 (the 51xx/52xx/54xx menu
  *   handlers and engine_arm_window_geometry), 1EDA (the DOS stream layer 0FA2/0FD0/1123/
  *   108C/1051/04A9/0A39/0CD4), 1AB8 (video/text), 1206 (mouse cursor; the
- *   int 33h trampoline fn1E5F_000B is reached inside seg1206.c) and 1E78
+ *   int 33h trampoline dos_interrupt_trampoline is reached inside seg1206.c) and 1E78
  *   (keyboard/PIT).
  *
  * Frame (enter 284h,0h):

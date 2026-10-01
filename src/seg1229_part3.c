@@ -40,7 +40,7 @@
  * slot that reaches [bp+6h].  The callee reads only its low byte. */
 static u16 seg1229_scan_0528(s16 * dxOut, u16 * bpOut, u16 * dsOut)
 {
-	return fn133F_0528((s16)LG8(0x50C7),
+	return vgaerr_read_input((s16)LG8(0x50C7),
 	                   (u8 *)&g_dgroup[0x62D2],
 	                   (u8 *)&g_dgroup[0x62D0],
 	                   (u8 *)&g_dgroup[0x62CE],
@@ -59,8 +59,8 @@ void fn1229_0CCE(void)
 	u16 ax_10CE;
 
 	/* call far 133F:0137 ; 04A7 ; 1AB8:0F80 */
-	fn133F_0137(&dx_341, &bp_342, &ds_15);
-	fn133F_04A7();
+	vgaerr_show_cursor(&dx_341, &bp_342, &ds_15);
+	vgaerr_reset_message_counter();
 	bgi_set_text_window();
 	bgi_get_text_cursor_attributes(0x0F);
 	/* push 0h ; push 0h ; push 27Fh ; push 177h */
@@ -70,26 +70,26 @@ void fn1229_0CCE(void)
 
 	/* five menu labels: far 133F:0352(ds far ptr, y0, y1, x0, x1, key).
 	 * The pointers are length-prefixed strings in this segment. */
-	(void)fn133F_0352(&g_seg1229[0x0CB4], 0x0191, 0x0057, 0x0180, 0x0005, 0x53);
-	(void)fn133F_0352(&g_seg1229[0x0CB9], 0x01A9, 0x002B, 0x0198, 0x0005, 0x2D);
-	(void)fn133F_0352(&g_seg1229[0x0CBD], 0x01A9, 0x0057, 0x0198, 0x0030, 0x2B);
-	(void)fn133F_0352(&g_seg1229[0x0CC1], 0x01C1, 0x0057, 0x01B0, 0x0005, 0x54);
-	(void)fn133F_0352(&g_seg1229[0x0CC6], 0x01D9, 0x0057, 0x01C8, 0x0005, 0x51);
+	(void)vgaerr_setup_text_rectangle(&g_seg1229[0x0CB4], 0x0191, 0x0057, 0x0180, 0x0005, 0x53);
+	(void)vgaerr_setup_text_rectangle(&g_seg1229[0x0CB9], 0x01A9, 0x002B, 0x0198, 0x0005, 0x2D);
+	(void)vgaerr_setup_text_rectangle(&g_seg1229[0x0CBD], 0x01A9, 0x0057, 0x0198, 0x0030, 0x2B);
+	(void)vgaerr_setup_text_rectangle(&g_seg1229[0x0CC1], 0x01C1, 0x0057, 0x01B0, 0x0005, 0x54);
+	(void)vgaerr_setup_text_rectangle(&g_seg1229[0x0CC6], 0x01D9, 0x0057, 0x01C8, 0x0005, 0x51);
 	/* push 64h ; push 192h ; push 0h ; push 0h ; push cs:0CCBh */
-	(void)fn133F_04DE(&g_seg1229[0x0CCB]);
+	(void)vgaerr_init_text_area(&g_seg1229[0x0CCB]);
 
 	/* push 0h ; push 0h ; call 1AB8:10CE ; push ax ; call 1AB8:10E1 ;
 	 * push ax ; call far 133F:0200 */
 	ax_10CE = bgi_get_text_cols();
 	ax_10E1 = bgi_get_text_rows();
-	fn133F_0200(ax_10E1, ax_10CE, 0x0000, 0x0000);
+	vgaerr_set_text_window(ax_10E1, ax_10CE, 0x0000, 0x0000);
 	/* push 1h ; push 1h ; call 1AB8:10CE ; push ax ; call 1AB8:10E1 ;
 	 * push ax ; call far 133F:04B1 */
 	ax_10CE = bgi_get_text_cols();
 	ax_10E1 = bgi_get_text_rows();
-	(void)fn133F_04B1(ax_10E1, ax_10CE, 0x0001, 0x0001, &ds_294);
+	(void)vgaerr_configure_text_area(ax_10E1, ax_10CE, 0x0001, 0x0001, &ds_294);
 	/* push 16h ; push 16h */
-	fn133F_0256(0x0016, 0x0016);
+	vgaerr_set_cursor_step(0x0016, 0x0016);
 	/* push cs:0CCCh (src) ; push ds:62DEh (dst) ; push 0FFh */
 	(void)fn1EDA_0A39(0xFF, &g_dgroup[0x62DE], &g_seg1229[0x0CCC], &dx_343);
 }
@@ -154,10 +154,10 @@ u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
 	LG8(0x62CB) = 0x01;
 	LG8(0x6CBA) = 0x00;
 	/* push 1h ; call far 13C8:0111 ; call 039Dh ; call 0CCEh */
-	(void)fn13C8_0111(0x01);
+	(void)config_mouse_speed_threshold(0x01);
 	fn1229_039D();
 	fn1229_0CCE();
-	fn133F_0141(&dx_1022, &bp_186, &ds_1002);
+	vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 	bLocFEFF = 0x00;
 
 l1229_0E2E:
@@ -183,7 +183,7 @@ l1229_0E2E:
 	/* l1229_0EA2: cursor over cell type 1 -> paint the cell */
 	if (LG16(0x62CE) == 0x0001 && (s16)LG16(0x62D2) < 0x0177)
 	{
-		fn133F_0137(&dx_1364, &bp_269, &ds_273);
+		vgaerr_show_cursor(&dx_1364, &bp_269, &ds_273);
 		qx = (s16)(LG16(0x62D0) - 0x0001) / 0x16;   /* (X-1)/16h */
 		qy = (s16)(LG16(0x62D2) - 0x0001) / 0x16;   /* (Y-1)/16h */
 		LG8((u16)(0x5CE0 + (u16)(qy * 0x1D + qx))) = LG8(0x62CB);
@@ -193,13 +193,13 @@ l1229_0E2E:
 		            (u16)(qy * 0x16 + 0x0001),
 		            (u16)(qx * 0x16 + 0x0001));
 		bLocFEFF = 0x01;
-		fn133F_0141(&dx_1022, &bp_186, &ds_1002);
+		vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 	}
 
 	/* l1229_0F19: cursor over cell type 2 -> clear the cell */
 	if (LG16(0x62CE) == 0x0002 && (s16)LG16(0x62D2) < 0x0177)
 	{
-		fn133F_0137(&dx_1365, &bp_387, &ds_391);
+		vgaerr_show_cursor(&dx_1365, &bp_387, &ds_391);
 		qx = (s16)(LG16(0x62D0) - 0x0001) / 0x16;
 		qy = (s16)(LG16(0x62D2) - 0x0001) / 0x16;
 		LG8((u16)(0x5CE0 + (u16)(qy * 0x1D + qx))) = 0x00;
@@ -209,7 +209,7 @@ l1229_0E2E:
 		            (u16)(qy * 0x16 + 0x0001),
 		            (u16)(qx * 0x16 + 0x0001));
 		bLocFEFF = 0x01;
-		fn133F_0141(&dx_1022, &bp_186, &ds_1002);
+		vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 	}
 
 	/* l1229_0F82 */
@@ -221,7 +221,7 @@ l1229_0E2E:
 		if ((s16)LG16(0x5990) < 0 ||
 		    ((s16)LG16(0x5990) == 0 && (u16)LG16(0x598E) < 0x00FA))
 		{
-			fn133F_0137(&dx_1366, &bp_891, &ds_895);
+			vgaerr_show_cursor(&dx_1366, &bp_891, &ds_895);
 			if (bLocFEFF != 0x00 &&
 			    (u8)fn1229_061B(&dx_1368, &ds_u16) != 0x00)
 				(void)fn1229_0735(&dx_1369, &bp_dummy, &ds_dummy);
@@ -229,7 +229,7 @@ l1229_0E2E:
 			(void)fn1229_0486();
 			bLocFEFF = 0x00;
 			(void)fn1229_0AA8();
-			fn133F_0141(&dx_1022, &bp_186, &ds_1002);
+			vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 			/* drain the keyboard/mouse queue */
 			do
 			{
@@ -243,7 +243,7 @@ l1229_0E2E:
 		if ((s16)LG16(0x5990) > 0 ||
 		    ((s16)LG16(0x5990) == 0 && (u16)LG16(0x598E) > 0x0001))
 		{
-			fn133F_0137(&dx_1371, &bp_730, &ds_734);
+			vgaerr_show_cursor(&dx_1371, &bp_730, &ds_734);
 			if (bLocFEFF != 0x00 &&
 			    (u8)fn1229_061B(&dx_1373, &ds_u16) != 0x00)
 				(void)fn1229_0735(&dx_1374, &bp_dummy, &ds_dummy);
@@ -251,7 +251,7 @@ l1229_0E2E:
 			(void)fn1229_0486();
 			bLocFEFF = 0x00;
 			(void)fn1229_0AA8();
-			fn133F_0141(&dx_1022, &bp_186, &ds_1002);
+			vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 			do
 			{
 				ax_863 = seg1229_scan_0528(&dx_1022, &bp_186, &ds_1002);
@@ -287,9 +287,9 @@ l1229_0E2E:
 			LG8(0x6CBA) = 0x00;
 		else
 			LG8(0x6CBA) = 0x64;
-		fn133F_0137(&dx_1379, &bp_1380, &ds_509);
+		vgaerr_show_cursor(&dx_1379, &bp_1380, &ds_509);
 		fn1229_0C58();
-		fn133F_0141(&dx_1022, &bp_186, &ds_1002);
+		vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 		do
 		{
 			ax_570 = seg1229_scan_0528(&dx_1022, &bp_186, &ds_1002);
@@ -301,8 +301,8 @@ l1229_10EF:
 		goto l1229_0E2E;
 
 	/* l1229_10F9: teardown */
-	fn133F_04A7();
-	fn133F_0137(&dx_1065, &bp_1060, &ds_1064);
+	vgaerr_reset_message_counter();
+	vgaerr_show_cursor(&dx_1065, &bp_1060, &ds_1064);
 	if (LG8(0x5CB3) != 0x00)
 	{
 		bgi_set_text_window();

@@ -1,8 +1,10 @@
-// 11C8:02CC: void fn11C8_02CC()
+/* was audio_enable_opl3 */
+// 11C8:02CC: void audio_enable_opl3()
 // Called from:
-//      fn11C8_03BB
-void fn11C8_02CC()
+//      audio_init_opl3
+/* was audio_enable_opl3 */
+void audio_enable_opl3()
 {
-	fn11C8_0282(0xB0);
-	fn11C8_0296(0x11);
+	audio_write_adlib_address(0xB0);
+	audio_write_adlib_data(0x11);
 }

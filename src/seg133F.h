@@ -6,20 +6,20 @@
 
 #include "radtypes.h"
 
-extern u16 fn133F_0056(u16 * dsOut);
-extern u8 fn133F_0137(u16 * dxOut, u16 * bpOut, void * dsOut);
-extern u8 fn133F_0141(s16 * dxOut, u16 * bpOut, void * dsOut);
-extern u8 fn133F_014B(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u16 * dxOut, u16 * dsOut);
-extern void fn133F_0200(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A);
-extern u8 fn133F_021F(u16 wArg04, u16 wArg06);
-extern void fn133F_0256(u16 wArg04, u16 wArg06);
-extern u8 fn133F_026B(u16 wArg04, u16 wArg06, u16 * dxOut, void * dsOut);
-extern void fn133F_02DF(u8 * ptrArg04, u8 bArg08);
-extern u16 fn133F_0352(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 bArg10);
-extern void fn133F_04A7(void);
-extern u16 fn133F_04B1(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, void * dsOut);
-extern u16 fn133F_04DE(u8 * ptrArg04);
-extern u16 fn133F_0528(s16 dx, u8 * ptrArg06, u8 * ptrArg0A, u8 * ptrArg0E, s16 * dxOut, u16 * bpOut, u16 * dsOut);
-extern u16 fn133F_0816(void);
+extern u16 vgaerr_init_bgi(u16 * dsOut) /* was fn133F_0056 */;
+extern u8 vgaerr_show_cursor(u16 * dxOut, u16 * bpOut, void * dsOut) /* was fn133F_0137 */;
+extern u8 vgaerr_hide_cursor(s16 * dxOut, u16 * bpOut, void * dsOut) /* was fn133F_0141 */;
+extern u8 vgaerr_draw_error_rect(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u16 * dxOut, u16 * dsOut) /* was fn133F_014B */;
+extern void vgaerr_set_text_window(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A) /* was fn133F_0200 */;
+extern u8 vgaerr_clamp_coordinates(u16 wArg04, u16 wArg06) /* was fn133F_021F */;
+extern void vgaerr_set_cursor_step(u16 wArg04, u16 wArg06) /* was fn133F_0256 */;
+extern u8 vgaerr_display_position_error(u16 wArg04, u16 wArg06, u16 * dxOut, void * dsOut) /* was fn133F_026B */;
+extern void vgaerr_strip_trailing_space(u8 * ptrArg04, u8 bArg08) /* was fn133F_02DF */;
+extern u16 vgaerr_setup_text_rectangle(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 bArg10) /* was fn133F_0352 */;
+extern void vgaerr_reset_message_counter(void) /* was fn133F_04A7 */;
+extern u16 vgaerr_configure_text_area(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A, void * dsOut) /* was fn133F_04B1 */;
+extern u16 vgaerr_init_text_area(u8 * ptrArg04) /* was fn133F_04DE */;
+extern u16 vgaerr_read_input(s16 dx, u8 * ptrArg06, u8 * ptrArg0A, u8 * ptrArg0E, s16 * dxOut, u16 * bpOut, u16 * dsOut) /* was fn133F_0528 */;
+extern u16 vgaerr_init(void) /* was fn133F_0816 */;
 
 #endif /* SEG133F_H */

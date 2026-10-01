@@ -14,7 +14,7 @@
  * Hardware / DOS services replaced (CONVENTIONS.md rule 4):
  *   NONE directly.  No int 10h / int 16h / int 21h, no raw `in`/`out` port
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch
- *   (fn1E5F_000B is never called) occur in 4999.  Every hardware-touching
+ *   (dos_interrupt_trampoline is never called) occur in 4999.  Every hardware-touching
  *   action is reached indirectly through already-ported callees: the 1AB8
  *   video/text driver (10F4/1AF6/1C32/1E3C/13D7) and the 0C74 tick/frame
  *   drivers 070D / 02D8, plus the 11C8 sound helpers 0354/033B.
@@ -315,11 +315,11 @@ l0C74_4CA0:
 			if (LG8(0x58B0) == 0x00)
 				goto l0C74_4CD0;
 			/* l0C74_4CC2: push 32h ; call far 11C8h:0354h */
-			fn11C8_0354(0x0032);
+			audio_write_opl3_register(0x0032);
 			goto l0C74_4CD0;
 		}
 		/* l0C74_4CCB: call far 11C8h:033Bh */
-		(void)fn11C8_033B();
+		(void)audio_get_soundcard_port();
 
 	l0C74_4CD0:
 		/* 4CD0: cmp word ptr [58B6h],27Fh ; jnc 4CE3h */
@@ -361,7 +361,7 @@ l0C74_4CA0:
 		LG16(0x58B4) = (u16)(LG16(0x58B4) - 0x0001);
 		LG16(0x58B6) = (u16)(LG16(0x58B6) - 0x0001);
 		wLoc08 = (u16)(wLoc08 - 0x0001);
-		(void)fn11C8_033B();
+		(void)audio_get_soundcard_port();
 
 	l0C74_4D4F:
 		/* 4D4F: cmp word ptr [bp-6h],2Ch ; jz 4D58h */

@@ -19,7 +19,7 @@
  *   already-ported callees: the 1AB8 video driver (13A3/13D7/10F4/1AF6/1C32/
  *   1E3C/1E54/1E6B), the 1EDA far-heap helpers (023F/0254), fn1E78_029C
  *   (keyboard/pacing), fn1E78_02FB (input poll), fn1206_015B (INT 33h mouse
- *   wrapper, seg1206.c), fn11C8_033B/0354 (sound) and the 0C74 helpers
+ *   wrapper, seg1206.c), audio_get_soundcard_port/0354 (sound) and the 0C74 helpers
  *   070D/02D8/2BBD/0CFA.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 9"):
@@ -244,10 +244,10 @@ u8 engine_bar_pull_sibling /* was fn0C74_3236 */(u16 *bpOut, u16 *dsOut)
 			{
 				bLoc02 = 0x01;
 				if (LG8(0x58B0) != 0x00)
-					fn11C8_0354(0x0032);
+					audio_write_opl3_register(0x0032);
 			}
 			else
-				(void)fn11C8_033B();
+				(void)audio_get_soundcard_port();
 			LG16(0x58B4) = (u16)(LG16(0x58B4) + 0x0001);
 			LG16(0x58B6) = (u16)(LG16(0x58B6) + 0x0001);
 			(void)bgi_signed_rectangle_intersect(0x00,
@@ -334,10 +334,10 @@ u8 engine_bar_march /* was fn0C74_3615 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 				{
 					bLoc02 = 0x01;
 					if (LG8(0x58B0) != 0x00)
-						fn11C8_0354(0x0032);
+						audio_write_opl3_register(0x0032);
 				}
 				else
-					(void)fn11C8_033B();
+					(void)audio_get_soundcard_port();
 
 				/* 36CE..36DC: advance the live position while below
 				 * the 27Eh limit. */
@@ -417,7 +417,7 @@ u8 engine_bar_march /* was fn0C74_3615 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 			 * step and tick the sound helper, then stop. */
 			LG16(0x58B4) = (u16)(LG16(0x58B4) - 0x0001);
 			LG16(0x58B6) = (u16)(LG16(0x58B6) - 0x0001);
-			(void)fn11C8_033B();
+			(void)audio_get_soundcard_port();
 		}
 	}
 

@@ -1,10 +1,12 @@
-// 11C8:02DB: void fn11C8_02DB(Stack byte bArg02, Stack byte bArg04)
+/* was audio_write_adlib_register */
+// 11C8:02DB: void audio_write_adlib_register(Stack byte bArg02, Stack byte bArg04)
 // Called from:
-//      fn11C8_02F0
-//      fn11C8_0354
-//      fn11C8_0394
-void fn11C8_02DB(byte bArg02, byte bArg04)
+//      audio_configure_opl3_mixer
+//      audio_write_opl3_register
+//      audio_init_soundcard
+/* was audio_write_adlib_register */
+void audio_write_adlib_register(byte bArg02, byte bArg04)
 {
-	fn11C8_0282(bArg04);
-	fn11C8_0296(bArg02);
+	audio_write_adlib_address(bArg04);
+	audio_write_adlib_data(bArg02);
 }

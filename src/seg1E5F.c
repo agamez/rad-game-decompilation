@@ -7,13 +7,13 @@
  *   1E5F:0081  int 21h AH=2Ch  -> msdos_get_system_time
  *   1E5F:0128  int 21h AH=1Ah  -> msdos_set_DTA
  *   1E5F:0124  int 21h AH=4Eh  -> msdos_find_first_file
- *   1E5F:0128  int 21h AH=4Fh  -> msdos_find_next_file   (fn1E5F_011C)
+ *   1E5F:0128  int 21h AH=4Fh  -> msdos_find_next_file   (dos_find_next_file)
  *   1E5F:0191  int 21h AH=35h  -> msdos_get_interrupt_vector
  *   1E5F:0213  int 21h AH=25h  -> msdos_set_interrupt_vector
- *   __cli()/__sti() dropped (no-ops), see fn1E5F_000B.
+ *   __cli()/__sti() dropped (no-ops), see dos_interrupt_trampoline.
  *
  * Hardware interior dispatch:
- *   fn1E5F_000B performs an arbitrary software interrupt (IVT[vec], the
+ *   dos_interrupt_trampoline performs an arbitrary software interrupt (IVT[vec], the
  *   callers pass vector 33h/10h) with a register image.  pal.h now exposes
  *   pal_int_dispatch(vec, frame) for exactly this; the 9-word image is
  *   marshalled into a 10-word frame, dispatched, and the 10 post-interrupt
@@ -28,11 +28,11 @@
 #include "pal.h"
 
 /* Carry flag produced by the preceding find-first/find-next DOS call, which
- * fn1E5F_0136 consumes (`jc 0155h` in the original).  C has no flag register;
- * fn1E5F_00DE/fn1E5F_011C stage it here before calling fn1E5F_0136. */
+ * dos_fix_dta_name consumes (`jc 0155h` in the original).  C has no flag register;
+ * dos_find_first_file/dos_find_next_file stage it here before calling dos_fix_dta_name. */
 static u8 g_find_carry;
 
-// 1E5F:000B: void fn1E5F_000B(u8 * ptrArg04, u16 wArg06)
+// 1E5F:000B: void dos_interrupt_trampoline(u8 * ptrArg04, u16 wArg06)
 // Register-frame interrupt trampoline.  ptrArg04 is the caller's 0x14-byte
 // frame; wArg06 is the interrupt vector.  The original loads a 9-word image
 // (AX,BX,CX,DX,BP,SI,DI,DS,ES at offsets 0,2,...,0x10), saves FLAGS,
@@ -41,7 +41,7 @@ static u8 g_find_carry;
 // 10-word frame, FLAGS starts 0, pal_int_dispatch() performs the interrupt,
 // and all ten words are stored back into the caller's frame.  The original
 // __cli()/__sti() are dropped (no-ops).
-void fn1E5F_000B(u8 * ptrArg04, u16 wArg06)
+void dos_interrupt_trampoline(u8 * ptrArg04, u16 wArg06) /* was fn1E5F_000B */
 {
 	u16 frame[10];
 	int i;
@@ -54,8 +54,8 @@ void fn1E5F_000B(u8 * ptrArg04, u16 wArg06)
 		*(u16 *)(ptrArg04 + 2 * i) = frame[i];
 }
 
-// 1E5F:00A2: void fn1E5F_00A2(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10)
-void fn1E5F_00A2(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10)
+// 1E5F:00A2: void dos_get_system_time(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10)
+void dos_get_system_time(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10) /* was fn1E5F_00A2 */
 {
 	u8 ch_10;
 	u8 dh_11;
@@ -68,12 +68,12 @@ void fn1E5F_00A2(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10
 	*(u16 *)ptrArg10 = (u16)ch_10;
 }
 
-// 1E5F:00DE: u8 * fn1E5F_00DE(char * ptrArg04, u16 wArg08, u8 * ptrArg0A)
+// 1E5F:00DE: u8 * dos_find_first_file(char * ptrArg04, u16 wArg08, u8 * ptrArg0A)
 // DOS find-first wrapper.  ptrArg0A is a length-prefixed search pattern; the
 // first byte is the pattern length (clamped to 4Fh), followed by the bytes.
 // wArg08 is the DOS CX attributes mask (0C74 passes 3Fh); pal.h's
 // msdos_find_first_file() has no attributes parameter, so it is unused here.
-u8 * fn1E5F_00DE(char * ptrArg04, u16 wArg08, u8 * ptrArg0A)
+u8 * dos_find_first_file(char * ptrArg04, u16 wArg08, u8 * ptrArg0A) /* was fn1E5F_00DE */
 {
 	static u8 buf[0x50];
 	u8 al_22 = *ptrArg0A;
@@ -85,29 +85,29 @@ u8 * fn1E5F_00DE(char * ptrArg04, u16 wArg08, u8 * ptrArg0A)
 	buf[ax_28] = 0x00;
 	msdos_set_DTA(ptrArg04);
 	g_find_carry = msdos_find_first_file((char *)buf, (u8 *)ptrArg04) ? 0 : 1;
-	fn1E5F_0136(0x4E00, 0, ptrArg04);
+	dos_fix_dta_name(0x4E00, 0, ptrArg04);
 	return buf;
 }
 
-// 1E5F:011C: void fn1E5F_011C(void * ptrArg04)
+// 1E5F:011C: void dos_find_next_file(void * ptrArg04)
 // DOS find-next follow-up.  Not listed in analysis/summary/functions.tsv
 // (Reko did not identify it as a function), but the brief requires the 4Fh
 // service to be recovered; it wraps msdos_set_DTA + msdos_find_next_file and
-// then the same DTA fix-up as fn1E5F_00DE.  Called from segment 0C74.
-void fn1E5F_011C(void * ptrArg04)
+// then the same DTA fix-up as dos_find_first_file.  Called from segment 0C74.
+void dos_find_next_file(void * ptrArg04) /* was fn1E5F_011C */
 {
 	msdos_set_DTA(ptrArg04);
 	g_find_carry = msdos_find_next_file((u8 *)ptrArg04) ? 0 : 1;
-	fn1E5F_0136(0x4F00, 0, ptrArg04);
+	dos_fix_dta_name(0x4F00, 0, ptrArg04);
 }
 
-// 1E5F:0136: void fn1E5F_0136(u16 ax, u16 di, void * es)
+// 1E5F:0136: void dos_fix_dta_name(u16 ax, u16 di, void * es)
 // Operates on the DTA at ES:DI.  ES is the flat base, DI the byte offset
 // (the port passes DI = 0 and ES = the DTA pointer).  On success (CF clear
 // from the preceding find, modelled by g_find_carry) it converts the
 // null-terminated name at DTA+1Eh into a length-prefixed string in place and
 // stores AX = 0; on failure it stores AX unchanged (4E00h/4F00h).
-void fn1E5F_0136(u16 ax, u16 di, void * es)
+void dos_fix_dta_name(u16 ax, u16 di, void * es) /* was fn1E5F_0136 */
 {
 	if (!g_find_carry)
 	{
@@ -151,14 +151,14 @@ void fn1E5F_0136(u16 ax, u16 di, void * es)
 	LG16(0xB8A6) = ax;
 }
 
-// 1E5F:0159: void fn1E5F_0159(u32 * ptrArg04, u8 bArg08)
-void fn1E5F_0159(u32 * ptrArg04, u8 bArg08)
+// 1E5F:0159: void dos_get_interrupt_vector(u32 * ptrArg04, u8 bArg08)
+void dos_get_interrupt_vector(u32 * ptrArg04, u8 bArg08) /* was fn1E5F_0159 */
 {
 	*ptrArg04 = (u32)(uintptr_t)msdos_get_interrupt_vector(bArg08);
 }
 
-// 1E5F:0171: u8 fn1E5F_0171(void * ptrArg04, u8 bArg08, u16 * dxOut)
-u8 fn1E5F_0171(void * ptrArg04, u8 bArg08, u16 * dxOut)
+// 1E5F:0171: u8 dos_set_interrupt_vector(void * ptrArg04, u8 bArg08, u16 * dxOut)
+u8 dos_set_interrupt_vector(void * ptrArg04, u8 bArg08, u16 * dxOut) /* was fn1E5F_0171 */
 {
 	msdos_set_interrupt_vector(bArg08, ptrArg04);
 	*dxOut = (u16)(uintptr_t)ptrArg04;

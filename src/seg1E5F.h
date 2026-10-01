@@ -6,11 +6,11 @@
 
 #include "radtypes.h"
 
-extern void fn1E5F_000B(u8 * ptrArg04, u16 wArg06);
-extern void fn1E5F_00A2(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10);
-extern u8 * fn1E5F_00DE(char * ptrArg04, u16 wArg08, u8 * ptrArg0A);
-extern void fn1E5F_0136(u16 ax, u16 di, void * es);
-extern void fn1E5F_0159(u32 * ptrArg04, u8 bArg08);
-extern u8 fn1E5F_0171(void * ptrArg04, u8 bArg08, u16 * dxOut);
+extern void dos_interrupt_trampoline(u8 * ptrArg04, u16 wArg06) /* was fn1E5F_000B */;
+extern void dos_get_system_time(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10) /* was fn1E5F_00A2 */;
+extern u8 * dos_find_first_file(char * ptrArg04, u16 wArg08, u8 * ptrArg0A) /* was fn1E5F_00DE */;
+extern void dos_fix_dta_name(u16 ax, u16 di, void * es) /* was fn1E5F_0136 */;
+extern void dos_get_interrupt_vector(u32 * ptrArg04, u8 bArg08) /* was fn1E5F_0159 */;
+extern u8 dos_set_interrupt_vector(void * ptrArg04, u8 bArg08, u16 * dxOut) /* was fn1E5F_0171 */;
 
 #endif /* SEG1E5F_H */

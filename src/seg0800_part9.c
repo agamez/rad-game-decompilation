@@ -18,7 +18,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   2827.  Every BIOS/DOS/hardware service reached from here is owned by the
  *   callee segments and replaced there: segment 1E78 (keyboard/PIT: 02FB/030D),
- *   1206 (mouse cursor, INT 33h via fn1E5F_000B: 0066/0038/015B), 0C74 (menus,
+ *   1206 (mouse cursor, INT 33h via dos_interrupt_trampoline: 0066/0038/015B), 0C74 (menus,
  *   the engine_probe_file "Rad.hlp" open probe and the 51xx/52xx/54xx handlers),
  *   1EDA (the RAD.HLP stream layer: 0FA2/0FD0/1123/1085/1051/0A39/0B24), 1AB8
  *   (video/text) and 13E2.

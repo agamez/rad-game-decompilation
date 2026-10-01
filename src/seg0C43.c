@@ -4,7 +4,7 @@
  * 0000/001E/0056/0095/00B9/02FB) is the mode-13h file/picture loader used by
  * fn0800_4255:
  *   - fn0C43_0000 / fn0C43_001E build the register frame at DGROUP:589Ch and
- *     issue INT 10h through fn1E5F_000B (1E5F:000B), the register-frame
+ *     issue INT 10h through dos_interrupt_trampoline (1E5F:000B), the register-frame
  *     interrupt trampoline (PAL: pal_int_dispatch()).  Both are vector 10h.
  *   - fn0C43_0056 is an RLE decoder that expands the far-heap block at
  *     ds:5884/5886 into VGA memory (es = [5882h] = 0A000h, set by 02FB).
@@ -16,7 +16,7 @@
  *
  * There is no direct int 10h/int 16h/int 21h, no in/out port site, no
  * __cli/__sti and no int 23h in this segment; the two INT 10h issues go
- * through fn1E5F_000B, whose PAL replacement is hardware, not this file.
+ * through dos_interrupt_trampoline, whose PAL replacement is hardware, not this file.
  *
  * The frozen prototypes in seg0C43.h (from analysis/summary/iface.tsv) are
  * adopted exactly.  See docs/notes-small-segs.md ("## 0C43") for the sites
@@ -52,7 +52,7 @@ u16 fn0C43_0000(u8 bArg02, void * dsOut)
 {
     LG8(0x589D) = 0x00;                     /* AH = 00h */
     LG8(0x589C) = bArg02;                   /* AL = mode    */
-    fn1E5F_000B((u8 *)&g_dgroup[0x589C], 0x10);
+    dos_interrupt_trampoline((u8 *)&g_dgroup[0x589C], 0x10);
     (void)dsOut;                            /* DS selector dropped (flat) */
     /* Reko returns the frame BP word (its bp_21 output); no caller consumes it. */
     return LG16(0x58A4);
@@ -72,7 +72,7 @@ u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut)
     LG16(0x58A2) = (u16)((uintptr_t)ptrArg02 - (uintptr_t)g_dgroup);
     LG16(0x589E) = 0x0000;                  /* BX = 0   */
     LG16(0x58A0) = 0x0100;                  /* CX = 100h */
-    fn1E5F_000B((u8 *)&g_dgroup[0x589C], 0x10);
+    dos_interrupt_trampoline((u8 *)&g_dgroup[0x589C], 0x10);
     *bpOut = LG16(0x58A4);                  /* Reko: frame BP word (bp_34) */
     (void)dsOut;                            /* DS selector dropped (flat) */
     /* AX at retf is the trampoline FLAGS word; no caller consumes it. */

@@ -2,7 +2,7 @@
  *
  * Literal recovery.  Segment 1206 is the mouse (INT 33h) interface used by
  * the text-mode menus: every wrapper builds a 0x14-byte register frame and
- * issues the interrupt through fn1E5F_000B (1E5F:000B), the register-frame
+ * issues the interrupt through dos_interrupt_trampoline (1E5F:000B), the register-frame
  * interrupt trampoline (PAL: pal_int_dispatch()).  There is no direct
  * int 10h / int 16h / int 21h instruction, no in/out port site, no
  * __cli/__sti and no int 23h here, so no PAL call is issued in this file.
@@ -25,7 +25,7 @@
 #include "seg1206.h"
 #include "seg1E5F.h"
 
-/* Register frame exchanged with fn1E5F_000B.  Its post-interrupt
+/* Register frame exchanged with dos_interrupt_trampoline.  Its post-interrupt
  * continuation at 1E5F:0045 stores AX,BX,CX,DX,BP,SI,DI,DS,ES,FLAGS at
  * byte offsets 0,2,...,0x12 (ten words); every wrapper below reserves
  * exactly this 0x14-byte frame (`enter 14h`). */
@@ -45,7 +45,7 @@ u16 fn1206_000D(u16 *siOut, void *esOut, void *dsOut)
     TRegFrame r = {0};
 
     r.ax = 0x0000;              /* INT 33h function 0: driver status / reset */
-    fn1E5F_000B((u8 *)&r, 0x33);
+    dos_interrupt_trampoline((u8 *)&r, 0x33);
 
     *siOut = r.bx;              /* [bp+06h] <- BX (frame word 1) */
     *(u16 *)esOut = r.ax;       /* [bp+0Ah] <- AX (frame word 0) */
@@ -62,7 +62,7 @@ u8 fn1206_0038(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
     {
         LG8(0x598C) = 0x01;
         r.ax = 0x0001;          /* INT 33h function 1: show mouse cursor */
-        fn1E5F_000B((u8 *)&r, 0x33);
+        dos_interrupt_trampoline((u8 *)&r, 0x33);
 
         *chOut = (u8)(r.cx >> 8);   /* CH register output */
         *dxOut = r.dx;              /* DX register output */
@@ -82,7 +82,7 @@ u8 fn1206_0066(void *bpOut, u16 *dsOut)
     {
         LG8(0x598C) = 0x00;
         r.ax = 0x0002;          /* INT 33h function 2: hide mouse cursor */
-        fn1E5F_000B((u8 *)&r, 0x33);
+        dos_interrupt_trampoline((u8 *)&r, 0x33);
 
         *(u16 *)bpOut = r.bp;   /* BP register output */
         (void)dsOut;            /* DS selector output dropped */
@@ -99,7 +99,7 @@ u8 fn1206_0094(u16 *dxOut, u16 *bpOut, u16 *dsOut)
     if (LG8(0x597E) != 0x00)
     {
         r.ax = 0x0003;          /* INT 33h function 3: get position, buttons */
-        fn1E5F_000B((u8 *)&r, 0x33);
+        dos_interrupt_trampoline((u8 *)&r, 0x33);
 
         *dxOut = r.dx;          /* [bp+06h] <- DX (cursor y) */
         *bpOut = r.cx;          /* [bp+0Ah] <- CX (cursor x) */
@@ -121,7 +121,7 @@ u16 fn1206_00D1(void *ds, u16 *siOut, void *esOut, void *dsOut)
         /* original: r.cx <- [bp+08h] (arg2), r.dx <- [bp+06h] (arg1);
          * the frozen prototype has no slots for these two word arguments,
          * so the frame words stay at their zero-initialised value. */
-        fn1E5F_000B((u8 *)&r, 0x33);
+        dos_interrupt_trampoline((u8 *)&r, 0x33);
     }
     *siOut = r.si;              /* SI register output */
     *(u16 *)esOut = r.es;       /* ES register output */
@@ -139,7 +139,7 @@ u16 fn1206_00FF(u16 *dsOut)
         r.ax = 0x0007;          /* INT 33h function 7: set horizontal range */
         /* original: r.cx <- [bp+08h], r.dx <- [bp+06h]; not representable
          * in the frozen prototype, frame words stay zero. */
-        fn1E5F_000B((u8 *)&r, 0x33);
+        dos_interrupt_trampoline((u8 *)&r, 0x33);
     }
     (void)dsOut;                /* DS selector output dropped */
     return r.ax;
@@ -156,7 +156,7 @@ u16 fn1206_012D(void *ds, void *dsOut)
         r.ax = 0x0008;          /* INT 33h function 8: set vertical range */
         /* original: r.cx <- [bp+08h], r.dx <- [bp+06h]; not representable
          * in the frozen prototype, frame words stay zero. */
-        fn1E5F_000B((u8 *)&r, 0x33);
+        dos_interrupt_trampoline((u8 *)&r, 0x33);
     }
     (void)dsOut;                /* DS selector output dropped */
     return r.ax;

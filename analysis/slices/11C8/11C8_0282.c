@@ -1,9 +1,11 @@
-// 11C8:0282: void fn11C8_0282(Stack byte bArg02)
+/* was audio_write_adlib_address */
+// 11C8:0282: void audio_write_adlib_address(Stack byte bArg02)
 // Called from:
-//      fn11C8_02AB
-//      fn11C8_02CC
-//      fn11C8_02DB
-void fn11C8_0282(byte bArg02)
+//      audio_sweep_adlib_ports
+//      audio_enable_opl3
+//      audio_write_adlib_register
+/* was audio_write_adlib_address */
+void audio_write_adlib_address(byte bArg02)
 {
 	__out<byte>(0x0388, bArg02);
 	word16 cx_11;

@@ -20,7 +20,7 @@
  *   0E14 `u16 di, void * es`  -- Reko's `di` is a plain 16-bit register and
  *        `es` a segment pointer, so ES is the flat base and DI the byte
  *        offset: the effective byte is (u8 *)es + di.  (Same shape as
- *        seg1E5F fn1E5F_0136.)
+ *        seg1E5F dos_fix_dta_name.)
  *   0E8E `u8 * di, void * es` -- Reko's `di` is a `(memptr byte)`, which the
  *        port's memptr rule maps to the flat byte pointer; `di` is therefore
  *        used directly and the byte-segment `es` parameter is dropped.

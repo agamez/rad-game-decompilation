@@ -13,7 +13,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   0A35..0E2E.  Every hardware-touching operation is reached indirectly
  *   through already-ported callees: engine_scale_and_tick_clock -> engine_clock_tick and
- *   fn11C8_0354/033B (sound, seg11C8.c); fn1E78_029C (keyboard/pacing,
+ *   audio_write_opl3_register/033B (sound, seg11C8.c); fn1E78_029C (keyboard/pacing,
  *   seg1E78.c); fn1AB8_* (video driver); fn1EDA_023F/0254 (far heap).  The
  *   PC-speaker / AdLib ports attributed to 0E2E by analysis/summary/
  *   functions.tsv are transitive (0E2E itself issues none).
@@ -114,7 +114,7 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 					goto l0C74_0C97;
 
 				if (LG8(0x58B0) != 0x00)
-					fn11C8_0354((u16)fn1EDA_0D80(0x0064, &dx_a));
+					audio_write_opl3_register((u16)fn1EDA_0D80(0x0064, &dx_a));
 
 				(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0004),
 				                  &dx_a);
@@ -145,7 +145,7 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 				}
 
 				if (LG8(0x58B0) != 0x00)
-					(void)fn11C8_033B();
+					(void)audio_get_soundcard_port();
 			}
 			else
 			{

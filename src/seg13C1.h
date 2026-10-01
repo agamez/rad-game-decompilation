@@ -6,8 +6,8 @@
 
 #include "radtypes.h"
 
-extern u16 fn13C1_0000(void * dsOut);
-extern void fn13C1_0036(u32 dwArg04, u8 * ptrArg08);
-extern void * fn13C1_0067(void);
+extern u16 stub_get_video_info(void * dsOut) /* was fn13C1_0000 */;
+extern void stub_dword_to_string(u32 dwArg04, u8 * ptrArg08) /* was fn13C1_0036 */;
+extern void * stub_init_video_info(void) /* was fn13C1_0067 */;
 
 #endif /* SEG13C1_H */

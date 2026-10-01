@@ -298,12 +298,12 @@ u8 * engine_scale_and_tick_clock /* was fn0C74_070D */(u16 wArg02, u16 wArg04, v
 	wArg02 = (u16)(dx_ax / 0x0009);
 
 	if (LG8(0x58B0) != 0x00)
-		fn11C8_0354(wArg04);
+		audio_write_opl3_register(wArg04);
 
 	(void)engine_clock_tick(wArg02, &ds_50);
 
 	if (LG8(0x58B0) != 0x00)
-		(void)fn11C8_033B();
+		(void)audio_get_soundcard_port();
 
 	(void)engine_clock_tick(wArg02, &ds_82);
 
@@ -394,7 +394,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 				if (fn1EDA_0D80(0x0003, &dx_rt) == 0x0001)
 				{
 					if (LG8(0x58B0) != 0x00)
-						fn11C8_0354((u16)fn1EDA_0D80(0x0064, &dx_rt));
+						audio_write_opl3_register((u16)fn1EDA_0D80(0x0064, &dx_rt));
 
 					/* fn1E78_029C((s16)LG16(0x58E6) / 4) */
 					(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0004),
@@ -428,7 +428,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 					}
 
 					if (LG8(0x58B0) != 0x00)
-						(void)fn11C8_033B();
+						(void)audio_get_soundcard_port();
 				}
 			}
 			else

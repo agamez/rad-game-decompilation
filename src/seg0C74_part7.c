@@ -14,7 +14,7 @@
  *   2AD9..2BBD.  Every hardware-touching operation is reached indirectly
  *   through already-ported callees: the 1AB8 video driver (13A3/1E6B/13D7/
  *   1C32/1AF6/1E3C/1E54), the 1EDA far-heap helpers (023F/0254/096F/098A),
- *   fn1E78_029C (keyboard/pacing) and fn11C8_0354/033B (sound).  engine_clock_tick /
+ *   fn1E78_029C (keyboard/pacing) and audio_write_opl3_register/033B (sound).  engine_clock_tick /
  *   070D / 0D43 / 0D94 / 0CFA / 0DE5 / 1F08 / 076B are 0C74 helpers handled by
  *   their own chunks.
  *
@@ -165,7 +165,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 // 13D7, draws the sprite (block1) with 1E6B, then marches wArg02/wArg06 while
 // the 1E3C attribute probe returns 0.  When wArg02 reaches 0x176 and the first
 // probe returned 0x0F it runs a nested 8x11x21 colour-fade that hammers
-// fn11C8_0354 (sound) and bgi_get_line_attributes (pixel plots), then restores the HUD and
+// audio_write_opl3_register (sound) and bgi_get_line_attributes (pixel plots), then restores the HUD and
 // ticks the sound.  It finally frees block1 and, if the counter stayed below
 // DGROUP:4D0Ah and wArg02 < 0x172, calls engine_scatter_starfield.
 u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
@@ -270,7 +270,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 					{
 						/* cmp byte [58B0h],0 ; jz 2D15h */
 						if (LG8(0x58B0) != 0x00)
-							fn11C8_0354((u16)((u16)(((u16)bLoc11 + 0x0001) *
+							audio_write_opl3_register((u16)((u16)(((u16)bLoc11 + 0x0001) *
 							                        (u16)bLoc12) *
 							                  (u16)bLoc10));
 
@@ -333,7 +333,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 			/* push wArg08 ; push 161h ; push wArg04 ; push 161h ; call 1AF6h */
 			(void)bgi_set_pixel(0x0161, wArg04, 0x0161, wArg08, &dxTmp);
 			/* call 033Bh */
-			(void)fn11C8_033B();
+			(void)audio_get_soundcard_port();
 		}
 	}
 

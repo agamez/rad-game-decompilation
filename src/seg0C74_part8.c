@@ -15,7 +15,7 @@
  *   hardware-touching action is reached indirectly through already-ported
  *   callees: the 1AB8 video driver (13A3/13D7/10F4/1AF6/1C32/1E3C/1E54/1E6B),
  *   the 1EDA far-heap helpers (023F/0254), fn1E78_029C (keyboard/pacing),
- *   fn11C8_033B/0354 (sound) and the 0C74 helpers 070D/2BBD/02D8.
+ *   audio_get_soundcard_port/0354 (sound) and the 0C74 helpers 070D/2BBD/02D8.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 8"):
  *   - Reko's bp_XXXX frame-pointer locals (re-bound after each call to
@@ -228,10 +228,10 @@ u8 engine_bar_pull /* was fn0C74_2E5A */(u16 *bpOut, u16 *dsOut)
 			{
 				bLoc02 = 0x04;
 				if (LG8(0x58B0) != 0x00)
-					fn11C8_0354(0x0032);
+					audio_write_opl3_register(0x0032);
 			}
 			else
-				(void)fn11C8_033B();
+				(void)audio_get_soundcard_port();
 			LG16(0x58B4) = (u16)(LG16(0x58B4) - 0x0001);
 			LG16(0x58B6) = (u16)(LG16(0x58B6) - 0x0001);
 			bgi_signed_rectangle_intersect(0x00,

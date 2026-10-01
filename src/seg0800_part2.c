@@ -13,7 +13,7 @@
  *   no __cli/__sti and no int 23h occur in 0619..0AA1.  Every BIOS/DOS
  *   service reached from here goes through the callee segments already
  *   converted: fn1AB8_* (video), fn1EDA_* (formatted records/data files),
- *   fn0C74_* (menus), fn1206_* (mouse, INT 33h via fn1E5F_000B) and
+ *   fn0C74_* (menus), fn1206_* (mouse, INT 33h via dos_interrupt_trampoline) and
  *   fn1E78_* (keyboard/PIT).  The strings cs:0605={4,"DEMO"}, cs:060A=
  *   {3,"000"}, cs:060E={1,"0"}, cs:0610={8,"MISSION "}, cs:0755={7,
  *   "PRESSEZ"}, cs:075D={10,"UNE TOUCHE"}, cs:0A9F={1,"0"} are referenced
