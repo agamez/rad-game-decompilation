@@ -8,12 +8,12 @@
  *
  * Hardware / DOS services: none of these functions issue a raw int 10h / int
  * 21h or port I/O.  The DOS error word DGROUP:0x5380 is read/written directly
- * through the LG16() macro; fn1EDA_098A's divide-by-zero path tail-calls the
- * same-segment fatal-error dispatcher fn1EDA_00E2(200,...).
+ * through the LG16() macro; renamed_1eda_098a's divide-by-zero path tail-calls the
+ * same-segment fatal-error dispatcher renamed_1eda_00e2(200,...).
  *
  * Buffered-stream helper model (Reko's stream-block object) -- these functions are
  * the read/write drivers of the Turbo-C style stream blocks built by
- * fn1EDA_04F5/fn1EDA_0565/fn1EDA_056A:
+ * renamed_1eda_04f5/renamed_1eda_0565/renamed_1eda_056a:
  *   +0x02 id (0xD7B0/0xD7B1/0xD7B2)   +0x04 limit (07B6/07DA path)
  *   +0x08 cursor  +0x0A limit (0776/079A path)
  *   +0x0C..0x0E buffer far pointer     +0x14/+0x18 far callbacks
@@ -49,7 +49,7 @@ typedef union { u16 w; u8 *p; } dx_cur_t;
 
 /* 1EDA:081A -- read a line into the stream's buffer up to CR, consuming a
  * following LF.  Calls 0776 (setup), 079A (getc) and 0879 (flush). */
-u16 fn1EDA_081A(u16 cx, u8 * ptrArg04)
+u16 renamed_1eda_081a(u16 cx, u8 * ptrArg04)
 {
 	u8 *es_bx_112 = NULL;
 	u8 *es_bx_109;
@@ -60,7 +60,7 @@ u16 fn1EDA_081A(u16 cx, u8 * ptrArg04)
 
 	/* iface.tsv types the es_bx cursor as `u8 *`; it is the Reko `segptr32 &`
 	 * out-param, so pass the address with the width the header declares. */
-	ok = fn1EDA_0776(ptrArg04, (u8 *)&es_bx_112, &dx_19.w, &di_18);
+	ok = renamed_1eda_0776(ptrArg04, (u8 *)&es_bx_112, &dx_19.w, &di_18);
 	bx_17 = (void *)(uintptr_t)es_bx_112;
 	if (ok)
 	{
@@ -94,13 +94,13 @@ u16 fn1EDA_081A(u16 cx, u8 * ptrArg04)
 	}
 l1EDA_083B:
 	*(u16 *)(ptrArg04 + 0x08) = (u16)(uintptr_t)bx_17;
-	fn1EDA_0879(ptrArg04);
+	renamed_1eda_0879(ptrArg04);
 	/* Original returns DS (DGROUP selector); dropped in the flat model. */
 	return 0x0000;
 }
 
 /* 1EDA:0848 -- append CR LF to the stream (07B6 setup, 07DA two putc). */
-u16 fn1EDA_0848(u8 ah, u16 cx, u8 * ptrArg04)
+u16 renamed_1eda_0848(u8 ah, u16 cx, u8 * ptrArg04)
 {
 	u8 *es_bx_93 = NULL;
 	void *bx_17;
@@ -109,7 +109,7 @@ u16 fn1EDA_0848(u8 ah, u16 cx, u8 * ptrArg04)
 	u8 ok;
 
 	(void)ah;   /* AH is only an output channel of 07DA here */
-	ok = fn1EDA_07B6(ptrArg04, (u8 *)&es_bx_93, &dx_19, &di_18);
+	ok = renamed_1eda_07b6(ptrArg04, (u8 *)&es_bx_93, &dx_19, &di_18);
 	bx_17 = (void *)(uintptr_t)es_bx_93;
 	if (ok)
 	{
@@ -131,15 +131,15 @@ u16 fn1EDA_0848(u8 ah, u16 cx, u8 * ptrArg04)
 		bx_17 = (void *)(uintptr_t)es_bx_98;
 	}
 	*(u16 *)(ptrArg04 + 0x08) = (u16)(uintptr_t)bx_17;
-	fn1EDA_0879(ptrArg04);
+	renamed_1eda_0879(ptrArg04);
 	/* Original returns DS (DGROUP selector); dropped in the flat model. */
 	return 0x0000;
 }
 
 /* 1EDA:086C -- flush the stream (0879 only). */
-void fn1EDA_086C(u8 * ptrArg04)
+void renamed_1eda_086c(u8 * ptrArg04)
 {
-	fn1EDA_0879(ptrArg04);
+	renamed_1eda_0879(ptrArg04);
 }
 
 /* 1EDA:0879 -- if the block has a callback (segment word at +0x1A nonzero)
@@ -149,7 +149,7 @@ void fn1EDA_086C(u8 * ptrArg04)
  * Flat model: the far callback at +0x18/+0x1A is represented as a host
  * function pointer stored at +0x18; the +0x1A "is it installed" test is kept
  * literally (for a real host pointer those bytes are nonzero). */
-void fn1EDA_0879(u8 * es_di)
+void renamed_1eda_0879(u8 * es_di)
 {
 	u16 ax_18;
 
@@ -170,7 +170,7 @@ void fn1EDA_0879(u8 * es_di)
 
 /* 1EDA:0896 -- read a length-prefixed line of at most wArg04 bytes from the
  * stream into ptrArg06 (0776 setup, 079A getc).  Returns the byte count. */
-u16 fn1EDA_0896(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
+u16 renamed_1eda_0896(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 {
 	u8 *es_bx_117 = NULL;
 	u8 *es_bx_113;
@@ -181,7 +181,7 @@ u16 fn1EDA_0896(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 	u8 *si;
 	u8 ok;
 
-	ok = fn1EDA_0776(ptrArg0A, (u8 *)&es_bx_117, &dx_21.w, &di_20);
+	ok = renamed_1eda_0776(ptrArg0A, (u8 *)&es_bx_117, &dx_21.w, &di_20);
 	es_bx_113 = es_bx_117;
 	bx_19 = (void *)(uintptr_t)es_bx_117;
 	cx_28 = 0x00;
@@ -215,7 +215,7 @@ u16 fn1EDA_0896(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 
 /* 1EDA:08CE -- write the length-prefixed string ptrArg06 to the stream,
  * space-padded on the right up to width wArg04 (07B6 setup, 07DA putc). */
-u8 fn1EDA_08CE(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A, u16 * cxOut)
+u8 renamed_1eda_08ce(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A, u16 * cxOut)
 {
 	u8 *es_bx_197 = NULL;
 	u16 bx_111;
@@ -226,7 +226,7 @@ u8 fn1EDA_08CE(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A, u16 * cxOut)
 	u8 ah_ret = 0x00;
 	u8 ok;
 
-	ok = fn1EDA_07B6(ptrArg0A, (u8 *)&es_bx_197, &dx_125, &di_124);
+	ok = renamed_1eda_07b6(ptrArg0A, (u8 *)&es_bx_197, &dx_125, &di_124);
 	bx_111 = (u16)(uintptr_t)es_bx_197;
 	if (ok)
 	{
@@ -278,7 +278,7 @@ u8 fn1EDA_08CE(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A, u16 * cxOut)
 
 /* 1EDA:0918 -- scan one stream character; returns 1 on Ctrl-Z (1Ah) or on a
  * CR that the caller's CL bit 1 accepts, else 0 (0776 setup, 079A getc). */
-u16 fn1EDA_0918(u8 ch, u8 * ptrArg04)
+u16 renamed_1eda_0918(u8 ch, u8 * ptrArg04)
 {
 	u8 *es_bx_185 = NULL;
 	void *bx_18;
@@ -288,7 +288,7 @@ u16 fn1EDA_0918(u8 ch, u8 * ptrArg04)
 	u8 ok;
 
 	cx_30 = (u16)((u16)ch << 8);        /* SEQ(ch, 0x00) */
-	ok = fn1EDA_0776(ptrArg04, (u8 *)&es_bx_185, &dx_20.w, &di_19);
+	ok = renamed_1eda_0776(ptrArg04, (u8 *)&es_bx_185, &dx_20.w, &di_19);
 	bx_18 = (void *)(uintptr_t)es_bx_185;
 	if (ok)
 	{
@@ -324,7 +324,7 @@ l1EDA_0947:
 }
 
 /* 1EDA:0953 -- copy wArg04 bytes from ptrArg0A to ptrArg06 (rep movsb). */
-void fn1EDA_0953(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
+void renamed_1eda_0953(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 {
 	memcpy(ptrArg06, ptrArg0A, (u32)wArg04);
 }
@@ -347,8 +347,8 @@ u32 fn1EDA_096F(u16 ax, u16 cx, u16 dx, u16 bx)
  * original ABI; quotient -> dx:ax (returned in AX, high word via dxOut),
  * remainder -> bx:cx (cxOut/bxOut).  Recovered as the literal 33-iteration
  * restoring long division of 1EDA:0991..09EF (sign handling via pushf/popf).
- * The bx_cx==0 case tail-calls the fatal-error dispatcher fn1EDA_00E2(200). */
-s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 * dxOut, s16 * bxOut, void * dsOut)
+ * The bx_cx==0 case tail-calls the fatal-error dispatcher renamed_1eda_00e2(200). */
+s16 renamed_1eda_098a(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 * dxOut, s16 * bxOut, void * dsOut)
 {
 	u16 cx_v = (u16)bx_cx;
 	u16 bx_v = (u16)(bx_cx >> 16);
@@ -367,7 +367,7 @@ s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 *
 		u16 dx_24;
 		u16 bx_21;
 		void *ds_23 = NULL;
-		u16 ax_20 = fn1EDA_00E2(0xC8, wArg00, wArg02, &cx_22, &dx_24, &bx_21, &ds_23);
+		u16 ax_20 = renamed_1eda_00e2(0xC8, wArg00, wArg02, &cx_22, &dx_24, &bx_21, &ds_23);
 
 		*cxOut = (s16)cx_22;
 		*dxOut = (s16)dx_24;
@@ -477,7 +477,7 @@ s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 *
 }
 
 /* 1EDA:0A1F -- copy a length-prefixed string (lodsb/stosb/rep movsb). */
-void fn1EDA_0A1F(u8 * ptrArg04, u8 * ptrArg08)
+void renamed_1eda_0a1f(u8 * ptrArg04, u8 * ptrArg08)
 {
 	u8 al_14 = ptrArg04[0];
 

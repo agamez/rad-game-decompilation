@@ -311,7 +311,7 @@ u16 bios_kbd_get_keystroke(void)
 {
     u8 ascii, scan;
     /* int 16h AH=00 BLOCKS until a key is available (the game's title-screen
-     * wait relies on it: fn0800_4255 calls 1E78:030D right after loading
+     * wait relies on it: renamed_0800_4255 calls 1E78:030D right after loading
      * RAD.TIT and must not fall through).  Poll the SDL queue and yield
      * until a key arrives; the window-close flag breaks the wait so the
      * main loop's quit path stays reachable. */

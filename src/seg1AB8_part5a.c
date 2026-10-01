@@ -76,7 +76,7 @@ static void bgi_free_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_0538
 	u16 dsOut_0538 = 0x0000;
 
 	if (*ptrArg08 != 0x00000000u)
-		(void)fn1EDA_0254(wArg06, (u16)(*ptrArg08 & 0xFFFFu),
+		(void)renamed_1eda_0254(wArg06, (u16)(*ptrArg08 & 0xFFFFu),
 		                  (u16)((*ptrArg08 >> 16) & 0xFFFFu),
 		                  0, &dxOut_0538, &dsOut_0538);
 	*ptrArg08 = 0x00000000u;
@@ -146,9 +146,9 @@ l1AB8_15E8:
 
 	/* 160A: build the file name "<record name><suffix at 1AB8:1531>" then
 	 * open it.  bgi_open_video_driver_file(0xFFF3, &size, ds:0B74Ch, ds:0B764h, dsOut). */
-	fn1EDA_0A1F((u8 *)pRec + 0x0A, abBuf);
-	fn1EDA_0AAC(&g_seg1AB8[0x1531], abBuf);
-	fn1EDA_0A39(0x08, &g_dgroup[0xB74C], abBuf, &dx_45);
+	renamed_1eda_0a1f((u8 *)pRec + 0x0A, abBuf);
+	renamed_1eda_0aac(&g_seg1AB8[0x1531], abBuf);
+	renamed_1eda_0a39(0x08, &g_dgroup[0xB74C], abBuf, &dx_45);
 
 	if (bgi_open_video_driver_file(0xFFF3, (u8 *)&wLoc02, &g_dgroup[0xB74C],
 	                &g_dgroup[0xB764], &ds_1536) == 0x00)
@@ -180,7 +180,7 @@ l1AB8_15E8:
 	if (dwLoc06 == 0x00000000u)
 	{
 		/* 16A7: allocation failed. */
-		fn1EDA_1051(0x00, &g_dgroup[0xB6CA]);
+		renamed_1eda_1051(0x00, &g_dgroup[0xB6CA]);
 		LG16(0xB818) = 0xFFF7;
 		wArg08 = 0x0000;
 		wArg04 = 0x0001;
@@ -188,10 +188,10 @@ l1AB8_15E8:
 	}
 
 	/* 16C4: read the blob into the allocation, close, then validate it. */
-	ax_10BB = fn1EDA_10BB((u8 *)0, wLoc02,
+	ax_10BB = renamed_1eda_10bb((u8 *)0, wLoc02,
 	                      (u8 *)far_ptr(dwLoc06), &g_dgroup[0xB6CA]);
-	fn1EDA_1051((u8)ax_10BB, &g_dgroup[0xB6CA]);
-	if (fn1EDA_04A2() != 0x00)
+	renamed_1eda_1051((u8)ax_10BB, &g_dgroup[0xB6CA]);
+	if (renamed_1eda_04a2() != 0x00)
 		goto l1AB8_1709;
 
 	ax_06CA = bgi_unload_video_driver(far_ptr(dwLoc06));
@@ -231,11 +231,11 @@ l1AB8_175E:
 // 1AB8:1783: u16 bgi_display_error_string(u8 * ptrArg04)
 u16 bgi_display_error_string(u8 * ptrArg04)  /* was fn1AB8_1783 */
 {
-	u8  abBuf[0x100];   /* [bp-0102h] fn1EDA_0A39 destination (0x100 bytes) */
+	u8  abBuf[0x100];   /* [bp-0102h] renamed_1eda_0a39 destination (0x100 bytes) */
 	u16 wLoc02;         /* [bp-0002h] */
 	u16 dx_60;
 
-	fn1EDA_0A39(0xFF, abBuf, ptrArg04, &dx_60);
+	renamed_1eda_0a39(0xFF, abBuf, ptrArg04, &dx_60);
 	wLoc02 = bgi_get_string_length();
 	return wLoc02;
 }
@@ -266,7 +266,7 @@ void bgi_init_graphics_driver(void)  /* was fn1AB8_17AE */
 	LG8(0xB756) = 0x00;
 	LG16(0xB7B8) = 0x0006;
 	LG16(0xB7BA) = 0x000A;
-	LG16(0xB850) = 0x0001;   /* asm shows [fn0800_3850]; bytes are C7 06 50 B8 */
+	LG16(0xB850) = 0x0001;   /* asm shows [renamed_0800_3850]; bytes are C7 06 50 B8 */
 	LG16(0xB84A) = 0x0001;
 	LG16(0xB84C) = 0x0001;
 }

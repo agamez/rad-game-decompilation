@@ -36,7 +36,7 @@ static u16 far_heap_word(u16 seg, u16 off)
 }
 
 /* 1EDA:0000 */
-u16 fn1EDA_0000(void * es)
+u16 renamed_1eda_0000(void * es)
 {
 	u16 ss;
 	u16 fp;
@@ -61,7 +61,7 @@ u16 fn1EDA_0000(void * es)
 	LG16(0x5350) = ax_15;
 	/* t5348 ships zero and is not written before this point: the far heap
 	 * starts with its top AT the base and grows toward the PSP memtop
-	 * ([0x5364]) as allocations extend it (fn1EDA_0308 l1EDA_039C). */
+	 * ([0x5364]) as allocations extend it (renamed_1eda_0308 l1EDA_039C). */
 	ax_18 = (u16)(ax_15 + LG16(0x5348));
 	LG16(0x5352) = ax_18;
 	LG16(0x535C) = ax_18;
@@ -91,10 +91,10 @@ u16 fn1EDA_0000(void * es)
 
 	/* Build the two DGROUP:0B8BC / 0B9BC string blocks from the table at
 	 * 1EDA:0218 (Reko: a01EE + 42). */
-	fn1EDA_04F5(&g_seg1EDA[0x0218], &g_dgroup[0xB8BC]);
-	fn1EDA_0565(&g_dgroup[0xB8BC]);
-	fn1EDA_04F5(&g_seg1EDA[0x0218], &g_dgroup[0xB9BC]);
-	fn1EDA_056A(&g_dgroup[0xB9BC]);
+	renamed_1eda_04f5(&g_seg1EDA[0x0218], &g_dgroup[0xB8BC]);
+	renamed_1eda_0565(&g_dgroup[0xB8BC]);
+	renamed_1eda_04f5(&g_seg1EDA[0x0218], &g_dgroup[0xB9BC]);
+	renamed_1eda_056a(&g_dgroup[0xB9BC]);
 
 	/* Normal path leaves AX = 0 at the retf (see REPORT.md); the sole
 	 * caller only keeps the word as a dropped ds selector. */
@@ -102,7 +102,7 @@ u16 fn1EDA_0000(void * es)
 }
 
 /* 1EDA:00E2 */
-u16 fn1EDA_00E2(u16 ax, u16 wArg00, u16 wArg02, u16 * cxOut, u16 * dxOut, u16 * bxOut, void * dsOut)
+u16 renamed_1eda_00e2(u16 ax, u16 wArg00, u16 wArg02, u16 * cxOut, u16 * dxOut, u16 * bxOut, void * dsOut)
 {
 	/* pop cx ; pop bx ; jmp 00EDh : tail entry into the fatal-error
 	 * dispatcher (00ED).  Reko models the popped CX as wArg00 (which is
@@ -131,16 +131,16 @@ void * fn1EDA_00ED(u16 ax, u16 cx, u16 bx)
 	/* mov dx,2014h ; mov ds,dx ; sti (dropped) */
 	LG16(0x5376) = ax;
 	if ((u16)(cx | bx) == 0x00)
-		fn1EDA_011B(cx, bx);        /* jz 011Bh */
+		renamed_1eda_011b(cx, bx);        /* jz 011Bh */
 	else
-		fn1EDA_00FC(cx, bx);        /* fall through to 00FC */
+		renamed_1eda_00fc(cx, bx);        /* fall through to 00FC */
 	/* DS holds the DGROUP selector 2014h; the flat model maps it to the
 	 * DGROUP image.  The value is only ever passed as a (dropped) ds arg. */
 	return g_dgroup;
 }
 
 /* 1EDA:00FC */
-void fn1EDA_00FC(u16 cx, u16 bx)
+void renamed_1eda_00fc(u16 cx, u16 bx)
 {
 	u16 ax_38;
 	u16 bx_23;
@@ -156,11 +156,11 @@ void fn1EDA_00FC(u16 cx, u16 bx)
 		ax_38 = far_heap_word(ax_38, 0x14);
 	}
 	bx_23 = (u16)(bx - LG16(0x537C));
-	fn1EDA_011B(cx, (u16)(bx_23 - 0x10));
+	renamed_1eda_011b(cx, (u16)(bx_23 - 0x10));
 }
 
 /* 1EDA:011B */
-void fn1EDA_011B(u16 cx, u16 bx)
+void renamed_1eda_011b(u16 cx, u16 bx)
 {
 	u16 cx_49;
 	u8 *si_48;
@@ -171,9 +171,9 @@ void fn1EDA_011B(u16 cx, u16 bx)
 	if ((u16)(LG16(0x5372) | LG16(0x5374)) == 0x00)
 	{
 		/* 1EDA:0140: release the two DGROUP blocks, then restore the
-		 * 0x13 vectors saved by fn1EDA_0000 (AH=25h). */
-		fn1EDA_05BF(&g_dgroup[0xB8BC]);
-		fn1EDA_05BF(&g_dgroup[0xB9BC]);
+		 * 0x13 vectors saved by renamed_1eda_0000 (AH=25h). */
+		renamed_1eda_05bf(&g_dgroup[0xB8BC]);
+		renamed_1eda_05bf(&g_dgroup[0xB9BC]);
 		si_48 = &g_seg1EDA[0x01EE];
 		di_47 = 0xBABC;
 		for (cx_49 = 0x13; cx_49 != 0x00; --cx_49)
@@ -184,13 +184,13 @@ void fn1EDA_011B(u16 cx, u16 bx)
 		}
 		if ((u16)(LG16(0x5378) | LG16(0x537A)) != 0x00)
 		{
-			fn1EDA_01A5(&g_seg1EDA[0x0201]);   /* "Runtime error " */
-			fn1EDA_01B3(LG8(0x5376));
-			fn1EDA_01A5(&g_seg1EDA[0x0210]);   /* " at " */
-			fn1EDA_01CD(LG16(0x537A));
-			fn1EDA_01E7(0x3A);
-			fn1EDA_01CD(LG16(0x5378));
-			fn1EDA_01A5(&g_seg1EDA[0x0215]);   /* ".\r\n" */
+			renamed_1eda_01a5(&g_seg1EDA[0x0201]);   /* "Runtime error " */
+			renamed_1eda_01b3(LG8(0x5376));
+			renamed_1eda_01a5(&g_seg1EDA[0x0210]);   /* " at " */
+			renamed_1eda_01cd(LG16(0x537A));
+			renamed_1eda_01e7(0x3A);
+			renamed_1eda_01cd(LG16(0x5378));
+			renamed_1eda_01a5(&g_seg1EDA[0x0215]);   /* ".\r\n" */
 		}
 		msdos_terminate(LG8(0x5376));
 	}
@@ -207,58 +207,58 @@ void fn1EDA_011B(u16 cx, u16 bx)
 }
 
 /* 1EDA:01A5 */
-void fn1EDA_01A5(u8 * bx)
+void renamed_1eda_01a5(u8 * bx)
 {
 	while (1)
 	{
 		u8 al_6 = *bx;
 		if (al_6 == 0x00)
 			break;
-		fn1EDA_01E7(al_6);
+		renamed_1eda_01e7(al_6);
 		++bx;
 	}
 }
 
 /* 1EDA:01B3 */
-void fn1EDA_01B3(u8 al)
+void renamed_1eda_01b3(u8 al)
 {
-	u8 al_20 = fn1EDA_01BF(fn1EDA_01BF(al, 0x64), 0x0A);
-	fn1EDA_01E7((u8)(al_20 + 0x30));
+	u8 al_20 = renamed_1eda_01bf(renamed_1eda_01bf(al, 0x64), 0x0A);
+	renamed_1eda_01e7((u8)(al_20 + 0x30));
 }
 
 /* 1EDA:01BF */
-u8 fn1EDA_01BF(u8 al, u8 cl)
+u8 renamed_1eda_01bf(u8 al, u8 cl)
 {
 	u16 ax_6 = (u16)al;
 	u8 ah_9 = (u8)(ax_6 % cl);
 	u8 al_10 = (u8)(ax_6 / cl);
-	fn1EDA_01E7((u8)(al_10 + 0x30));
+	renamed_1eda_01e7((u8)(al_10 + 0x30));
 	return ah_9;
 }
 
 /* 1EDA:01CD */
-void fn1EDA_01CD(u16 ax)
+void renamed_1eda_01cd(u16 ax)
 {
 	u8 ah_8 = (u8)(ax >> 8);
-	fn1EDA_01D4(ah_8);
-	fn1EDA_01D4((u8)ax);
+	renamed_1eda_01d4(ah_8);
+	renamed_1eda_01d4((u8)ax);
 }
 
 /* 1EDA:01D4 */
-void fn1EDA_01D4(u8 al)
+void renamed_1eda_01d4(u8 al)
 {
 	/* push ax / pop ax preserve AL across the first call. */
 	u8 al_9 = al;
 	u8 al_21 = al;
-	fn1EDA_01DF((u8)(al_9 >> 0x04));
-	fn1EDA_01DF((u8)(al_21 & 0x0F));
+	renamed_1eda_01df((u8)(al_9 >> 0x04));
+	renamed_1eda_01df((u8)(al_21 & 0x0F));
 }
 
 /* 1EDA:01DF */
-void fn1EDA_01DF(u8 al)
+void renamed_1eda_01df(u8 al)
 {
 	if (al < 0x0A)
-		fn1EDA_01E7((u8)(al + 0x30));
+		renamed_1eda_01e7((u8)(al + 0x30));
 	else
-		fn1EDA_01E7((u8)(al + 55));
+		renamed_1eda_01e7((u8)(al + 55));
 }

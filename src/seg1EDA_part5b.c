@@ -42,7 +42,7 @@
  *   then (width - n) 0x20 spaces (rep stosb) and the n digits (rep movsb),
  * where the digit count is first clamped to wArg04 and the width byte is
  * raised to n if it was smaller.  All comparisons are signed (jle/jge). */
-void fn1EDA_0F26(s16 wArg04, u8 * ptrArg06, s16 wArg0A, u32 dwArg0C)
+void renamed_1eda_0f26(s16 wArg04, u8 * ptrArg06, s16 wArg0A, u32 dwArg0C)
 {
 	u8 tLoc22[0x20];            /* [bp-20h] decimal-conversion scratch */
 	s16 cx_21;                  /* 0E14 digit count (from CX) */
@@ -85,7 +85,7 @@ void fn1EDA_0F26(s16 wArg04, u8 * ptrArg06, s16 wArg0A, u32 dwArg0C)
  * on a parse error or leftover characters *ptrArg04 = (end - ptrArg08) and
  * the return is 0.  siOut receives 0E8E's sign word; esOut receives the flat
  * selector analog of ptrArg04 (note 5). */
-u16 fn1EDA_0F71(u8 * ptrArg04, u8 * ptrArg08, u16 * siOut, void * esOut)
+u16 renamed_1eda_0f71(u8 * ptrArg04, u8 * ptrArg08, u16 * siOut, void * esOut)
 {
 	u8 *di_15 = ptrArg08 + 1;   /* inc di */
 	u16 cx_17 = ptrArg08[0];    /* mov cl,es:[di] ; xor ch,ch */
@@ -106,7 +106,7 @@ u16 fn1EDA_0F71(u8 * ptrArg04, u8 * ptrArg08, u16 * siOut, void * esOut)
 		}
 	}
 
-	err = fn1EDA_0E8E(cx_17, di_15, NULL, &ax_30, &cx_34, &si_33,
+	err = renamed_1eda_0e8e(cx_17, di_15, NULL, &ax_30, &cx_34, &si_33,
 	                  (u8 *)&di_35);           /* call 0E8Eh */
 	if (err || cx_34 != 0x0000)                /* jc 0F8Fh ; jcxz 0F98h */
 	{
@@ -124,7 +124,7 @@ u16 fn1EDA_0F71(u8 * ptrArg04, u8 * ptrArg08, u16 * siOut, void * esOut)
  * id 0xD7B0 at +2, +4..+0x2F zeroed (0x16 word stores), then the
  * length-prefixed string ptrArg04 is copied: count = min(ptrArg04[0],0x4F)
  * bytes from ptrArg04+1 land at +0x30 and a NUL byte terminates the name. */
-void fn1EDA_0FA2(u8 * ptrArg04, u8 * ptrArg08)
+void renamed_1eda_0fa2(u8 * ptrArg04, u8 * ptrArg08)
 {
 	u8 *di_19 = ptrArg08 + 4;
 	u16 cx_24;
@@ -156,7 +156,7 @@ void fn1EDA_0FA2(u8 * ptrArg04, u8 * ptrArg08)
  * opened.  On success the block becomes id 0xD7B3 with the handle at +0 and
  * wArg04 at +4, and wArg04 is returned; dxOut receives the original DX (0 on
  * the dummy path, the name pointer on the open path). */
-u8 fn1EDA_0FD0(u16 wArg04, u8 * ptrArg06, u16 * dxOut)
+u8 renamed_1eda_0fd0(u16 wArg04, u8 * ptrArg06, u16 * dxOut)
 {
 	u8 al_6 = LG8(0x5386);                     /* mov al,[5386h] */
 	u16 dx_124 = 0x0000;                       /* xor dx,dx */
@@ -169,7 +169,7 @@ u8 fn1EDA_0FD0(u16 wArg04, u8 * ptrArg06, u16 * dxOut)
 			LG16(0x5380) = 0x0066;     /* mov [5380h],66h */
 			goto l1EDA_1031;
 		}
-		(void)fn1EDA_1051(al_6, ptrArg06); /* call 1051h (restores AX,DX) */
+		(void)renamed_1eda_1051(al_6, ptrArg06); /* call 1051h (restores AX,DX) */
 	}
 
 	if (ptrArg06[0x30] != 0x00)                /* cmp byte es:[di+30h],0 */
@@ -212,7 +212,7 @@ l1EDA_1031:
  * id is forced back to 0xD7B0.  The `al` argument is not consumed by the
  * original body; the original leaves AX undefined at `retf 4h` and no caller
  * uses the result, so the flat function returns 0 (note 6). */
-u16 fn1EDA_1051(u8 al, u8 * ptrArg04)
+u16 renamed_1eda_1051(u8 al, u8 * ptrArg04)
 {
 	u16 bx_15;
 	u16 ax_16;

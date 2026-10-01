@@ -6,32 +6,32 @@
 
 #include "radtypes.h"
 
-extern void fn1E78_0000(void);
-extern void fn1E78_002E(void);
+extern void renamed_1e78_0000(void);
+extern void renamed_1e78_002e(void);
 /* Port-added (not a recovered routine): the emulated machine's busy-wait
  * pacing hold used by the calibrated delay path (see seg1E78.c). */
 extern void fn1E78_pace_ns(unsigned long long ns);
-extern void fn1E78_0097(u16 ax);
-extern u8 fn1E78_00E5(u16 * dxOut);
-extern u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut);
-extern u16 fn1E78_016B(u16 wArg04, u16 * dxOut);
-extern void fn1E78_01C0(void);
-extern u8 fn1E78_029C(u16 wArg04, u16 * dxOut);
-extern u16 fn1E78_02BF(volatile u8 * es_di, u8 al, u16 cx);
-extern void fn1E78_02C7(u16 wArg04);
-extern u8 fn1E78_02F4(void);
-extern u8 fn1E78_02FB(void);
-extern u16 fn1E78_030D(s16 dx, u16 wArg02, u16 * dxOut);
-extern void fn1E78_032F(void * ptrArg04);
-extern u16 fn1E78_035A(u8 * block);
-extern u16 fn1E78_0392(u8 * block);
-extern u16 fn1E78_043F(u8 * block);
-extern u16 fn1E78_0470(u8 * block);
-extern void fn1E78_0475(u8 ah, s16 dx);
-extern u8 fn1E78_047C(u8 al, s16 dx);
-extern void fn1E78_04D5(u8 dh);
-extern void fn1E78_04F6(void);
-extern u16 fn1E78_04FD(void);
-extern u16 fn1E78_0609(void);
+extern void renamed_1e78_0097(u16 ax);
+extern u8 renamed_1e78_00e5(u16 * dxOut);
+extern u16 renamed_1e78_0143(s16 dx, u16 wArg04, s16 * dxOut);
+extern u16 renamed_1e78_016b(u16 wArg04, u16 * dxOut);
+extern void renamed_1e78_01c0(void);
+extern u8 renamed_1e78_029c(u16 wArg04, u16 * dxOut);
+extern u16 renamed_1e78_02bf(volatile u8 * es_di, u8 al, u16 cx);
+extern void renamed_1e78_02c7(u16 wArg04);
+extern u8 renamed_1e78_02f4(void);
+extern u8 renamed_1e78_02fb(void);
+extern u16 renamed_1e78_030d(s16 dx, u16 wArg02, u16 * dxOut);
+extern void renamed_1e78_032f(void * ptrArg04);
+extern u16 renamed_1e78_035a(u8 * block);
+extern u16 renamed_1e78_0392(u8 * block);
+extern u16 renamed_1e78_043f(u8 * block);
+extern u16 renamed_1e78_0470(u8 * block);
+extern void renamed_1e78_0475(u8 ah, s16 dx);
+extern u8 renamed_1e78_047c(u8 al, s16 dx);
+extern void renamed_1e78_04d5(u8 dh);
+extern void renamed_1e78_04f6(void);
+extern u16 renamed_1e78_04fd(void);
+extern u16 renamed_1e78_0609(void);
 
 #endif /* SEG1E78_H */

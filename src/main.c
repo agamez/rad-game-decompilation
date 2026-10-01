@@ -3,7 +3,7 @@
  * Replaces the DOS program loader: loads the segment images into the flat
  * memory model (what the DOS loader did), initializes the SDL platform
  * layer, fabricates a minimal PSP (program segment prefix) with the
- * command tail, and calls the recovered CRT entry fn0800_4255.
+ * command tail, and calls the recovered CRT entry renamed_0800_4255.
  *
  * Original entry point (from the MZ header): e_ip=0x4255, e_cs=0 relative
  * to load base 0x0800 -> segment 0800, offset 4255 (see analysis/SEGMAP.md).
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
     pal_init();
     rad_load_images();
     build_psp(argc, argv);
-    fn0800_4255(g_psp);          /* recovered CRT entry: init + main loop + exit */
+    renamed_0800_4255(g_psp);          /* recovered CRT entry: init + main loop + exit */
     pal_shutdown();
     return 0;
 }

@@ -66,7 +66,7 @@ static void bgi_alloc_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_051
  *     mov es:[di+2h],ax            ; clear the slot
  *     pop bp / retf 6h
  *
- * fn1EDA_0254's ptrArg06/dxOut/dsOut parameters are the iface.tsv artifact
+ * renamed_1eda_0254's ptrArg06/dxOut/dsOut parameters are the iface.tsv artifact
  * (the .asm pops only wArg00/wArg02/wArg04). */
 static void bgi_free_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_0538 */
 {
@@ -74,7 +74,7 @@ static void bgi_free_driver_blob(u16 wArg06, u32 * ptrArg08)  /* was fn1AB8_0538
 	u16 dsOut_0538 = 0x0000;
 
 	if (*ptrArg08 != 0x00000000u)
-		(void)fn1EDA_0254(wArg06, (u16)(*ptrArg08 & 0xFFFFu),
+		(void)renamed_1eda_0254(wArg06, (u16)(*ptrArg08 & 0xFFFFu),
 		                  (u16)((*ptrArg08 >> 16) & 0xFFFFu),
 		                  0, &dxOut_0538, &dsOut_0538);
 	*ptrArg08 = 0x00000000u;
@@ -114,18 +114,18 @@ u8 bgi_install_video_driver(u8 * ptrArg02, u16 wArg06, u16 * dsOut)  /* was fn1A
 {
 	u8 abBuf20E[0x10C];   /* [bp-020Eh] name scratch; original word at [bp-010Ah] overlapped this buffer */
 	u8 abBuf102[0x100];   /* [bp-0102h] path scratch */
-	u16 wLoc10A;          /* [bp-010Ah] fn1EDA_10BB output word */
+	u16 wLoc10A;          /* [bp-010Ah] renamed_1eda_10bb output word */
 	u8 bLoc03 = 0x00;     /* [bp-001h] */
 	u16 dx_409;
 	u16 dx_410;
 	u16 ax_10BB;
 	u16 ds_097B = 0x0000;
 
-	fn1EDA_0A39(0xFF, abBuf102, ptrArg02, &dx_409);
+	renamed_1eda_0a39(0xFF, abBuf102, ptrArg02, &dx_409);
 	bLoc03 = 0x00;
-	fn1EDA_0A1F(&g_dgroup[(u16)(wArg06 * 0x1A + 0x50FC)], abBuf20E);
-	fn1EDA_0AAC(&g_seg1AB8[0x0976], abBuf20E);
-	fn1EDA_0A39(0x0C, &g_dgroup[0xB756], abBuf20E, &dx_410);
+	renamed_1eda_0a1f(&g_dgroup[(u16)(wArg06 * 0x1A + 0x50FC)], abBuf20E);
+	renamed_1eda_0aac(&g_seg1AB8[0x0976], abBuf20E);
+	renamed_1eda_0a39(0x0C, &g_dgroup[0xB756], abBuf20E, &dx_410);
 
 	if ((LG16((u16)(wArg06 * 0x1A + 0x5112)) |
 	     LG16((u16)(wArg06 * 0x1A + 0x5114))) != 0x00)
@@ -165,12 +165,12 @@ u8 bgi_install_video_driver(u8 * ptrArg02, u16 wArg06, u16 * dsOut)  /* was fn1A
 		goto l1AB8_0AE5;
 	}
 
-	/* original: fn1EDA_10BB(ss:bp-010Ah, [0B82Ch], ds:0B6CAh) */
-	ax_10BB = fn1EDA_10BB((u8 *)&wLoc10A, LG16(0xB82C),
+	/* original: renamed_1eda_10bb(ss:bp-010Ah, [0B82Ch], ds:0B6CAh) */
+	ax_10BB = renamed_1eda_10bb((u8 *)&wLoc10A, LG16(0xB82C),
 	                      (u8 *)far_ptr(LG32(0xB828)), &g_dgroup[0xB6CA]);
-	fn1EDA_1051((u8)ax_10BB, &g_dgroup[0xB6CA]);
+	renamed_1eda_1051((u8)ax_10BB, &g_dgroup[0xB6CA]);
 
-	if (fn1EDA_04A2() != 0x00)
+	if (renamed_1eda_04a2() != 0x00)
 		goto l1AB8_0AB5;
 	if (wLoc10A != LG16(0xB82C))
 		goto l1AB8_0AB5;
@@ -214,7 +214,7 @@ u16 bgi_init_graphics_system(void)  /* was fn1AB8_0AEE */
 		bgi_set_text_color_attribute(0x00);
 	LG8(0xB840) = 0x00;
 	bgi_get_text_cursor_attributes((u8)bgi_get_char_width());
-	fn1EDA_1202(0xFF, 0x08, abLoc08);
+	renamed_1eda_1202(0xFF, 0x08, abLoc08);
 	bgi_load_font_file(bgi_get_char_width(), abLoc08);
 	bgi_set_text_font_size(bgi_get_char_width(), 0x01);
 	bgi_set_text_background_color(0x01, 0x00, 0x00);
@@ -241,7 +241,7 @@ u16 bgi_load_bgi_driver(u8 * ptrArg04, s16 * ptrArg08, u8 * ptrArg0C)  /* was fn
 	u16 ax_69;
 	u16 dx_69;
 
-	fn1EDA_0A39(0xFF, abLoc100, ptrArg04, &dx_695);
+	renamed_1eda_0a39(0xFF, abLoc100, ptrArg04, &dx_695);
 	LG16(0xB820) = 0x2073;
 	LG16(0xB822) = 0x1AB8;
 	/* original: bgi_reloc_copy_with_alignment with the far pointer 1AB8:2073 twice
@@ -297,7 +297,7 @@ l1AB8_0C86:
 	}
 
 	LG16(0xB816) = *(u16 *)ptrArg08;
-	fn1EDA_0A39(0x50, abLoc100, &g_dgroup[0xB764], &dx_696);
+	renamed_1eda_0a39(0x50, abLoc100, &g_dgroup[0xB764], &dx_696);
 
 	if (LG8(0xB764) == 0x00)
 		goto l1AB8_0D52;
@@ -308,9 +308,9 @@ l1AB8_0C86:
 	if (bLoc0101 == 0x5C)
 		goto l1AB8_0D52;
 
-	fn1EDA_0A1F(abLoc100, abLoc208);
-	fn1EDA_0AAC(&g_seg1AB8[0x0BAC], abLoc208);
-	fn1EDA_0A39(0x50, &g_dgroup[0xB764], abLoc208, &dx_697);
+	renamed_1eda_0a1f(abLoc100, abLoc208);
+	renamed_1eda_0aac(&g_seg1AB8[0x0BAC], abLoc208);
+	renamed_1eda_0a39(0x50, &g_dgroup[0xB764], abLoc208, &dx_697);
 
 l1AB8_0D52:
 	if (bgi_install_video_driver(&g_dgroup[0xB764], LG16(0xB814), &dx_698) == 0x00)
@@ -320,7 +320,7 @@ l1AB8_0D52:
 		goto l1AB8_0E82;
 	}
 
-	fn1EDA_1202(0x00, 0x3F, &g_dgroup[0xB7D4]);
+	renamed_1eda_1202(0x00, 0x3F, &g_dgroup[0xB7D4]);
 	LG16(0xB7BC) = LG16(0x536E);
 	LG16(0xB7BE) = LG16(0x5370);
 	LG16(0x536E) = 0x050B;
@@ -352,8 +352,8 @@ l1AB8_0D52:
 	LG16(0xB7F0) = 0x0000;   /* DS selector dropped in the flat model */
 
 	bgi_set_text_cursor_position(&g_dgroup[0xB7D4]);
-	/* original: fn1EDA_11DF(13h, ds:0B7C0h, far pointer held at ds:0B83Ah) */
-	fn1EDA_11DF(0x13, &g_dgroup[0xB7C0], (u8 *)far_ptr(LG32(0xB83A)));
+	/* original: renamed_1eda_11df(13h, ds:0B7C0h, far pointer held at ds:0B83Ah) */
+	renamed_1eda_11df(0x13, &g_dgroup[0xB7C0], (u8 *)far_ptr(LG32(0xB83A)));
 	bgi_set_active_font(&g_dgroup[0xB7D4]);
 
 	if (LG8(0xB7C0) != 0x00)

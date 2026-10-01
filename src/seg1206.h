@@ -6,16 +6,16 @@
 
 #include "radtypes.h"
 
-extern u8 fn1206_0000(void);
-extern u16 fn1206_000D(u16 * siOut, void * esOut, void * dsOut);
-extern u8 fn1206_0038(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut);
-extern u8 fn1206_0066(void * bpOut, u16 * dsOut);
-extern u8 fn1206_0094(u16 * dxOut, u16 * bpOut, u16 * dsOut);
-extern u16 fn1206_00D1(void * ds, u16 * siOut, void * esOut, void * dsOut);
-extern u16 fn1206_00FF(u16 * dsOut);
-extern u16 fn1206_012D(void * ds, void * dsOut);
-extern u16 fn1206_015B(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut);
-extern u16 fn1206_01AC(u16 * siOut, void * esOut, u16 * dsOut);
+extern u8 renamed_1206_0000(void);
+extern u16 renamed_1206_000d(u16 * siOut, void * esOut, void * dsOut);
+extern u8 renamed_1206_0038(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut);
+extern u8 renamed_1206_0066(void * bpOut, u16 * dsOut);
+extern u8 renamed_1206_0094(u16 * dxOut, u16 * bpOut, u16 * dsOut);
+extern u16 renamed_1206_00d1(void * ds, u16 * siOut, void * esOut, void * dsOut);
+extern u16 renamed_1206_00ff(u16 * dsOut);
+extern u16 renamed_1206_012d(void * ds, void * dsOut);
+extern u16 renamed_1206_015b(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut);
+extern u16 renamed_1206_01ac(u16 * siOut, void * esOut, u16 * dsOut);
 extern u8 * fn1206_0217(u16 * bpOut, void * dsOut);
 
 #endif /* SEG1206_H */

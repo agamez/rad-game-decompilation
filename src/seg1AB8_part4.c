@@ -43,7 +43,7 @@ u16 bgi_get_char_byte_width(u16 wArg02, void * dsOut)  /* was fn1AB8_11FB */
 	 * 096F multiply; the pops restore it as bx:cx.  The two stack words 098A
 	 * receives (wArg00/wArg02) are the values Reko's IR recovered (ax_11 and
 	 * 0); the original relies on the leftover stack slots.  See notes. */
-	ax_43 = (u16)fn1EDA_098A((u32)ax_11,
+	ax_43 = (u16)renamed_1eda_098a((u32)ax_11,
 	                         fn1EDA_096F(wArg02, LG16(0xB84A), 0x0000, 0x0000),
 	                         ax_11, 0x0000,
 	                         &cx_69, &dx_70, &bx_71, &ds_46);
@@ -54,13 +54,13 @@ u16 bgi_get_char_byte_width(u16 wArg02, void * dsOut)  /* was fn1AB8_11FB */
 // 1AB8:122E: u16 bgi_draw_scaled_text_number(u16 wArg04, u16 wArg06, u16 wArg08)
 //
 // Draw one scaled number with the BGI text driver.  The ONLY caller in the
-// whole program is fn0800_3CFA's machine-speed calibration poll (0800:3D1E):
+// whole program is renamed_0800_3cfa's machine-speed calibration poll (0800:3D1E):
 // 3CFA counts how many of these polls fit in a fixed 100-centisecond window
 // and stores count*8/100 at DGROUP:58E6h -- the game-wide animation speed
 // index (the 02D8h/070Dh tick units are derived from it).  On the emulated
 // era machine one poll (this BGI text draw plus the clock read) costs
 // ~10-16ms, so the window holds ~88-99 polls and 58E6h settles at the game's
-// own startup default of 7 (see fn0800_4255: `mov word [58E6h],7h`).  The
+// own startup default of 7 (see renamed_0800_4255: `mov word [58E6h],7h`).  The
 // host executes the draw thousands of times faster, which would store a
 // garbage-high index and re-time every animation; this hook therefore gives
 // each poll the emulated machine's cost, exactly like the calibrated 029Ch
@@ -140,7 +140,7 @@ void bgi_install_text_font(void * ptrArg04)  /* was fn1AB8_129A */
 	if (p[1] != 0xFF)              /* cmp byte ptr es:[di+1],0FFh ; jz */
 		LG8(0xB840) = 0x00;
 
-	fn1EDA_11DF(0x11, buf, &g_dgroup[0xB87A]);
+	renamed_1eda_11df(0x11, buf, &g_dgroup[0xB87A]);
 	buf[0x11] = 0x00;              /* mov byte ptr [bp-5h],0 */
 	bgi_set_text_style_attribute(buf);
 }
@@ -169,9 +169,9 @@ u8 bgi_set_text_character_color(u8 bArg04, u16 wArg06)  /* was fn1AB8_1342 */
 // 1AB8:1384: void bgi_load_font_info(u8 * ptrArg04)
 void bgi_load_font_info(u8 * ptrArg04)  /* was fn1AB8_1384 */
 {
-	/* fn1EDA_0953 copies 0x11 bytes from the pointer returned by bgi_get_char_info
+	/* renamed_1eda_0953 copies 0x11 bytes from the pointer returned by bgi_get_char_info
 	 * into ptrArg04 (asm pushes the destination first, source last). */
-	fn1EDA_0953(0x11, ptrArg04, bgi_get_char_info());
+	renamed_1eda_0953(0x11, ptrArg04, bgi_get_char_info());
 }
 
 // 1AB8:13A3: u16 bgi_clamp_rectangle_coords(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
@@ -236,7 +236,7 @@ void bgi_draw_text_string(u8 * ptrArg04)  /* was fn1AB8_1492 */
 	u8  ch_158;
 	u16 ax_1E0B;
 
-	fn1EDA_0A39(0xFF, buf, ptrArg04, &dx_157);
+	renamed_1eda_0a39(0xFF, buf, ptrArg04, &dx_157);
 	(void)bgi_get_char_size_info(buf, LG16(0xB846), LG16(0xB844), &ch_158);
 	if (LG16(0xB892) == 0x0000 && LG16(0xB88E) == 0x0000)
 	{

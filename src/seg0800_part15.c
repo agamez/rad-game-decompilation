@@ -15,7 +15,7 @@
  *   mouse service is owned by the callees and was replaced in their own
  *   segments: seg1EDA (runtime init 0000, the stream layer 0FA2/0FD0/04A9/
  *   116A/1051/0AD8/1216/0F71/1265/129E/0CD4/0E07), seg1E78 (keyboard and PIT
- *   through fn1E78_0000/02FB/030D), seg1206 (mouse through fn1206_0217/00FF/
+ *   through renamed_1e78_0000/02FB/030D), seg1206 (mouse through fn1206_0217/00FF/
  *   012D/00D1, INT 33h via dos_interrupt_trampoline), seg1AB8 (video/text through
  *   bgi_init_graphics_driver/1CBA/1342/1536/14F4/10CE/1D82/1175), seg13E2 (BGI startup
  *   0220/0001/0193/003B), the video-mode / mouse init in seg13C8 / 13C1 /
@@ -24,7 +24,7 @@
  *
  * Flat-model far pointers (CONVENTIONS.md memory model):
  *   cs:4160h = {7,"RAD.DAT"}, cs:41C7h = {1,'S'}, cs:41C9h = {1,'s'},
- *   cs:41CBh and cs:421Eh (the fn1EDA_0CD4 bit tables), cs:41EBh =
+ *   cs:41CBh and cs:421Eh (the renamed_1eda_0cd4 bit tables), cs:41EBh =
  *   {7,"RAD.TIT"}, cs:41F3h (the "je ne fonctionne que sur carte VGA"
  *   length-prefixed record) and cs:423Eh = {0x16,"Chargement en cours..."}
  *   all resolve to &g_seg0800[0x....] (verified against
@@ -78,16 +78,16 @@
 #include "seg0C74.h"
 #include "seg0C43.h"
 
-// 0800:4168: u16 fn0800_4168(void)
+// 0800:4168: u16 renamed_0800_4168(void)
 // Reko models a dropped DGROUP-selector parameter and return (both are
 // discarded in the flat model).  Loads the RAD.DAT data-file stream: it
 // probes cs:4160h ("RAD.DAT") with engine_probe_file; on failure it runs
-// fn0800_0000 (the terminate path).  It then (re)initialises the stream block
+// renamed_0800_0000 (the terminate path).  It then (re)initialises the stream block
 // at [bp-80h] (1EDA:0FA2), opens record 219h (1EDA:0FD0), reads it back
 // through 1EDA:04A9/116A/04A9, stores (record length - 2) into DGROUP:5CB2h
 // and closes the block with 1EDA:1051.  Returns the dropped DGROUP selector
-// (the port leaves it 0).  Called from 0800:43FE (in fn0800_4255).
-u16 fn0800_4168(void)
+// (the port leaves it 0).  Called from 0800:43FE (in renamed_0800_4255).
+u16 renamed_0800_4168(void)
 {
 	u8  abBuf[0x80];      /* [bp-80h] RAD.DAT stream block / record buffer */
 	u16 dx_189 = 0x0000;  /* 0C74:0000 dxOut                               */
@@ -106,15 +106,15 @@ u16 fn0800_4168(void)
 	if (engine_probe_file(&g_seg0800[0x4160], &dx_189) == 0x00)
 	{
 		/* l0800_417A: call 0000h (near) -- the terminate path. */
-		(void)fn0800_0000();
+		(void)renamed_0800_0000();
 	}
 
 	/* l0800_417D: push ss:bp-80h ; push cs:4160h ;
 	 * call far 1EDAh:0FA2h (re-init the stream block with "RAD.DAT"). */
-	fn1EDA_0FA2(&g_seg0800[0x4160], abBuf);
+	renamed_1eda_0fa2(&g_seg0800[0x4160], abBuf);
 
 	/* push 219h ; push ss:bp-80h ; call far 1EDAh:0FD0h (open record 219h). */
-	(void)fn1EDA_0FD0(0x0219, abBuf, &dx_190);
+	(void)renamed_1eda_0fd0(0x0219, abBuf, &dx_190);
 
 	/* call far 1EDAh:04A9h: register-preserving trap, no pushed words. */
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_192, &ds_95);
@@ -124,14 +124,14 @@ u16 fn0800_4168(void)
 	 * 219h-byte records); the following 04A9h trap preserves it in the
 	 * original (register-preserving retf), so the flat port keeps the
 	 * 116Ah result here instead of the trap's 0. */
-	ax_120 = fn1EDA_116A(abBuf, &ds_113);
+	ax_120 = renamed_1eda_116a(abBuf, &ds_113);
 
 	/* call far 1EDAh:04A9h ; sub ax,2h ; sbb dx,0h ; mov [5CB2h],al */
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_193, &ds_123);
 	LG8(0x5CB2) = (u8)((u16)ax_120 - 0x0002);
 
 	/* push ss:bp-80h ; call far 1EDAh:1051h (AL = low byte of ax_120 - 2). */
-	(void)fn1EDA_1051((u8)((u16)ax_120 - 0x0002), abBuf);
+	(void)renamed_1eda_1051((u8)((u16)ax_120 - 0x0002), abBuf);
 
 	/* call far 1EDAh:04A9h ; leave ; ret */
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_196, &ds_154);
@@ -140,15 +140,15 @@ u16 fn0800_4168(void)
 	return ds_154;
 }
 
-// 0800:4255: void fn0800_4255(void * es)
+// 0800:4255: void renamed_0800_4255(void * es)
 // The MZ entry point and recovered CRT startup.  `es` is the caller-fabricated
-// PSP pointer (src/main.c passes g_psp); it is handed to fn1EDA_0000, the
+// PSP pointer (src/main.c passes g_psp); it is handed to renamed_1eda_0000, the
 // runtime initialiser.  After the fixed init sequence the function selects the
 // startup path from the PSP command tail, scans the command-line tokens for a
 // data-file / drive selector (DGROUP:53D4h/53DFh, 58E6h), installs the VGA
 // palette and "Chargement en cours..." banner, resets the main-menu state and
-// then loops forever in the menu driver fn0800_3D9D.  Called only by main().
-void fn0800_4255(void *es)
+// then loops forever in the menu driver renamed_0800_3d9d.  Called only by main().
+void renamed_0800_4255(void *es)
 {
 	/* enter 200h,0h: a single 0x200-byte frame reused for three overlapping
 	 * command-tail token buffers -- [bp-0x100], [bp-0x200] and the
@@ -186,14 +186,14 @@ void fn0800_4255(void *es)
 	/* ---- CRT initialisation (exact original call order) ----
 	 * call far 1EDAh:0000h -- runtime/real-mode init; receives the PSP and
 	 * returns the DGROUP selector (threaded in the original, dropped here). */
-	(void)fn1EDA_0000(es);
+	(void)renamed_1eda_0000(es);
 	/* call far 1E78h:0000h -- keyboard state init. */
-	fn1E78_0000();
+	renamed_1e78_0000();
 	/* call far 1AB8h:17AEh -- BGI/video device-table init. */
 	bgi_init_graphics_driver();
 	/* call far 13E2h:0220h ; call far 13C8h:0139h -- 0139h receives 0220h's
 	 * return (the DGROUP selector) as its DS argument. */
-	config_mouse_init((void *)(uintptr_t)fn13E2_0220());
+	config_mouse_init((void *)(uintptr_t)renamed_13e2_0220());
 	/* call far 13C1h:0067h ; call far 133Fh:0816h -- 0067h returns the
 	 * video-mode selector that the original feeds to 0816h through a
 	 * register; the frozen 0816h prototype takes no argument, so the calls
@@ -208,13 +208,13 @@ void fn0800_4255(void *es)
 	/* call far 0C74h:552Fh -- menu system init. */
 	engine_crt_startup();
 	/* call far 0C43h:02FBh -- resource/palette system init. */
-	fn0C43_02FB();
+	renamed_0c43_02fb();
 
 	/* ---- startup-path selection ----
 	 * l0800_42AB block.  push cs:41C7h ; push ss:bp-100h ; push 1h ;
 	 * call far 1EDAh:1216h: the word is the PSP token index; 1216h leaves
 	 * cs:41C7h / ss:bp-100h on the stack (it only pops the word). */
-	fn1EDA_1216(es_si_736, 0x0001, &abFrame[0x100]);
+	renamed_1eda_1216(es_si_736, 0x0001, &abFrame[0x100]);
 	/* call far 1EDAh:0AD8h with no pushes: the two leftover far pointers
 	 * are (text = ss:bp-100h, pattern = cs:41C7h = "S"). */
 	es_si_737 = fn1EDA_0AD8(&abFrame[0x100], &g_seg0800[0x41C7], &ax_141);
@@ -223,7 +223,7 @@ void fn0800_4255(void *es)
 	{
 		/* l0800_42AB: push cs:41C9h ; push ss:bp-200h ; push 1h ;
 		 * call far 1EDAh:1216h (pattern "s"). */
-		fn1EDA_1216(es_si_737, 0x0001, &abFrame[0x000]);
+		renamed_1eda_1216(es_si_737, 0x0001, &abFrame[0x000]);
 		/* call far 1EDAh:0AD8h (leftover text/pattern again). */
 		(void)fn1EDA_0AD8(&abFrame[0x000], &g_seg0800[0x41C9], &ax_185);
 		/* or ax,ax ; jz 42CBh */
@@ -251,12 +251,12 @@ l0800_42CB:
 		{
 			/* l0800_42EF: push ss:bp-102h ; push [53D6h] ;
 			 * call far 1EDAh:1216h (build the n-th token). */
-			fn1EDA_1216(es_si_738, LG16(0x53D6), &abFrame[0x0FE]);
+			renamed_1eda_1216(es_si_738, LG16(0x53D6), &abFrame[0x0FE]);
 			/* mov di,53D4h ; push ds ; push di ;
 			 * call far 1EDAh:0F71h: the leftover ss:bp-102h is the
 			 * source text, ds:53D4h the destination word; the
 			 * returned AL is the parsed value. */
-			ax_272 = fn1EDA_0F71(&g_dgroup[0x53D4], &abFrame[0x0FE],
+			ax_272 = renamed_1eda_0f71(&g_dgroup[0x53D4], &abFrame[0x0FE],
 			                     &si_278, &es_277);
 			LG8(0x53DF) = (u8)ax_272;
 			/* cmp word ptr [53D4h],0h ; jnz 432Dh */
@@ -266,7 +266,7 @@ l0800_42CB:
 				 * call far 1EDAh:0CD4h ; jz 432Dh.
 				 * The AX pushed is the low/high pair of ax_272,
 				 * so 0CD4h's bit index (AL) is ax_272's low byte. */
-				if (fn1EDA_0CD4(&g_seg0800[0x41CB], (u8)ax_272,
+				if (renamed_1eda_0cd4(&g_seg0800[0x41CB], (u8)ax_272,
 				                &es_277) == 0x00)
 					/* mov al,[53DFh] ; xor ah,ah ;
 					 * imul ax,ax,7h ; mov [58E6h],ax */
@@ -283,35 +283,35 @@ l0800_42CB:
 
 	/* l0800_4335: mov di,41EBh ; push cs ; push di ; call far 0C43h:00B9h ;
 	 * call far 1E78h:030Dh (the 00B9h return seeds 030Dh's DX). */
-	ax_00b9 = fn0C43_00B9(&g_seg0800[0x41EB], &ds_346);
-	(void)fn1E78_030D((s16)ax_00b9, 0x0000, &dx_360);
+	ax_00b9 = renamed_0c43_00b9(&g_seg0800[0x41EB], &ds_346);
+	(void)renamed_1e78_030d((s16)ax_00b9, 0x0000, &dx_360);
 	/* l0800_4344: call far 1E78h:02FBh ; or al,al ; jz 4354h */
-	while (fn1E78_02FB() != 0x00)
+	while (renamed_1e78_02fb() != 0x00)
 		/* l0800_434D: call far 1E78h:030Dh ; jmp 4344h */
-		(void)fn1E78_030D((s16)dx_360, 0x0000, &dx_360);
+		(void)renamed_1e78_030d((s16)dx_360, 0x0000, &dx_360);
 
 	/* l0800_4354: call far 13E2h:0001h ; or al,al ; jnz 4367h */
-	if (fn13E2_0001(&ds_384) == 0x00)
+	if (renamed_13e2_0001(&ds_384) == 0x00)
 	{
 		/* l0800_435D: mov di,41F3h ; push cs ; push di ;
 		 * call far 13E2h:0193h -- report the fatal "graphics driver"
 		 * record (normally does not return). */
-		ds_384 = fn13E2_0193(&g_seg0800[0x41F3]);
+		ds_384 = renamed_13e2_0193(&g_seg0800[0x41F3]);
 	}
 	/* l0800_4367: call far 1EDAh:0E07h (read the system clock) ;
 	 * mov byte ptr [58BEh],0h ; call far 13E2h:003Bh. */
-	fn1EDA_0E07();
+	renamed_1eda_0e07();
 	LG8(0x58BE) = 0x00;
-	(void)fn13E2_003B();
+	(void)renamed_13e2_003b();
 
 	/* push 0h ; push ds:550Eh ; push 4Fh ; call far 1EDAh:129Eh --
 	 * build the "X:\cwd" path into DGROUP:550Eh (bArg0A = 0 selects the
 	 * current default drive; DH = 0). */
-	bRet129E = fn1EDA_129E(0x00, 0x004F, &g_dgroup[0x550E], 0x00);
+	bRet129E = renamed_1eda_129e(0x00, 0x004F, &g_dgroup[0x550E], 0x00);
 	/* mov al,[550Fh] (the built path's first character, the drive letter);
 	 * push ax ; push cs:421Eh ; call far 1EDAh:0CD4h ; jz 43D7h. */
 	ax_129E = (u16)(((u16)bRet129E << 8) | (u16)LG8(0x550F));
-	if (fn1EDA_0CD4(&g_seg0800[0x421E], (u8)ax_129E, &es_743) == 0x00)
+	if (renamed_1eda_0cd4(&g_seg0800[0x421E], (u8)ax_129E, &es_743) == 0x00)
 	{
 		/* l0800_4394: push 0Fh ; push 3Fh ; push 3Fh ; push 3Fh ;
 		 * call far 1AB8h:1CBAh (install the 16 VGA palette pins). */
@@ -343,20 +343,20 @@ l0800_42CB:
 	 * threads the DGROUP selector each returns as the next call's DS; the
 	 * frozen prototypes take none, so the three calls are kept in order. */
 	(void)engine_load_resources();
-	(void)fn0800_03F8();
-	(void)fn0800_4168();
+	(void)renamed_0800_03f8();
+	(void)renamed_0800_4168();
 	/* push 1h ; push 16h ; call 04CCh ; push ax ;
 	 * call far 1206h:00FFh (the pushed 1h / 04CCh result are 00FFh's cx/dx
 	 * words, dropped by the frozen prototype). */
-	(void)fn0800_04CC(0x0016);
-	(void)fn1206_00FF(&ds_657);
+	(void)renamed_0800_04cc(0x0016);
+	(void)renamed_1206_00ff(&ds_657);
 	/* push 1B0h ; push 1D1h ; call far 1206h:012Dh (dropped cx/dx words). */
-	(void)fn1206_012D(0, &ds_676);
+	(void)renamed_1206_012d(0, &ds_676);
 	/* push 64h ; push 1C2h ; call far 1206h:00D1h (dropped cx/dx words). */
-	(void)fn1206_00D1(0, &si_744, &es_745, &ds_695);
+	(void)renamed_1206_00d1(0, &si_744, &es_745, &ds_695);
 
 	/* l0800_4423: call 3D9Dh ; jmp 4423h -- the recovered main loop never
-	 * returns; fn0800_3D9D owns the menu driver and the quit path. */
+	 * returns; renamed_0800_3d9d owns the menu driver and the quit path. */
 	while (1)
-		(void)fn0800_3D9D();
+		(void)renamed_0800_3d9d();
 }

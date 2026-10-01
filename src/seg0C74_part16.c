@@ -108,7 +108,7 @@ u8 engine_frame_pull_in_extended /* was fn0C74_5258 */(u16 *dsOut)
 	u16 wLoc10 = 0x0000;    /* [bp-10h] bgi_clamp_rectangle_coords size */
 	u16 bpTmp  = 0x0000;    /* 396E / 45CE / 3F74 / 4999 bpOut scratch */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector scratch */
-	u16 dxTmp  = 0x0000;    /* bgi_set_pixel / fn1EDA_0254 dxOut */
+	u16 dxTmp  = 0x0000;    /* bgi_set_pixel / renamed_1eda_0254 dxOut */
 	u8  dlTmp  = 0x00;      /* bgi_draw_line dlOut */
 	{
 		static int tr = -1;
@@ -251,7 +251,7 @@ l0C74_5363:
 	                  (u16)(wLoc06 - 0x0001), wLoc04);
 
 	/* 5417: push [bp-0Ch] ; push [bp-0Eh] ; push [bp-10h] ; call far 0254h */
-	(void)fn1EDA_0254(wLoc10, wLoc0E, wLoc0C, 0,
+	(void)renamed_1eda_0254(wLoc10, wLoc0E, wLoc0C, 0,
 	                  &dxTmp, &dsTmp);
 
 l0C74_5420:
@@ -404,7 +404,7 @@ u8 engine_probe_march_left /* was fn0C74_54F0 */(u16 *dxOut, u16 *bpOut, void *d
 
 // 0C74:552F: void engine_crt_startup(void)
 //
-// CRT startup hook (called from fn0800_4255): arm the input-poll latch
+// CRT startup hook (called from renamed_0800_4255): arm the input-poll latch
 // DGROUP:58B2h.
 void engine_crt_startup /* was fn0C74_552F */(void)
 {

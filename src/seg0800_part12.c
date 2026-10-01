@@ -12,10 +12,10 @@
  *   None direct.  No int 10h / int 16h / int 21h, no `in`/`out` port
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   36E6..3C72.  The mouse cursor poll/hide/show goes through segment 1206
- *   (fn1206_0094 / fn1206_0066 / fn1206_0038 / fn1206_015B, themselves INT 33h
+ *   (renamed_1206_0094 / renamed_1206_0066 / renamed_1206_0038 / renamed_1206_015b, themselves INT 33h
  *   wrappers replaced in seg1206.c), keyboard/PIT through segment 1E78
- *   (fn1E78_02FB / 030D / 029C), text/drawing through segment 1AB8 (fn1AB8_*),
- *   records/streams through segment 1EDA (fn1EDA_04F5 / 0565 / 0896 / 081A /
+ *   (renamed_1e78_02fb / 030D / 029C), text/drawing through segment 1AB8 (fn1AB8_*),
+ *   records/streams through segment 1EDA (renamed_1eda_04f5 / 0565 / 0896 / 081A /
  *   0918 / 04A9 / 04A2 / 1384 / 05BF / 0CD4 / 096F), and the system-clock
  *   wrapper dos_get_system_time (INT 21h AH=2Ch -> msdos_get_system_time, already
  *   replaced in seg1E5F.c).  No PAL call is issued in this file.
@@ -24,7 +24,7 @@
  *   cs:38E0h = {7,"RAD.DOC"} (stream name), cs:38E8h = {11," S : SUITE "} and
  *   cs:38F4h = {9," F : FIN "} (button labels) resolve to
  *   &g_seg0800[0x38E0] / [0x38E8] / [0x38F4]; the cs:38FEh bit table (drawn
- *   from fn1EDA_0CD4) is &g_seg0800[0x38FE].  The 391E frame's stream block
+ *   from renamed_1eda_0cd4) is &g_seg0800[0x38FE].  The 391E frame's stream block
  *   ([bp-0110h]) becomes abStream[0x100] and its line buffer ([bp-0210h])
  *   abBuf[0x100].
  *
@@ -44,12 +44,12 @@
 #include "seg1E5F.h"
 #include "seg1E78.h"
 
-/* 0800:36E6: void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+/* 0800:36E6: void renamed_0800_36e6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
  * Draw the four beveled sides of a button box at (wArg06,wArg08) with extent
  * (wArg04,wArg02): set the fill attribute, select the frame, lay the twelve
  * bgi_set_pixel bevels in three colour groups (0Bh between the groups), and the
- * outline box.  Called from fn0800_391E. */
-void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+ * outline box.  Called from renamed_0800_391e. */
+void renamed_0800_36e6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	u16 dx_419;
 	u16 dx_420;
@@ -114,12 +114,12 @@ void fn0800_36E6(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	(void)bgi_set_pixel(wArg02, wArg04, wArg02, wArg08, &dx_430);
 }
 
-/* 0800:3850: u8 fn0800_3850(u8 * chOut, u16 * bpOut, u16 * dsOut)
- * Hit-test the mouse cursor (fn1206_0094) against the third button's slot
+/* 0800:3850: u8 renamed_0800_3850(u8 * chOut, u16 * bpOut, u16 * dsOut)
+ * Hit-test the mouse cursor (renamed_1206_0094) against the third button's slot
  * edges; when the cursor falls strictly inside slot 1 or 2 return the key code
  * stored in the cs:4D07h slot table (DGROUP 4D07h + index), else 0.  The poll
- * loop repeats while a button is held.  Called from fn0800_391E. */
-u8 fn0800_3850(u8 *chOut, u16 *bpOut, u16 *dsOut)
+ * loop repeats while a button is held.  Called from renamed_0800_391e. */
+u8 renamed_0800_3850(u8 *chOut, u16 *bpOut, u16 *dsOut)
 {
 	u16 wLoc04 = 0x0000;  /* [bp-4h] 1206:0094 dsOut (BX, button state) */
 	u16 wLoc06 = 0x0000;  /* [bp-6h] 1206:0094 bpOut (CX, cursor x)     */
@@ -132,7 +132,7 @@ u8 fn0800_3850(u8 *chOut, u16 *bpOut, u16 *dsOut)
 	 * unwritten. */
 	do
 	{
-		(void)fn1206_0094(&wLoc08, &wLoc06, &wLoc04);
+		(void)renamed_1206_0094(&wLoc08, &wLoc06, &wLoc04);
 	} while (wLoc04 != 0x0000);
 
 	/* l0800_386E */
@@ -174,12 +174,12 @@ u8 fn0800_3850(u8 *chOut, u16 *bpOut, u16 *dsOut)
 	return bLoc01;
 }
 
-/* 0800:391E: u16 fn0800_391E(void)
+/* 0800:391E: u16 renamed_0800_391e(void)
  * The "SUITE" (module list) browser: open RAD.DOC, drain the key buffer, paint
  * the frame, list slot rows 1..14h (one stream line each), and run the modal
  * key/mouse loop that selects a module, ends with 53h ('S') or exits with 46h
- * ('F').  Called from fn0800_3D9D. */
-u16 fn0800_391E(void)
+ * ('F').  Called from renamed_0800_3d9d. */
+u16 renamed_0800_391e(void)
 {
 	u8  abStream[0x100];  /* [bp-0110h] RAD.DOC stream block (04F5 et al.) */
 	u8 *abBuf = g_dgroup + 0xFA00;   /* [bp-0210h] line buffer (0896 dest, 1D82 src); [bp-0210h] is SS-resident, and SS==DS in the tiny model, so stage at DGROUP 0xFA00 for the ES:BX materialization */
@@ -231,28 +231,28 @@ u16 fn0800_391E(void)
 	u8 *es_998 = 0;       /* 1EDA:0CD4 esOut (flat analog)                 */
 
 	/* push cs:38E0h ; push ss:bp-0110h ; call far 1EDAh:04F5h */
-	fn1EDA_04F5(&g_seg0800[0x38E0], abStream);
+	renamed_1eda_04f5(&g_seg0800[0x38E0], abStream);
 	/* push ss:bp-0110h ; call far 1EDAh:0565h (reopen RAD.DOC) */
-	dx_42 = fn1EDA_0565(abStream);
+	dx_42 = renamed_1eda_0565(abStream);
 	/* call far 1EDAh:04A2h ; or ax,ax ; jz 3949h */
-	if (fn1EDA_04A2() != 0x00)
+	if (renamed_1eda_04a2() != 0x00)
 		goto l0800_3BF0;
 
 	/* l0800_3949: drain the key buffer.  The original calls 030D with no
 	 * pushed argument, so wArg02 is a stale word seeded 0. */
-	while (fn1E78_02FB() != 0x00)
-		(void)fn1E78_030D((s16)dx_42, 0x0000, &dx_42);
+	while (renamed_1e78_02fb() != 0x00)
+		(void)renamed_1e78_030d((s16)dx_42, 0x0000, &dx_42);
 
 	/* l0800_3959: frame setup. */
 	wLoc02 = 0x002A;                          /* mov [bp-2h],2Ah */
 	wLoc06 = 0x0014;                          /* mov [bp-6h],14h */
 	wLoc04 = (u16)(bgi_get_text_cols() - 0x002A);   /* sub ax,2Ah      */
 	wLoc08 = 0x016A;                          /* mov [bp-8h],16Ah */
-	fn1206_0066(&bp_85, &ds_89);
+	renamed_1206_0066(&bp_85, &ds_89);
 	/* push [bp-2h] ; [bp-6h] ; [bp-4h] ; [bp-8h] ; call 1315h */
-	fn0800_1315(wLoc08, wLoc04, wLoc06, wLoc02);
+	renamed_0800_1315(wLoc08, wLoc04, wLoc06, wLoc02);
 	/* push [bp-2h]+8 ; [bp-6h]+0Ah ; [bp-4h]-8 ; [bp-8h]-32h ; call 36E6h */
-	fn0800_36E6((u16)(wLoc08 - 0x0032), (u16)(wLoc04 - 0x0008),
+	renamed_0800_36e6((u16)(wLoc08 - 0x0032), (u16)(wLoc04 - 0x0008),
 	            (u16)(wLoc06 + 0x000A), (u16)(wLoc02 + 0x0008));
 	/* push 1h ; push 7h ; call far 1AB8h:1175h */
 	bgi_set_text_font_size(0x07, 0x01);
@@ -263,15 +263,15 @@ u16 fn0800_391E(void)
 	wLoc0A = (u16)(wLoc02 + 0x0030);
 	wLoc0C = (u16)(wLoc06 + 0x000C);
 	/* push 1h ; 0F0h ; 14Eh ; cs:38E8h ; 0h ; call 19E1h */
-	(void)fn0800_19E1(0x00, &g_seg0800[0x38E8], 0x014E, 0x00F0, 0x0001,
+	(void)renamed_0800_19e1(0x00, &g_seg0800[0x38E8], 0x014E, 0x00F0, 0x0001,
 	                  &dx_982, &bp_983, &ds_207);
 	/* push 2h ; 190h ; 14Eh ; cs:38F4h ; 0h ; call 19E1h */
-	(void)fn0800_19E1(0x00, &g_seg0800[0x38F4], 0x014E, 0x0190, 0x0002,
+	(void)renamed_0800_19e1(0x00, &g_seg0800[0x38F4], 0x014E, 0x0190, 0x0002,
 	                  &dx_984, &bp_985, &ds_236);
 
 l0800_3A06:
 	/* l0800_3A06: outer loop head -- hide cursor and re-frame. */
-	fn1206_0066(&bp_250, &ds_254);
+	renamed_1206_0066(&bp_250, &ds_254);
 	/* push 1h ; push 7h ; call far 1AB8h:1175h */
 	bgi_set_text_font_size(0x07, 0x01);
 	/* push [bp-2h]+8 ; [bp-6h]+0Dh ; [bp-4h]-9 ; [bp-8h]-34h ; call 1B3Eh */
@@ -296,8 +296,8 @@ l0800_3A5D:
 	 * call 081Ah (reuses the block far pointer 0896 left on the stack);
 	 * call 04A9h. */
 	{
-		u16 cx_081A = fn1EDA_0896(0xFF, abBuf, abStream);
-		(void)fn1EDA_081A(cx_081A, abStream);
+		u16 cx_081A = renamed_1eda_0896(0xFF, abBuf, abStream);
+		(void)renamed_1eda_081a(cx_081A, abStream);
 	}
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_987, &ds_334);
 	/* push [bp-0Ah] ; (index*0Dh + [bp-0Ch]) ; ss:bp-0210h ; call 1D82h */
@@ -309,21 +309,21 @@ l0800_3A5D:
 
 	/* l0800_3A9B: one line read -- decide whether a module was picked. */
 	{
-		u16 v1 = fn1EDA_0918(ch_412, abStream);
+		u16 v1 = renamed_1eda_0918(ch_412, abStream);
 		(void)fn1EDA_04A9(0x0000, 0x0000, &ch_989, &ds_448);
 		if ((u8)v1 != 0x00)
 		{
 			/* l0800_3AAF: draw/redraw the selection box. */
-			fn0800_005A((u16)(LG16(0x540E) + 0x0003),
+			renamed_0800_005a((u16)(LG16(0x540E) + 0x0003),
 			            (u16)(LG16(0x5400) + 0x0004),
 			            (u16)(LG16(0x53F2) - 0x0001),
 			            (u16)(LG16(0x53E4) - 0x0004));
-			(void)fn1206_0038(&ch_991, &dx_480, &bp_992, &ds_479);
+			(void)renamed_1206_0038(&ch_991, &dx_480, &bp_992, &ds_479);
 		}
 		else
 		{
 			/* l0800_3AD3: no selection -- repaint the right button. */
-			(void)fn0800_19E1(0x00, &g_seg0800[0x38E8], 0x014E, 0x00F0,
+			(void)renamed_0800_19e1(0x00, &g_seg0800[0x38E8], 0x014E, 0x00F0,
 			                  0x0001, &dx_990, &bp_990, &ds_479);
 		}
 	}
@@ -331,24 +331,24 @@ l0800_3A5D:
 l0800_3AE5:
 	/* l0800_3AE5: pending key/selection handling. */
 	LG8(0x53D2) = 0xFF;
-	if (fn1E78_02FB() != 0x00)
+	if (renamed_1e78_02fb() != 0x00)
 	{
-		LG8(0x53D2) = (u8)fn1E78_030D((s16)dx_480, 0x0000, &dx_550);
+		LG8(0x53D2) = (u8)renamed_1e78_030d((s16)dx_480, 0x0000, &dx_550);
 		if (LG8(0x53D2) == 0x00)
-			LG8(0x53D2) = (u8)fn1E78_030D((s16)dx_550, 0x0000, &dx_550);
-		while (fn1E78_02FB() != 0x00)
-			(void)fn1E78_030D((s16)dx_550, 0x0000, &dx_550);
-		LG8(0x53D2) = fn1EDA_1384(LG8(0x53D2));
+			LG8(0x53D2) = (u8)renamed_1e78_030d((s16)dx_550, 0x0000, &dx_550);
+		while (renamed_1e78_02fb() != 0x00)
+			(void)renamed_1e78_030d((s16)dx_550, 0x0000, &dx_550);
+		LG8(0x53D2) = renamed_1eda_1384(LG8(0x53D2));
 	}
 	/* push 0h ; call far 1206h:015Bh */
-	if ((u8)fn1206_015B(&ch_993, &dx_994, &bp_604, &ds_608) != 0x00)
+	if ((u8)renamed_1206_015b(&ch_993, &dx_994, &bp_604, &ds_608) != 0x00)
 	{
 		/* push bp ; call 3850h */
-		LG8(0x53D2) = fn0800_3850(&ch_997, &bp_604, &ds_608);
+		LG8(0x53D2) = renamed_0800_3850(&ch_997, &bp_604, &ds_608);
 	}
 	/* call 0918h ; call 04A9h ; or al,al ; jz 3B58h */
 	{
-		u16 v2 = fn1EDA_0918(0x00, abStream);
+		u16 v2 = renamed_1eda_0918(0x00, abStream);
 		(void)fn1EDA_04A9(0x0000, 0x0000, &ch_996, &ds_479);
 		/* l0800_3B4C: cmp [53D2h],53h ; jnz 3B58h */
 		if ((u8)v2 != 0x00 && LG8(0x53D2) == 0x53)
@@ -356,18 +356,18 @@ l0800_3AE5:
 	}
 	/* push [53D2h] ; cs:38FEh ; call 0CD4h ; jnz 3B6Bh (0CD4 != 0 ->
 	 * tested bit CLEAR -> fall to 3B68h = jmp 3AE5h). */
-	if (fn1EDA_0CD4(&g_seg0800[0x38FE], LG8(0x53D2), &es_998) != 0x00)
+	if (renamed_1eda_0cd4(&g_seg0800[0x38FE], LG8(0x53D2), &es_998) != 0x00)
 		goto l0800_3AE5;
 
 	/* l0800_3B6B: selection changed to 53h -> repaint the left button. */
 	if (LG8(0x53D2) == 0x53)
-		(void)fn0800_19E1(0x01, &g_seg0800[0x38E8], 0x014E, 0x00F0,
+		(void)renamed_0800_19e1(0x01, &g_seg0800[0x38E8], 0x014E, 0x00F0,
 		                  0x0001, &dx_1001, &bp_604, &ds_479);
 
 	/* l0800_3B84: call 0918h ; call 04A9h ; or al,al ; jnz 3BA2h ;
 	 * cmp [53D2h],46h ; jz 3BA2h ; jmp 3A06h. */
 	{
-		u16 v3 = fn1EDA_0918(0x00, abStream);
+		u16 v3 = renamed_1eda_0918(0x00, abStream);
 		(void)fn1EDA_04A9(0x0000, 0x0000, &ch_1000, &ds_236);
 		if ((u8)v3 == 0x00 && LG8(0x53D2) != 0x46)
 			goto l0800_3A06;
@@ -376,18 +376,18 @@ l0800_3AE5:
 	/* l0800_3BA2: leave the modal loop -- repaint the right button, close
 	 * the stream and restore the screen. */
 	/* push 2h ; 190h ; 14Eh ; cs:38F4h ; 1h ; call 19E1h */
-	(void)fn0800_19E1(0x01, &g_seg0800[0x38F4], 0x014E, 0x0190, 0x0002,
+	(void)renamed_0800_19e1(0x01, &g_seg0800[0x38F4], 0x014E, 0x0190, 0x0002,
 	                  &dx_1002, &bp_815, &ds_819);
 	/* push ss:bp-0110h ; call far 1EDAh:05BFh */
-	(void)fn1EDA_05BF(abStream);
+	(void)renamed_1eda_05bf(abStream);
 	/* call far 1EDAh:04A9h */
 	(void)fn1EDA_04A9(0x0000, 0x0000, &ch_1005, &ds_847);
 	/* call far 1206h:0066h */
-	fn1206_0066(&bp_855, &ds_847);
+	renamed_1206_0066(&bp_855, &ds_847);
 	/* push 96h ; call far 1E78h:029Ch */
-	(void)fn1E78_029C(0x0096, &dx_1006);
+	(void)renamed_1e78_029c(0x0096, &dx_1006);
 	/* push [bp-2h]-14h ; [bp-6h]-0Ch ; [bp-4h]+4 ; [bp-8h]+4 ; call 0024h */
-	fn0800_0024((u16)(wLoc08 + 0x0004), (u16)(wLoc04 + 0x0004),
+	renamed_0800_0024((u16)(wLoc08 + 0x0004), (u16)(wLoc04 + 0x0004),
 	            (u16)(wLoc06 - 0x000C), (u16)(wLoc02 - 0x0014));
 
 l0800_3BF0:
@@ -395,12 +395,12 @@ l0800_3BF0:
 	return 0x0000;
 }
 
-/* 0800:3BF2: void fn0800_3BF2(void * ptrArg04)
+/* 0800:3BF2: void renamed_0800_3bf2(void * ptrArg04)
  * Fill the time interval at ptrArg04+8 (32-bit, DS:SI field) from the clock
  * fields at ptrArg04+0/+2/+4/+6 (hours/minutes/seconds/hundredths, read by
  * dos_get_system_time) using fn1EDA_096F with the multiplier 07E40h, minutes * 1770h,
- * seconds * 64h and hundredths.  Called from fn0800_3CFA. */
-void fn0800_3BF2(void *ptrArg04)
+ * seconds * 64h and hundredths.  Called from renamed_0800_3cfa. */
+void renamed_0800_3bf2(void *ptrArg04)
 {
 	u8  *base = (u8 *)ptrArg04;
 	u16  w0;   /* hours      */
@@ -443,12 +443,12 @@ void fn0800_3BF2(void *ptrArg04)
 	*(u16 *)(base + 0x0A) = (u16)(acc >> 16);
 }
 
-/* 0800:3C72: u16 fn0800_3C72(void * ptrArg04, s16 * dxOut)
+/* 0800:3C72: u16 renamed_0800_3c72(void * ptrArg04, s16 * dxOut)
  * Read the current time through dos_get_system_time (hours/minutes/seconds/hundredths
- * in [bp-6h..bp-0Ch]), convert it to the same unit as fn0800_3BF2, store it at
+ * in [bp-6h..bp-0Ch]), convert it to the same unit as renamed_0800_3bf2, store it at
  * ptrArg04+0Ch, and return the 32-bit difference against ptrArg04+8 (low word
- * in AX, high word in *dxOut).  Called from fn0800_3CFA. */
-u16 fn0800_3C72(void *ptrArg04, s16 *dxOut)
+ * in AX, high word in *dxOut).  Called from renamed_0800_3cfa. */
+u16 renamed_0800_3c72(void *ptrArg04, s16 *dxOut)
 {
 	u8  *base = (u8 *)ptrArg04;
 	u16  wLoc0C;   /* [bp-0Ch] hundredths (DL) */

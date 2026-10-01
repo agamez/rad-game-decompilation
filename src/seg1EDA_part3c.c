@@ -2,11 +2,11 @@
  *
  * Recovered stream callbacks 1EDA:060C .. 1EDA:0775.  Reko never sliced this
  * region: analysis/reko/RAD_1EDA.asm shows it as raw bytes inside
- * fn1EDA_05FB's symbol range, so the ground truth is the disassembly of
+ * renamed_1eda_05fb's symbol range, so the ground truth is the disassembly of
  * data/segments/seg1EDA.bin at those offsets (analysis/slices/1EDA/1EDA_05FB.asm
  * carries the same raw bytes).  See docs/notes-1EDA.md ("## chunk 3c").
  *
- * The Turbo-C stream block built by fn1EDA_04F5 (offset 0x00 relative to the
+ * The Turbo-C stream block built by renamed_1eda_04f5 (offset 0x00 relative to the
  * block pointer):
  *   +0x00 handle           +0x02 id (0xD7B0 closed / 0xD7B1 read /
  *                                     0xD7B2 write / 0xD7B3 append)
@@ -19,19 +19,19 @@
  * then `call dword ptr` the slot): every callback receives exactly one far
  * block pointer and returns its AX in the low half of an int; 0 means success.
  * The flat dispatch type is therefore `u16 (*)(u8 * block)` -- the same shape
- * fn1EDA_05FB / fn1EDA_0879 already cast to.  No AX/BX/CX/DX register
+ * renamed_1eda_05fb / renamed_1eda_0879 already cast to.  No AX/BX/CX/DX register
  * arguments are passed (the pushed block is the only argument; the callbacks'
  * `retf 4` pops it).
  *
  * Functions and boundaries (ascending, all in this TU):
- *   060C..068D  fn1EDA_060C  open/create (+0x10): 3Dh vs 3Ch, 44h ioctl,
+ *   060C..068D  renamed_1eda_060c  open/create (+0x10): 3Dh vs 3Ch, 44h ioctl,
  *                            installs +0x14/+0x18/+0x1C, sets id 0xD7B2
- *   068E..06E7  fn1EDA_068E  near helper (`call 068Eh` from 060C:0665): trims
+ *   068E..06E7  renamed_1eda_068e  near helper (`call 068Eh` from 060C:0665): trims
  *                            an append stream at the ^Z terminator
- *   06E8..0717  fn1EDA_06E8  read callback: 3Fh into the block buffer
- *   0718..073C  fn1EDA_0718  checked write callback: 40h, 0 or 65h
- *   073D..075C  fn1EDA_073D  unchecked write callback: 40h, 0 on success
- *   075D..0775  fn1EDA_075D  close callback: 3Eh (handles > 4 only)
+ *   06E8..0717  renamed_1eda_06e8  read callback: 3Fh into the block buffer
+ *   0718..073C  renamed_1eda_0718  checked write callback: 40h, 0 or 65h
+ *   073D..075C  renamed_1eda_073d  unchecked write callback: 40h, 0 on success
+ *   075D..0775  renamed_1eda_075d  close callback: 3Eh (handles > 4 only)
  *
  * The brief listed five entries (060C/068E/06E8/0718/075D); the disassembly
  * shows a sixth, 073D, which 060C installs for character devices.  It is a
@@ -104,7 +104,7 @@ static u16 dos_create_file(const char *path)
 	return msdos_open_file(path, 2);
 }
 
-/* Flat reconstruction of `lds dx,[es:di+0Ch]`.  fn1EDA_04F5 stores the
+/* Flat reconstruction of `lds dx,[es:di+0Ch]`.  renamed_1eda_04f5 stores the
  * buffer's block-relative offset (always +0x80) in the +0x0C word and drops
  * the segment half at +0x0E, so the flat buffer pointer is the block plus the
  * stored offset minus the block's own low word. */
@@ -113,7 +113,7 @@ static u8 *block_buffer(u8 * block)
 	return block + (u16)(*(u16 *)(block + 0x0C) - (u16)(uintptr_t)block);
 }
 
-/* 1EDA:060C -- open/create callback installed at +0x10 by fn1EDA_04F5.
+/* 1EDA:060C -- open/create callback installed at +0x10 by renamed_1eda_04f5.
  * 060C:0615 clears the handle word; 060C:0617..062C picks the DOS service by
  * id (0xD7B1 -> 3Dh AL=0; 0xD7B3 -> 3Dh AL=2 and [block]=1; else 3Ch AL=2);
  * 060C:062E..063B issues it (skipped for an empty name) and stores the handle,
@@ -122,7 +122,7 @@ static u8 *block_buffer(u8 * block)
  * +0x14/+0x18 = 073D for a character device, or +0x14 = 0718 (after 068Eh
  * trims an append stream).  060C:066F sets id 0xD7B2 and stores the close
  * callback 075D at +0x1C. */
-u16 fn1EDA_060C(u8 * block)
+u16 renamed_1eda_060c(u8 * block)
 {
 	u16 ax_12;
 	u16 cx_16;
@@ -165,7 +165,7 @@ u16 fn1EDA_060C(u8 * block)
 		if ((dx_dev & 0x0080) == 0x0000)       /* test dl,80h ; jnz 066Fh */
 		{
 			if (*(u16 *)(block + 0x02) == 0xD7B3)  /* cmp [di+2],0D7B3h ; jnz 0668h */
-				(void)fn1EDA_068E(block);      /* call 068Eh */
+				(void)renamed_1eda_068e(block);      /* call 068Eh */
 			ax_12 = 0x0718;                    /* mov ax,718h */
 			cx_16 = 0x0000;                    /* xor cx,cx */
 			bx_17 = cx_16;                     /* mov bx,cx */
@@ -187,7 +187,7 @@ u16 fn1EDA_060C(u8 * block)
  * bytes into the block buffer, scans for the ^Z (1Ah) text terminator and,
  * when found, seeks to it and issues a zero-length write.  Returns the last AX
  * (read count, or write result when a ^Z was trimmed). */
-u16 fn1EDA_068E(u8 * block)
+u16 renamed_1eda_068e(u8 * block)
 {
 	u16 ax_9;
 	u16 dx_10;
@@ -249,7 +249,7 @@ u16 fn1EDA_068E(u8 * block)
  * (+0x04) bytes from the handle into the block buffer, stores the count at
  * +0x0A and resets the cursor +0x08.  Returns 0 on success, the DOS error on
  * failure (0704 vs 0710). */
-u16 fn1EDA_06E8(u8 * block)
+u16 renamed_1eda_06e8(u8 * block)
 {
 	u16 ax_15;
 
@@ -272,7 +272,7 @@ u16 fn1EDA_06E8(u8 * block)
 /* 1EDA:0718 -- checked write callback (+0x14 for a file).  Writes the cursor
  * (+0x08) bytes from the buffer, resets the cursor, and returns 0 on a
  * complete write, 0x65 on a short write, or the DOS error. */
-u16 fn1EDA_0718(u8 * block)
+u16 renamed_1eda_0718(u8 * block)
 {
 	u16 cx_11;
 	u16 ax_12;
@@ -293,7 +293,7 @@ u16 fn1EDA_0718(u8 * block)
 
 /* 1EDA:073D -- unchecked write callback (+0x14/+0x18 for a character device).
  * Same body as 0718 but any non-error write (full or short) returns 0. */
-u16 fn1EDA_073D(u8 * block)
+u16 renamed_1eda_073d(u8 * block)
 {
 	u16 cx_11;
 	u16 ax_12;
@@ -311,7 +311,7 @@ u16 fn1EDA_073D(u8 * block)
 /* 1EDA:075D -- close callback (+0x1C).  Closes the handle only when it is
  * greater than 4 (the predefined DOS device handles are left alone).  Returns
  * 0 on the no-op/success paths and the DOS error otherwise. */
-u16 fn1EDA_075D(u8 * block)
+u16 renamed_1eda_075d(u8 * block)
 {
 	u16 bx_8;
 	u16 ax_9;

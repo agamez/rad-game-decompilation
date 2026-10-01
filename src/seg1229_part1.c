@@ -19,10 +19,10 @@
  * meaning).  The original's "caller stages a persistent far pointer on the
  * stack and shares it with the following string calls" idiom is recovered
  * with explicit pointer arguments, following the part-4b/part-5a
- * convention already used for fn1EDA_0A39/0A1F/0AAC/1085/0F71.
+ * convention already used for renamed_1eda_0a39/0A1F/0AAC/1085/0F71.
  *
  * The `enter N,0` frames are reproduced as local buffers named by their
- * bp-relative offset (kept in comments).  Note that fn1229_0040's
+ * bp-relative offset (kept in comments).  Note that renamed_1229_0040's
  * accumulated text buffer [bp-0206h] is a full 0x100-byte record that grows
  * up to [bp-0107h], immediately below the block-pointer words at
  * [bp-0106h].
@@ -38,8 +38,8 @@
 #include "seg1E78.h"
 #include "seg13C1.h"
 
-// 1229:0000: void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
-void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+// 1229:0000: void renamed_1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
+void renamed_1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 {
 	u16 ax_10CE;
 	u16 ax_10E1;
@@ -53,8 +53,8 @@ void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 	bgi_draw_text_rectangle(0x01, ax_10E1, ax_10CE, 0x00, 0x00);
 }
 
-// 1229:0040: u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)
-u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)
+// 1229:0040: u8 renamed_1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)
+u8 renamed_1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut)
 {
 	u8  buf410[0x100];   /* [bp-0410h] final assembled string */
 	u8  buf310[0x100];   /* [bp-0310h] field scratch */
@@ -84,8 +84,8 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 	u16 dx_1315;
 	s16 ret_0254;
 
-	/* fn1EDA_0A39(0FFh, ss:bp-0100h, ptrArg04) : copy the caller's prompt */
-	fn1EDA_0A39(0xFF, buf100, ptrArg04, &dx_1308);
+	/* renamed_1eda_0a39(0FFh, ss:bp-0100h, ptrArg04) : copy the caller's prompt */
+	renamed_1eda_0a39(0xFF, buf100, ptrArg04, &dx_1308);
 	bgi_get_text_cursor_attributes(0x0B);
 	ax_56 = bgi_clamp_rectangle_coords(wArg08, wArg0A, wArg0C, wArg0E);
 	wLoc106 = ax_56;
@@ -97,7 +97,7 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 	wLoc102 = (u16)(dx_ax_1306 >> 16);
 	bgi_draw_clip_rectangle(far_ptr(((u32)wLoc102 << 16) | (u32)wLoc104),
 	            wArg08, wArg0A, wArg0C, wArg0E);
-	fn1229_0000(wArg08, wArg0A, wArg0C, wArg0E);
+	renamed_1229_0000(wArg08, wArg0A, wArg0C, wArg0E);
 	bgi_clip_text_rectangle(wArg08, wArg0A, wArg0C, wArg0E);
 	bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_171);
 	bgi_set_text_rectangle(0x01, 0x00);
@@ -105,8 +105,8 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 	wLoc20C = (u16)(((u16)(wArg08 - wArg0C) >> 0x01) + wArg0C);
 	bgi_get_char_size_info(buf100, wLoc20C,
 	            (u16)(bgi_advance_text_pointer(&g_seg1229[0x0036]) + wArg0E), &ch_1309);
-	fn1EDA_0A1F(&g_seg1229[0x0039], buf310);
-	fn1EDA_0AAC(buf100, buf310);
+	renamed_1eda_0a1f(&g_seg1229[0x0039], buf310);
+	renamed_1eda_0aac(buf100, buf310);
 	bgi_set_text_color(wLoc20C, (u16)(bgi_advance_text_pointer(buf310) + wArg0E));
 	wLoc20A = bgi_get_text_foreground();
 	buf206[0] = 0x00;
@@ -140,7 +140,7 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 			            (u16)(wLoc20C + 0x0006), ax1, &dx_1311);
 		}
 
-		if (fn1E78_02FB() != 0x00)
+		if (renamed_1e78_02fb() != 0x00)
 		{
 			u16 ax1;
 			u16 ax2;
@@ -151,8 +151,8 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 			bgi_set_pixel((u16)(wLoc20C - 0x0006), ax2,
 			            (u16)(wLoc20C + 0x0006), ax1, &dx_451);
 			bgi_get_text_cursor_attributes(0x0A);
-			bLoc207 = (u8)fn1EDA_1384(
-				(u8)fn1E78_030D((s16)dx_451, 0x000A, &dx_1312));
+			bLoc207 = (u8)renamed_1eda_1384(
+				(u8)renamed_1e78_030d((s16)dx_451, 0x000A, &dx_1312));
 
 			if (bLoc207 >= 0x15)
 			{
@@ -168,12 +168,12 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 				if (v_a < v_b)
 				{
 					/* l1229_0229 */
-					fn1EDA_0B4F(bLoc207, buf310);
+					renamed_1eda_0b4f(bLoc207, buf310);
 					bgi_draw_text_string(buf310);
-					fn1EDA_0A1F(buf206, buf410);
-					fn1EDA_0B4F(bLoc207, buf310);
-					fn1EDA_0AAC(buf310, buf410);
-					fn1EDA_0A39(0xFF, buf206, buf410, &dx_1313);
+					renamed_1eda_0a1f(buf206, buf410);
+					renamed_1eda_0b4f(bLoc207, buf310);
+					renamed_1eda_0aac(buf310, buf410);
+					renamed_1eda_0a39(0xFF, buf206, buf410, &dx_1313);
 				}
 			}
 			else if (bLoc207 == 0x08)
@@ -213,13 +213,13 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 					r2 = bgi_display_error_string(&g_seg1229[0x003E]);
 					s2 = bgi_get_text_background();
 					sum4 = (u16)(s2 + (u16)(r2 >> 0x01));
-					fn1229_0000(sum4, sum2, diff3, diff1);
+					renamed_1229_0000(sum4, sum2, diff3, diff1);
 					bgi_set_text_color(wLoc20C,
 					            (u16)(wLoc20E -
 					                  bgi_advance_text_pointer(&g_seg1229[0x003E])));
 					/* l1229_0353: the .asm pushes buf206[0]; Reko's
 					 * `0` constant is shadowed here by the real byte. */
-					fn1EDA_0BD0(0x01, (u16)buf206[0], buf206);
+					renamed_1eda_0bd0(0x01, (u16)buf206[0], buf206);
 				}
 			}
 		}
@@ -233,15 +233,15 @@ u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8
 	bgi_signed_rectangle_intersect(0x00,
 	            far_ptr(((u32)wLoc102 << 16) | (u32)wLoc104),
 	            wArg0C, wArg0E);
-	ret_0254 = fn1EDA_0254(wLoc106, wLoc104, wLoc102, 0,
+	ret_0254 = renamed_1eda_0254(wLoc106, wLoc104, wLoc102, 0,
 	                       &dx_1314, &ds_976);
-	fn1EDA_0A39(0xFF, buf206, ptrArg10, &dx_1315);
+	renamed_1eda_0a39(0xFF, buf206, ptrArg10, &dx_1315);
 	*(u16 *)dsOut = ds_976;   /* DGROUP selector dropped in the flat model */
 	return (u8)((u16)ret_0254 >> 8);
 }
 
-// 1229:039D: void fn1229_039D(void)
-void fn1229_039D(void)
+// 1229:039D: void renamed_1229_039d(void)
+void renamed_1229_039d(void)
 {
 	u8  abBuf80[0x80];   /* [bp-0080h] 0x80-byte DOS stream block */
 	u16 dx_357;
@@ -255,45 +255,45 @@ void fn1229_039D(void)
 	u8  al_158;
 
 	if (LG8(0x6BBA) != 0x00)
-		fn1EDA_0A39(0x06, &g_dgroup[0x6BB2], &g_dgroup[0x6BBA], &dx_358);
+		renamed_1eda_0a39(0x06, &g_dgroup[0x6BB2], &g_dgroup[0x6BBA], &dx_358);
 	else
-		fn1EDA_0A39(0x06, &g_dgroup[0x6BB2], &g_seg1229[0x038E], &dx_357);
+		renamed_1eda_0a39(0x06, &g_dgroup[0x6BB2], &g_seg1229[0x038E], &dx_357);
 
 	/* b = 1 ; do { encode(6BB2[b]) ; } while (++b != 6) */
 	bLoc83 = 0x01;
 	for (;;)
 	{
 		LG8((u16)(0x6BB2 + bLoc83)) =
-			(u8)fn1EDA_1384(LG8((u16)(0x6BB2 + bLoc83)));
+			(u8)renamed_1eda_1384(LG8((u16)(0x6BB2 + bLoc83)));
 		if (bLoc83 == 0x06)
 			break;
 		++bLoc83;
 	}
 
-	fn1EDA_0FA2(&g_seg1229[0x0395], abBuf80);   /* cs:0395 = {7,"RAD.DAT"} */
-	al_158 = fn1EDA_0FD0(0x0219, abBuf80, &dx_359);
+	renamed_1eda_0fa2(&g_seg1229[0x0395], abBuf80);   /* cs:0395 = {7,"RAD.DAT"} */
+	al_158 = renamed_1eda_0fd0(0x0219, abBuf80, &dx_359);
 	LG16(0x598E) = 0xFFFF;
 	LG16(0x5990) = 0xFFFF;
 
 	for (;;)
 	{
-		fn1EDA_1085(al_158, abBuf80);
+		renamed_1eda_1085(al_158, abBuf80);
 		LG32(0x598E) = (u32)(LG32(0x598E) + 0x00000001u);
-		if ((u8)fn1EDA_1185(abBuf80) != 0x00)   /* 1185: position >= size */
+		if ((u8)renamed_1eda_1185(abBuf80) != 0x00)   /* 1185: position >= size */
 			break;
-		if (fn1EDA_0B24(&g_dgroup[0x6BB2], &g_dgroup[0x5CB4],
+		if (renamed_1eda_0b24(&g_dgroup[0x6BB2], &g_dgroup[0x5CB4],
 		                &ax_355, &dx_361) != 0x00)   /* jz 0472: equal -> stop */
 			break;
-		if (fn1EDA_0B24(&g_seg1229[0x038E], &g_dgroup[0x5CB4],
+		if (renamed_1eda_0b24(&g_seg1229[0x038E], &g_dgroup[0x5CB4],
 		                &ax_356, &dx_362) != 0x00)   /* jnz 0426: unequal -> loop */
 			break;
 	}
-	/* fn1EDA_1051 ignores its `al` argument */
-	fn1EDA_1051(0x00, abBuf80);
+	/* renamed_1eda_1051 ignores its `al` argument */
+	renamed_1eda_1051(0x00, abBuf80);
 }
 
-// 1229:0486: u16 fn1229_0486(void)
-u16 fn1229_0486(void)
+// 1229:0486: u16 renamed_1229_0486(void)
+u16 renamed_1229_0486(void)
 {
 	u8  abBuf80[0x80];   /* [bp-0080h] 0x80-byte DOS stream block */
 	u16 dx_215;
@@ -302,37 +302,37 @@ u16 fn1229_0486(void)
 	u8  ch_218;
 	u16 ds_168;
 
-	fn1EDA_0FA2(&g_seg1229[0x047E], abBuf80);   /* cs:047E = {7,"RAD.DAT"} */
-	fn1EDA_0FD0(0x0219, abBuf80, &dx_215);
+	renamed_1eda_0fa2(&g_seg1229[0x047E], abBuf80);   /* cs:047E = {7,"RAD.DAT"} */
+	renamed_1eda_0fd0(0x0219, abBuf80, &dx_215);
 	/* seek to record [5990h]:[598Eh], then read one record; the record id
 	 * in AL is passed on to 1085 (the data pointer ds:5CB4 is dropped). */
-	fn1EDA_1085((u8)fn1EDA_1123(LG16(0x598E), LG16(0x5990), abBuf80), abBuf80);
+	renamed_1eda_1085((u8)renamed_1eda_1123(LG16(0x598E), LG16(0x5990), abBuf80), abBuf80);
 
 	/* int 21h error word 5380h: if set, step the record index back one and
 	 * delay ~500 ms (speaker). */
-	if (fn1EDA_04A2() != 0x00)
+	if (renamed_1eda_04a2() != 0x00)
 	{
 		LG32(0x598E) = (u32)(LG32(0x598E) - 0x00000001u);
-		fn1E78_02C7(0x0096);
-		fn1E78_029C(0x01F4, &dx_219);
-		ax_102 = fn1E78_02F4();
+		renamed_1e78_02c7(0x0096);
+		renamed_1e78_029c(0x01F4, &dx_219);
+		ax_102 = renamed_1e78_02f4();
 	}
 	else
 		ax_102 = 0x0000;
 
-	fn1EDA_1051((u8)ax_102, abBuf80);
+	renamed_1eda_1051((u8)ax_102, abBuf80);
 	fn1EDA_04A9(0x0000, 0x0000, &ch_218, &ds_168);
 	return 0x0000;   /* original returns the dropped DGROUP selector */
 }
 
-// 1229:050A: u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
-u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
+// 1229:050A: u16 renamed_1229_050a(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
+u16 renamed_1229_050a(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
 {
-	u8  buf40A[0x100];   /* [bp-040Ah] fn1229_0040 output (persistent ptrArg10) */
+	u8  buf40A[0x100];   /* [bp-040Ah] renamed_1229_0040 output (persistent ptrArg10) */
 	u8  buf30A[0x100];   /* [bp-030Ah] formatted number */
 	u8  buf20A[0x100];   /* [bp-020Ah] assembled prompt / 0040 input */
-	u16 wLoc10A;         /* [bp-010Ah] fn1EDA_0F71 result */
-	u16 wLoc108;         /* [bp-0108h] fn1EDA_0F71 cursor out */
+	u16 wLoc10A;         /* [bp-010Ah] renamed_1eda_0f71 result */
+	u16 wLoc108;         /* [bp-0108h] renamed_1eda_0f71 cursor out */
 	u8  buf106[0x04];    /* [bp-0106h] 2-byte field (1..3 written) */
 	u8  buf102[0x100];   /* [bp-0102h] prompt copy */
 	u8  bLoc01;          /* [bp-0001h] result byte */
@@ -346,7 +346,7 @@ u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
 	u16 si_401;
 	void *es_402;
 
-	fn1EDA_0A39(0xFF, buf102, ptrArg04, &dx_399);
+	renamed_1eda_0a39(0xFF, buf102, ptrArg04, &dx_399);
 
 	/* idiv by 2 is signed (cwd + idiv).  Push order in the .asm is
 	 * ax_55, ax_71, ax_87, ax_103 (so 0040 receives D,C,B,A). */
@@ -355,22 +355,22 @@ u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
 	ax_87 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x0068);
 	ax_103 = (u16)(((s16)bgi_get_text_rows() / 0x0002) + 0x0010);
 
-	fn1EDA_0A1F(&g_seg1229[0x0503], buf20A);     /* cs:0503 = {1," "} */
-	fn1EDA_0AAC(buf102, buf20A);
-	fn1EDA_0AAC(&g_seg1229[0x0505], buf20A);     /* cs:0505 = {1,"("} */
+	renamed_1eda_0a1f(&g_seg1229[0x0503], buf20A);     /* cs:0503 = {1," "} */
+	renamed_1eda_0aac(buf102, buf20A);
+	renamed_1eda_0aac(&g_seg1229[0x0505], buf20A);     /* cs:0505 = {1,"("} */
 	stub_dword_to_string((u32)bArg02, buf30A);
-	fn1EDA_0AAC(buf30A, buf20A);
-	fn1EDA_0AAC(&g_seg1229[0x0507], buf20A);     /* cs:0507 = {2,"):"} */
+	renamed_1eda_0aac(buf30A, buf20A);
+	renamed_1eda_0aac(&g_seg1229[0x0507], buf20A);     /* cs:0507 = {2,"):"} */
 
-	fn1229_0040(buf20A, ax_103, ax_87, ax_71, ax_55, buf40A, &ds_231);
+	renamed_1229_0040(buf20A, ax_103, ax_87, ax_71, ax_55, buf40A, &ds_231);
 
-	fn1EDA_0A39(0x02, buf106, buf40A, &dx_400);
-	wLoc10A = fn1EDA_0F71((u8 *)&wLoc108, buf106, &si_401, &es_402);
+	renamed_1eda_0a39(0x02, buf106, buf40A, &dx_400);
+	wLoc10A = renamed_1eda_0f71((u8 *)&wLoc108, buf106, &si_401, &es_402);
 	if (wLoc108 != 0x0000)
 		wLoc10A = (u16)bArg02;
 	bLoc01 = (u8)wLoc10A;
 	/* original: wait for the keyboard buffer to drain */
-	while (fn1E78_02FB() != 0x00)
+	while (renamed_1e78_02fb() != 0x00)
 		;
 	*dsOut = ds_231;
 	/* The original's AH at the ret is unspecified (the Reko register is
@@ -378,10 +378,10 @@ u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut)
 	return (u16)bLoc01;
 }
 
-// 1229:061B: u16 fn1229_061B(s16 * dxOut, u16 * dsOut)
-u16 fn1229_061B(s16 * dxOut, u16 * dsOut)
+// 1229:061B: u16 renamed_1229_061b(s16 * dxOut, u16 * dsOut)
+u16 renamed_1229_061b(s16 * dxOut, u16 * dsOut)
 {
-	u8  buf208[0x100];   /* [bp-0208h] fn1229_0040 output (persistent ptrArg10) */
+	u8  buf208[0x100];   /* [bp-0208h] renamed_1229_0040 output (persistent ptrArg10) */
 	u8  buf108[0x100];   /* [bp-0108h] assembled prompt / 0040 input */
 	u8  buf4[0x04];      /* [bp-0004h] 2-byte answer field */
 	u8  bLoc01;          /* [bp-0001h] result byte */
@@ -401,20 +401,20 @@ u16 fn1229_061B(s16 * dxOut, u16 * dsOut)
 	ax_61 = (u16)(((s16)bgi_get_text_cols() / 0x0002) + 0x00B0);
 	ax_77 = (u16)(((s16)bgi_get_text_rows() / 0x0002) + 0x0010);
 
-	fn1EDA_0A1F(&g_seg1229[0x05F8], buf108);     /* cs:05F8 = {1," "} */
-	fn1EDA_0AAC(&g_dgroup[0x5CB4], buf108);
-	fn1EDA_0AAC(&g_seg1229[0x05FA], buf108);     /* cs:05FA = {0x1E," A ETE ..."} */
+	renamed_1eda_0a1f(&g_seg1229[0x05F8], buf108);     /* cs:05F8 = {1," "} */
+	renamed_1eda_0aac(&g_dgroup[0x5CB4], buf108);
+	renamed_1eda_0aac(&g_seg1229[0x05FA], buf108);     /* cs:05FA = {0x1E," A ETE ..."} */
 
-	fn1229_0040(buf108, ax_77, ax_61, ax_45, ax_29, buf208, &ds_145);
+	renamed_1229_0040(buf108, ax_77, ax_61, ax_45, ax_29, buf208, &ds_145);
 
-	fn1EDA_0A39(0x01, buf4, buf208, &dx_289);
+	renamed_1eda_0a39(0x01, buf4, buf208, &dx_289);
 	/* if the answer record equals cs:0619 ({1,"O"}) -> bLoc01 = 1 */
-	if (fn1EDA_0B24(&g_seg1229[0x0619], buf4, &ax_290, &dx_191) != 0x00)
+	if (renamed_1eda_0b24(&g_seg1229[0x0619], buf4, &ax_290, &dx_191) != 0x00)
 		bLoc01 = 0x01;
 
 	bgi_get_text_cursor_attributes(0x0F);
 	/* original: wait for the keyboard buffer to drain */
-	while (fn1E78_02FB() != 0x00)
+	while (renamed_1e78_02fb() != 0x00)
 		;
 
 	*dxOut = (s16)dx_191;   /* DS selector left in DX (dropped) */

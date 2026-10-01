@@ -175,7 +175,7 @@ static const u8 g_ega_dac[16][3] = {
 
 /* Gameplay/menu palette.  No longer a single hard-coded table for both
  * screens: the game now programs the DAC itself through BGI op 0x1A
- * (bgi_get_pixel, recovered as fn13E2_0080 for the menu and fn13E2_00FB for
+ * (bgi_get_pixel, recovered as renamed_13e2_0080 for the menu and renamed_13e2_00fb for
  * the level).  This table remains only as the mode-set default until the
  * game's first 0x1A call; it is the MEASURED level palette
  * (/tmp/opencode/cmp/run3/o_game.png, cropped (80,101)-(720,577), resized
@@ -1047,11 +1047,11 @@ static void stroke_glyph(int ch, int *pen_x, int *pen_y, int num, int den, u8 co
  * fn0C74_00B2 writes the loader's progress-bar cell row with driver op 0x12
  * (filled rectangle) at canvas y 0x1D5..0x1DF (469..479), 5 px per cell,
  * using the fill colour the game staged with bgi_set_text_font_size(0x0F, 0x01) ->
- * index 15.  That happens while fn13E2_003B has the DAC blanked, so on the
+ * index 15.  That happens while renamed_13e2_003b has the DAC blanked, so on the
  * real adapter those pixels are black when written.  The recovered menu
  * painter never repaints that row, whereas the original evidently does (the
  * DOSBox menu/level captures show black there, not white).  Once
- * fn13E2_0080/fn13E2_00FB installs the real palette (op 0x1A, index 15 =
+ * renamed_13e2_0080/renamed_13e2_00fb installs the real palette (op 0x1A, index 15 =
  * white) those stale bar pixels would become a spurious full-width white
  * line.  Clear only index-15 pixels in the one console row: the level's
  * white crate lives at y155..176 and the mouse arrow is composited at
@@ -1136,7 +1136,7 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
          * forwards it to the scanline-fill handler (driver fn 0x0E).  It is
          * the FILLED RECTANGLE behind the menu window and every button, and
          * it uses the fill (background) color, not the line color: in
-         * fn0800_1315/fn0800_19E1 it immediately precedes the 0x0C bevel
+         * renamed_0800_1315/renamed_0800_19e1 it immediately precedes the 0x0C bevel
          * lines, which are the only calls that consume the line color. */
         int x0 = ax, y0 = bx + 1, x1 = cx + 1, y1 = dx;
         int x, y, t;
@@ -1270,8 +1270,8 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
     }
     case 0x1A: {                            /* set DAC entry: AX=0x8000|idx, BX=R, CX=G, DX=B */
         /* Recovered as bgi_get_pixel (menu/level palette loop) and
-         * bgi_text_cell_color (read back).  fn13E2_0080 programs the MENU palette
-         * (index 8 = 0x15 grey: the drop shadows) and fn13E2_00FB the LEVEL
+         * bgi_text_cell_color (read back).  renamed_13e2_0080 programs the MENU palette
+         * (index 8 = 0x15 grey: the drop shadows) and renamed_13e2_00fb the LEVEL
          * palette (index 8 = 0: no grey) from the same DGROUP table; both
          * set index 15 = white.  AX==0xFFFF is bgi_select_text_font's attribute-
          * controller path, which has no DAC/pixel model here. */

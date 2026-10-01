@@ -17,7 +17,7 @@
  * selectors) are flat pointers here; the original's "stack-reuse" calling
  * pattern (a destination far pointer pushed once and shared by a following
  * 0A6B/0AAC/0A39 call) is recovered with explicit arguments, following the
- * part-4 convention (`fn1EDA_0A1F`).
+ * part-4 convention (`renamed_1eda_0a1f`).
  *
  * 0B7C / 0BD0 each carve two 0x100-byte records out of a single 0x200-byte
  * stack frame: buffer1 = [bp-0x100], buffer2 = [bp-0x200]; they are the
@@ -40,7 +40,7 @@ static u16 seg1EDA_word(u16 off)
 
 /* 1EDA:0A39 -- copy the length-prefixed record ptrArg0A to ptrArg06, clamped
  * to at most bArg04 bytes of payload (lodsb/stosb/rep movsb). */
-u8 fn1EDA_0A39(u8 bArg04, u8 * ptrArg06, u8 * ptrArg0A, void * dxOut)
+u8 renamed_1eda_0a39(u8 bArg04, u8 * ptrArg06, u8 * ptrArg0A, void * dxOut)
 {
 	u8 cl_17 = bArg04;                      /* mov cx,ss:[bx+4h] (cl) */
 	u8 al_15 = ptrArg0A[0];                 /* lodsb */
@@ -60,7 +60,7 @@ u8 fn1EDA_0A39(u8 bArg04, u8 * ptrArg06, u8 * ptrArg0A, void * dxOut)
  * wArg06 (forced to 1 when <= 0), length min(srcLen - offset + 1, wArg04
  * clamped to >= 0), storing it as a record at ptrArg0C.  A start beyond the
  * source length yields an empty record. */
-void fn1EDA_0A6B(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)
+void renamed_1eda_0a6b(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)
 {
 	u16 ax_27 = (u16)ptrArg08[0];           /* lodsb ; xor ah,ah */
 	u16 cx_17 = wArg06;                     /* mov cx,ss:[bx+6h] */
@@ -90,7 +90,7 @@ void fn1EDA_0A6B(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)
 /* 1EDA:0AAC -- append the record ptrArg04 to the record ptrArg08.  The
  * destination length byte saturates at 0xFF; on overflow only the bytes that
  * fit (0xFF - oldLength) are copied (rep movsb count = ~oldLength). */
-void fn1EDA_0AAC(u8 * ptrArg04, u8 * ptrArg08)
+void renamed_1eda_0aac(u8 * ptrArg04, u8 * ptrArg08)
 {
 	u8  cl_14 = ptrArg08[0];                /* mov cl,es:[di] */
 	u8  al_18 = ptrArg04[0];                /* lodsb */
@@ -225,7 +225,7 @@ l1EDA_0B20:
  * documented correction in src/seg1AB8_part1.c.  *axOut receives the AX left
  * by the compare path (which Reko left undefined), ah = ptrArg04[0],
  * al = ptrArg08[0]; dxOut is the dropped DS selector. */
-u8 fn1EDA_0B24(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut, void * dxOut)
+u8 renamed_1eda_0b24(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut, void * dxOut)
 {
 	u8 al_14 = ptrArg08[0];                 /* lodsb */
 	u8 ah_18 = ptrArg04[0];                 /* mov ah,es:[di] */
@@ -252,7 +252,7 @@ u8 fn1EDA_0B24(u8 * ptrArg04, u8 * ptrArg08, u16 * axOut, void * dxOut)
 }
 
 /* 1EDA:0B4F -- build the 2-byte record {1, bArg04} at ptrArg06. */
-void fn1EDA_0B4F(u8 bArg04, u8 * ptrArg06)
+void renamed_1eda_0b4f(u8 bArg04, u8 * ptrArg06)
 {
 	ptrArg06[0] = 0x01;                     /* mov al,1h ; stosb */
 	ptrArg06[1] = bArg04;                   /* mov al,ss:[bx+4h] ; stosb */
@@ -261,7 +261,7 @@ void fn1EDA_0B4F(u8 bArg04, u8 * ptrArg06)
 /* 1EDA:0B61 -- build the length-prefixed record {wArg04, ptrArg06[0..]} at
  * ptrArg0A (stosb + rep movsb; the length byte is wArg04's low byte, the copy
  * count is the full word). */
-void fn1EDA_0B61(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
+void renamed_1eda_0b61(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 {
 	ptrArg0A[0] = (u8)wArg04;               /* stosb (al) */
 	memcpy(ptrArg0A + 1, ptrArg06, (u32)wArg04);   /* mov cx,ax ; rep movsb */
@@ -271,24 +271,24 @@ void fn1EDA_0B61(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
  * back to ptrArg08.  buffer1 = substring(ptrArg08, 1, wArg04-1); append
  * ptrArg0C; buffer2 = substring(ptrArg08, wArg04, 0xFF); append buffer2;
  * then clamp-copy buffer1 into ptrArg08 with width (u8)wArg06. */
-void fn1EDA_0B7C(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)
+void renamed_1eda_0b7c(u16 wArg04, u16 wArg06, u8 * ptrArg08, u8 * ptrArg0C)
 {
 	u8  buf1[0x100];                        /* [bp-0100h] ptrLoc0206 */
 	u8  buf2[0x100];                        /* [bp-0200h] ptrLoc020A */
 	u16 dx_163;
 
-	fn1EDA_0A6B((u16)(wArg04 - 0x0001), 0x0001, ptrArg08, buf1);
-	fn1EDA_0AAC(ptrArg0C, buf1);
-	fn1EDA_0A6B(0x00FF, wArg04, ptrArg08, buf2);
-	fn1EDA_0AAC(buf2, buf1);
-	(void)fn1EDA_0A39((u8)wArg06, ptrArg08, buf1, &dx_163);
+	renamed_1eda_0a6b((u16)(wArg04 - 0x0001), 0x0001, ptrArg08, buf1);
+	renamed_1eda_0aac(ptrArg0C, buf1);
+	renamed_1eda_0a6b(0x00FF, wArg04, ptrArg08, buf2);
+	renamed_1eda_0aac(buf2, buf1);
+	(void)renamed_1eda_0a39((u8)wArg06, ptrArg08, buf1, &dx_163);
 }
 
 /* 1EDA:0BD0 -- as 0B7C but only when wArg04 > 0: buffer1 =
  * substring(ptrArg08, 1, wArg06-1); buffer2 = substring(ptrArg08, wArg06,
  * wArg06+wArg04); append buffer2 to buffer1; clamp-copy buffer1 (0xFF) to
  * ptrArg08. */
-void fn1EDA_0BD0(s16 wArg04, u16 wArg06, u8 * ptrArg08)
+void renamed_1eda_0bd0(s16 wArg04, u16 wArg06, u8 * ptrArg08)
 {
 	u8  buf1[0x100];                        /* [bp-0100h] ptrLoc0206 */
 	u8  buf2[0x100];                        /* [bp-0200h] ptrLoc020A */
@@ -296,10 +296,10 @@ void fn1EDA_0BD0(s16 wArg04, u16 wArg06, u8 * ptrArg08)
 
 	if (wArg04 > 0x0000)                    /* cmp word [bp+6h],0 ; jle */
 	{
-		fn1EDA_0A6B((u16)(wArg06 - 0x0001), 0x0001, ptrArg08, buf1);
-		fn1EDA_0A6B(0x00FF, (u16)(wArg06 + wArg04), ptrArg08, buf2);
-		fn1EDA_0AAC(buf2, buf1);
-		(void)fn1EDA_0A39(0x00FF, ptrArg08, buf1, &dx_172);
+		renamed_1eda_0a6b((u16)(wArg06 - 0x0001), 0x0001, ptrArg08, buf1);
+		renamed_1eda_0a6b(0x00FF, (u16)(wArg06 + wArg04), ptrArg08, buf2);
+		renamed_1eda_0aac(buf2, buf1);
+		(void)renamed_1eda_0a39(0x00FF, ptrArg08, buf1, &dx_172);
 	}
 }
 
@@ -307,7 +307,7 @@ void fn1EDA_0BD0(s16 wArg04, u16 wArg06, u8 * ptrArg08)
  * nonzero when bit (bArg08 & 7) of ptrArg04[bArg08 >> 3] is CLEAR.  esOut is
  * the dropped ES selector of ptrArg04 (flat analog = ptrArg04, part-5b
  * convention). */
-u8 fn1EDA_0CD4(u8 * ptrArg04, u8 bArg08, void * esOut)
+u8 renamed_1eda_0cd4(u8 * ptrArg04, u8 bArg08, void * esOut)
 {
 	u16 bx = (u16)bArg08;                   /* mov bl,al ; xor bh,bh */
 	u8  cl_19;
@@ -326,9 +326,9 @@ u8 fn1EDA_0CD4(u8 * ptrArg04, u8 bArg08, void * esOut)
  * quotient, the function returns the remainder; wArg04 == 0 leaves both as the
  * counter DX and 0.  The original does the divide as `div bx` on DX:AX = 0:DX
  * so the quotient cannot overflow. */
-u16 fn1EDA_0D80(u16 wArg04, u16 * dxOut)
+u16 renamed_1eda_0d80(u16 wArg04, u16 * dxOut)
 {
-	u16 dx_32 = fn1EDA_0DCF();              /* call 0DCFh */
+	u16 dx_32 = renamed_1eda_0dcf();              /* call 0DCFh */
 	u16 ax_13 = 0x0000;                     /* xor ax,ax */
 
 	if (wArg04 != 0x0000)                   /* or bx,bx ; jz 0D93h */
@@ -347,7 +347,7 @@ u16 fn1EDA_0D80(u16 wArg04, u16 * dxOut)
  * sequence: DX:AX = counter * cs:[0E05h] (0x8405), then a long series of
  * partial `add ch,cl` / `add dh,bl` byte adds (which do NOT carry into the
  * neighbouring byte), `add ax,1 ; adc dx,0`, store both halves. */
-u16 fn1EDA_0DCF(void)
+u16 renamed_1eda_0dcf(void)
 {
 	u16 ax_6 = LG16(0x5382);
 	u16 bx_7 = LG16(0x5384);

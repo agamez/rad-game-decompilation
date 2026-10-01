@@ -7,15 +7,15 @@
  * See CONVENTIONS.md and docs/notes-1EDA.md ("## chunk 2b").
  *
  * DOS services: none of these functions issue an int 21h / int 10h / port
- * I/O site directly.  fn1EDA_04A9 and fn1EDA_04B7 tail-jump to the
- * same-segment fatal-error dispatcher fn1EDA_00E2, which performs the
+ * I/O site directly.  fn1EDA_04A9 and renamed_1eda_04b7 tail-jump to the
+ * same-segment fatal-error dispatcher renamed_1eda_00e2, which performs the
  * msdos_set_interrupt_vector / msdos_terminate work (chunk 1).
  *
  * Free-list model: 03D3/0432 walk and relink the far-heap free list whose
  * head lives at DGROUP:0x5366.  The flat port does not reproduce the DOS
  * far heap (its base words are zero -- see docs/notes-1EDA.md chunk 1), so
  * the heap fetches/stores are modelled by the static far_heap_* helpers
- * below, exactly as chunk 1 did for fn1EDA_00FC.  The DGROUP selector is
+ * below, exactly as chunk 1 did for renamed_1eda_00fc.  The DGROUP selector is
  * still resolved to the flat image so the head (DGROUP:0x5366) reads
  * correctly.
  */
@@ -31,7 +31,7 @@
 #include "seg1EDA_shared.h"
 #include "pal.h"
 
-/* DX half of fn1EDA_0491's result; see src/seg1EDA_shared.h. */
+/* DX half of renamed_1eda_0491's result; see src/seg1EDA_shared.h. */
 u16 g_0491_dx;
 
 /* ---------------------------------------------------------------- far heap
@@ -52,7 +52,7 @@ static void far_heap_setword(u16 seg, u16 off, u16 val)
 /* 1EDA:0491 -- AX = (ax + 7) & 8; the 8086 sequence also leaves
  * DX = ((ax + 7) >> 4) | (carry-out-of-add << 12) in DX.  The frozen
  * prototype returns AX only, so the DX half is latched in g_0491_dx. */
-u16 fn1EDA_0491(u16 ax)
+u16 renamed_1eda_0491(u16 ax)
 {
 	u16 t;
 	u8 carry;
@@ -70,7 +70,7 @@ u16 fn1EDA_0491(u16 ax)
  * bx_cx = (segment:offset) of the node to link; es_di carries the adjacent
  * node as a flat pointer whose low/high 16 bits are its offset/segment.
  * Returns AX at the retf (identical to the axOut result on every path). */
-u16 fn1EDA_0432(u32 bx_cx, u8 * es_di, u16 * axOut, u16 * dxOut)
+u16 renamed_1eda_0432(u32 bx_cx, u8 * es_di, u16 * axOut, u16 * dxOut)
 {
 	u16 p_off = (u16)(uintptr_t)es_di;          /* di at entry (es_di.off) */
 	u16 p_seg = (u16)((uintptr_t)es_di >> 16);  /* es at entry (es_di.seg) */
@@ -157,7 +157,7 @@ u16 fn1EDA_0432(u32 bx_cx, u8 * es_di, u16 * axOut, u16 * dxOut)
  * Returns 1 when CF is set (rejected), 0 on success (cf clear at 042Dh).
  * dxOut is the 16-bit DX register result (the frozen prototype types the
  * slot as void *; the original is a 16-bit word, so two bytes are stored). */
-u8 fn1EDA_03D3(u32 bx_cx, u16 ax, u16 * axOut, void * dxOut)
+u8 renamed_1eda_03d3(u32 bx_cx, u16 ax, u16 * axOut, void * dxOut)
 {
 	u16 cx = (u16)bx_cx;             /* mov cx, lo(bx_cx) */
 	u16 bx = (u16)(bx_cx >> 16);     /* mov bx, hi(bx_cx) */
@@ -201,7 +201,7 @@ l1EDA_03F9:
 	/* 1EDA:03F9: call 0491h ; mov di,cx ; mov es,bx
 	 *            mov es:[di+4h],ax ; mov es:[di+6h],dx */
 	{
-		u16 ax_9 = fn1EDA_0491(ax);
+		u16 ax_9 = renamed_1eda_0491(ax);
 		far_heap_setword(bx, (u16)(cx + 4), ax_9);
 		far_heap_setword(bx, (u16)(cx + 6), g_0491_dx);
 	}
@@ -245,8 +245,8 @@ l1EDA_03F9:
 		u8 *node = (u8 *)(uintptr_t)(((u32)es << 16) | (u32)di);
 		u8 *blk = (u8 *)(uintptr_t)bx_cx;
 
-		(void)fn1EDA_0432(bx_cx, node, &out_ax_1, &out_dx_1);
-		(void)fn1EDA_0432(((u32)prev_seg << 16) | (u32)prev_off, blk,
+		(void)renamed_1eda_0432(bx_cx, node, &out_ax_1, &out_dx_1);
+		(void)renamed_1eda_0432(((u32)prev_seg << 16) | (u32)prev_off, blk,
 		                  &out_ax_2, &out_dx_2);
 		*axOut = out_ax_2;
 		*(u16 *)(void *)dxOut = out_dx_2;
@@ -261,7 +261,7 @@ l1EDA_0430:
 }
 
 /* 1EDA:04A2 -- atomically read and clear the DOS error word at DGROUP:5380. */
-u8 fn1EDA_04A2(void)
+u8 renamed_1eda_04a2(void)
 {
 	/* xor ax,ax ; xchg [5380h],ax : AX <- old word, DGROUP:5380 = 0.
 	 * The frozen prototype returns AL. */
@@ -271,7 +271,7 @@ u8 fn1EDA_04A2(void)
 }
 
 /* 1EDA:04A9 -- pending-error trap.  When DGROUP:5380 is non-zero it tail-
- * enters the fatal-error dispatcher fn1EDA_00E2 (which never returns);
+ * enters the fatal-error dispatcher renamed_1eda_00e2 (which never returns);
  * otherwise it returns without touching DX:AX, so the caller's registers
  * survive.  The flat prototype can express the value only as a return, and
  * the register-preserving `retf` cannot be reproduced, so the surviving
@@ -289,7 +289,7 @@ u32 fn1EDA_04A9(u16 wArg00, u16 wArg02, u8 * chOut, u16 * dsOut)
 	{
 		/* 1EDA:04B1: mov ax,[5380h] ; jmp 00E2h */
 		u16 ax_8 = LG16(0x5380);
-		u16 ax_11 = fn1EDA_00E2(ax_8, wArg00, wArg02,
+		u16 ax_11 = renamed_1eda_00e2(ax_8, wArg00, wArg02,
 		                        &cx_13, &dx_15, &bx_46, &ds_14);
 		(void)chOut;                 /* CH is an <undefined> register output */
 		*dsOut = 0x0000;             /* DGROUP selector dropped in flat model */
@@ -307,7 +307,7 @@ u32 fn1EDA_04A9(u16 wArg00, u16 wArg02, u8 * chOut, u16 * dsOut)
  * (`mov es,ss:[si+2]` recovers the caller's CS).  dx is signed, ax unsigned.
  * wArg00/psegArg02 are the caller's return-address words, used only by the
  * fatal-error tail-call.  Returns AX at the retf. */
-u16 fn1EDA_04B7(u16 ax, s16 dx, u8 * di, u16 wArg00, u16 psegArg02)
+u16 renamed_1eda_04b7(u16 ax, s16 dx, u8 * di, u16 wArg00, u16 psegArg02)
 {
 	/* cmp dx,es:[di+2h] ; jg 04CAh ; jl 04D9h ; cmp ax,es:[di] ; jc 04D9h */
 	if ((dx > *(s16 *)(di + 2) ||
@@ -326,7 +326,7 @@ u16 fn1EDA_04B7(u16 ax, s16 dx, u8 * di, u16 wArg00, u16 psegArg02)
 		u16 bx_98;
 		void *ds_99 = NULL;
 
-		return fn1EDA_00E2(0xC9, wArg00, psegArg02,
+		return renamed_1eda_00e2(0xC9, wArg00, psegArg02,
 		                   &cx_96, &dx_97, &bx_98, &ds_99);
 	}
 }

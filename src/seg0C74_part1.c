@@ -11,13 +11,13 @@
  * Hardware / DOS services replaced (CONVENTIONS.md rule 4):
  *   None in this range.  No int 10h / int 16h / int 21h, no `in`/`out` port
  *   instruction, no __cli/__sti and no int 23h occur in 0000..02D8.  Mouse
- *   traffic (INT 33h) reaches the hardware only through fn1206_0066 /
- *   fn1206_0038 (already ported in seg1206.c) and the keyboard/pacing helpers
- *   through fn1E78_029C (seg1E78.c).  Every other callee is a file/video/string
+ *   traffic (INT 33h) reaches the hardware only through renamed_1206_0066 /
+ *   renamed_1206_0038 (already ported in seg1206.c) and the keyboard/pacing helpers
+ *   through renamed_1e78_029c (seg1E78.c).  Every other callee is a file/video/string
  *   helper already ported in segments 1AB8 / 1EDA / 1E5F.
  *
  * Stack-frame / ABI adaptations (documented in docs/notes-0C74.md):
- *   - The Turbo C "stack-reuse" string helpers fn1EDA_0A1F / 0AAC / 0A39 use
+ *   - The Turbo C "stack-reuse" string helpers renamed_1eda_0a1f / 0AAC / 0A39 use
  *     the CPU stack as a persistent scratch area: a callee leaves a far
  *     pointer staged for the next call.  Reko recovered the staged values
  *     (ptrLoc010C_*) from the pushed buffer; they are passed explicitly here
@@ -25,7 +25,7 @@
  *   - bgi_get_text_color_info has a `void` frozen prototype but materialises AX =
  *     (u16)LG8(0xB83E); its 0C74 callers consume that AX (`mov [bp-6h],ax`),
  *     so it is re-read from DGROUP after the call (see seg1AB8_part4.c).
- *   - Register-output / saved-BP artifacts (fn1206_0066/0038 BP+DS outputs,
+ *   - Register-output / saved-BP artifacts (renamed_1206_0066/0038 BP+DS outputs,
  *     the BP return of 011E/020C/02D8) have no flat-C equivalent; they are
  *     written as 0 and the functions return 0, per docs/notes-0800.md.
  */
@@ -52,10 +52,10 @@ u8 engine_probe_file /* was fn0C74_0000 */(u8 * ptrArg04, u16 * dxOut)
 	u8  abLoc0104[0x100];   /* [bp-0102h] search pattern (Reko ptrLoc010A) */
 	u8  abLoc012E[0x2C];    /* [bp-012Eh] DOS DTA, 44 bytes (Reko fp-0x130) */
 	u8  bLoc0105_91;        /* [bp-0103h] return byte (Reko bLoc0105_91) */
-	u16 dx_115;             /* fn1EDA_0A39 dxOut */
+	u16 dx_115;             /* renamed_1eda_0a39 dxOut */
 
-	/* fn1EDA_0A39(0FFh, ss:bp-0102h, ptrArg04) -- copy ptrArg04 into abLoc0104. */
-	fn1EDA_0A39(0xFF, abLoc0104, ptrArg04, &dx_115);
+	/* renamed_1eda_0a39(0FFh, ss:bp-0102h, ptrArg04) -- copy ptrArg04 into abLoc0104. */
+	renamed_1eda_0a39(0xFF, abLoc0104, ptrArg04, &dx_115);
 
 	/* dos_find_first_file(ds, ss:bp-012Eh, 3Fh, ss:bp-0102h) -- find first with the
 	 * DTA at abLoc012E and the pattern at abLoc0104.  Reko names its DX
@@ -76,16 +76,16 @@ u8 engine_probe_file /* was fn0C74_0000 */(u8 * ptrArg04, u16 * dxOut)
 
 // 0C74:004B: void engine_format_u32(u32 dwArg04, u8 * ptrArg08)
 // Format a 32-bit value into a local 100h-byte record then copy that record
-// (clamped to 0FFh) to ptrArg08.  The heavy lifting is fn1EDA_0F26 / 0A39.
+// (clamped to 0FFh) to ptrArg08.  The heavy lifting is renamed_1eda_0f26 / 0A39.
 void engine_format_u32 /* was fn0C74_004B */(u32 dwArg04, u8 * ptrArg08)
 {
 	u8  abLoc0100[0x100];   /* [bp-0100h] number scratch (Reko fp-0x102) */
-	u16 dx_89;              /* fn1EDA_0A39 dxOut */
+	u16 dx_89;              /* renamed_1eda_0a39 dxOut */
 
 	/* push [bp+8h] ; push [bp+6h] ; push 0 ; push ss:bp-0100h ; push 0FFh */
-	fn1EDA_0F26(0xFF, abLoc0100, 0x00, dwArg04);
-	/* fn1EDA_0A39(0FFh, ptrArg08, ss:bp-0100h) */
-	fn1EDA_0A39(0xFF, ptrArg08, abLoc0100, &dx_89);
+	renamed_1eda_0f26(0xFF, abLoc0100, 0x00, dwArg04);
+	/* renamed_1eda_0a39(0FFh, ptrArg08, ss:bp-0100h) */
+	renamed_1eda_0a39(0xFF, ptrArg08, abLoc0100, &dx_89);
 }
 
 // 0C74:007C: void engine_repaint_rect(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
@@ -139,7 +139,7 @@ void engine_set_attr_and_emit_text /* was fn0C74_00DB */(u16 wArg04, u16 wArg06,
 //
 // Local frame: [bp-0106h] abLoc0106 staged scratch (Reko ptrLoc010C_298/308);
 // [bp-0006h] wLoc06 = bgi_get_text_color_info AX result; [bp-0004h] bLoc06 record.
-// bLoc06 is staged at DGROUP 0xF800 (like fn0800_0AA1's 0xF6E0 / fn0800_0B42's
+// bLoc06 is staged at DGROUP 0xF800 (like renamed_0800_0aa1's 0xF6E0 / renamed_0800_0b42's
 // 0xF6F0): bgi_get_char_size_info materializes the record as ES:BX for the driver's 0x26
 // text op, and a C stack buffer resolves to segment 0 there -- the glyphs drew
 // nothing, leaving the clock digits blanked during move animations (the 02D8
@@ -156,29 +156,29 @@ u16 engine_redraw_clock_seconds /* was fn0C74_011E */(u16 * dsOut)
 	u8  ch_346;
 	u8  ch_347;
 	u8  ch_349;
-	u16 bp_152 = 0x0000;    /* saved-BP artifact out of fn1206_0066 */
-	u16 ds_152 = 0x0000;    /* dropped DGROUP selector out of fn1206_0066 */
-	u8 *es_344 = NULL;      /* fn1EDA_0CD4 esOut */
-	u8 *es_348 = NULL;      /* fn1EDA_0CD4 esOut */
+	u16 bp_152 = 0x0000;    /* saved-BP artifact out of renamed_1206_0066 */
+	u16 ds_152 = 0x0000;    /* dropped DGROUP selector out of renamed_1206_0066 */
+	u8 *es_344 = NULL;      /* renamed_1eda_0cd4 esOut */
+	u8 *es_348 = NULL;      /* renamed_1eda_0cd4 esOut */
 
-	/* engine_format_u32(58DCh, ss:bp-0106h) ; fn1EDA_0A39(2, ss:bp-0004h, <staged>) */
+	/* engine_format_u32(58DCh, ss:bp-0106h) ; renamed_1eda_0a39(2, ss:bp-0004h, <staged>) */
 	engine_format_u32(LG32(0x58DC), abLoc0106);
-	fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_343);
+	renamed_1eda_0a39(0x02, bLoc06, abLoc0106, &dx_343);
 
 	/* cmp byte [bp-4h],2h ; jnc 016Ch -- pad a 1-digit record */
 	if (bLoc06[0] < 0x02)
 	{
-		fn1EDA_0A1F(&g_seg0C74[0x00FC], abLoc0106);   /* {1,"0"} */
-		fn1EDA_0AAC(bLoc06, abLoc0106);
-		fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_345);
+		renamed_1eda_0a1f(&g_seg0C74[0x00FC], abLoc0106);   /* {1,"0"} */
+		renamed_1eda_0aac(bLoc06, abLoc0106);
+		renamed_1eda_0a39(0x02, bLoc06, abLoc0106, &dx_345);
 	}
 
 	bgi_get_text_color_info();
 	wLoc06 = (u16)LG8(0xB83E);   /* AX = (u16)LG8(0xB83E) (see seg1AB8) */
 
-	/* mov al,[58E4h] ; fn1EDA_0CD4(cs:00FEh, al) ; jnz 0189h */
-	if (fn1EDA_0CD4(&g_seg0C74[0x00FE], LG8(0x58E4), &es_344) == 0x00)
-		(void)fn1206_0066(&bp_152, &ds_152);
+	/* mov al,[58E4h] ; renamed_1eda_0cd4(cs:00FEh, al) ; jnz 0189h */
+	if (renamed_1eda_0cd4(&g_seg0C74[0x00FE], LG8(0x58E4), &es_344) == 0x00)
+		(void)renamed_1206_0066(&bp_152, &ds_152);
 
 	/* push 24Bh ; push 192h ; push 25Ch ; push 19Bh ; call 00DBh */
 	engine_set_attr_and_emit_text(0x019B, 0x025C, 0x0192, 0x024B);
@@ -190,9 +190,9 @@ u16 engine_redraw_clock_seconds /* was fn0C74_011E */(u16 * dsOut)
 	/* push 254h ; push 197h ; push ss:bp-4h ; call 1D82h */
 	(void)bgi_get_char_size_info(bLoc06, 0x0197, 0x0254, &ch_347);
 
-	/* mov al,[58E4h] ; fn1EDA_0CD4(cs:00FEh, al) ; jnz 01DEh */
-	if (fn1EDA_0CD4(&g_seg0C74[0x00FE], LG8(0x58E4), &es_348) == 0x00)
-		(void)fn1206_0038(&ch_349, &dx_350, &bp_152, &ds_152);
+	/* mov al,[58E4h] ; renamed_1eda_0cd4(cs:00FEh, al) ; jnz 01DEh */
+	if (renamed_1eda_0cd4(&g_seg0C74[0x00FE], LG8(0x58E4), &es_348) == 0x00)
+		(void)renamed_1206_0038(&ch_349, &dx_350, &bp_152, &ds_152);
 
 	/* push word [bp-6h] ; call 1C32h */
 	(void)bgi_get_text_cursor_attributes((u8)wLoc06);
@@ -217,26 +217,26 @@ u16 engine_redraw_clock_minutes /* was fn0C74_020C */(u16 * dsOut)
 	u8  ch_346;
 	u8  ch_347;
 	u8  ch_349;
-	u16 bp_152 = 0x0000;    /* saved-BP artifact out of fn1206_0066 */
-	u16 ds_152 = 0x0000;    /* dropped DGROUP selector out of fn1206_0066 */
-	u8 *es_344 = NULL;      /* fn1EDA_0CD4 esOut */
-	u8 *es_348 = NULL;      /* fn1EDA_0CD4 esOut */
+	u16 bp_152 = 0x0000;    /* saved-BP artifact out of renamed_1206_0066 */
+	u16 ds_152 = 0x0000;    /* dropped DGROUP selector out of renamed_1206_0066 */
+	u8 *es_344 = NULL;      /* renamed_1eda_0cd4 esOut */
+	u8 *es_348 = NULL;      /* renamed_1eda_0cd4 esOut */
 
 	engine_format_u32(LG32(0x58CC), abLoc0106);
-	fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_343);
+	renamed_1eda_0a39(0x02, bLoc06, abLoc0106, &dx_343);
 
 	if (bLoc06[0] < 0x02)
 	{
-		fn1EDA_0A1F(&g_seg0C74[0x01EA], abLoc0106);   /* {1,"0"} */
-		fn1EDA_0AAC(bLoc06, abLoc0106);
-		fn1EDA_0A39(0x02, bLoc06, abLoc0106, &dx_345);
+		renamed_1eda_0a1f(&g_seg0C74[0x01EA], abLoc0106);   /* {1,"0"} */
+		renamed_1eda_0aac(bLoc06, abLoc0106);
+		renamed_1eda_0a39(0x02, bLoc06, abLoc0106, &dx_345);
 	}
 
 	bgi_get_text_color_info();
 	wLoc06 = (u16)LG8(0xB83E);   /* AX = (u16)LG8(0xB83E) (see seg1AB8) */
 
-	if (fn1EDA_0CD4(&g_seg0C74[0x01EC], LG8(0x58E4), &es_344) == 0x00)
-		(void)fn1206_0066(&bp_152, &ds_152);
+	if (renamed_1eda_0cd4(&g_seg0C74[0x01EC], LG8(0x58E4), &es_344) == 0x00)
+		(void)renamed_1206_0066(&bp_152, &ds_152);
 
 	/* push 233h ; push 192h ; push 244h ; push 19Bh ; call 00DBh */
 	engine_set_attr_and_emit_text(0x019B, 0x0244, 0x0192, 0x0233);
@@ -250,8 +250,8 @@ u16 engine_redraw_clock_minutes /* was fn0C74_020C */(u16 * dsOut)
 
 	/* push word [bp-6h] ; call 1C32h ; mov al,[58E4h] ; call 0CD4h */
 	(void)bgi_get_text_cursor_attributes((u8)wLoc06);
-	if (fn1EDA_0CD4(&g_seg0C74[0x01EC], LG8(0x58E4), &es_348) == 0x00)
-		(void)fn1206_0038(&ch_349, &dx_350, &bp_152, &ds_152);
+	if (renamed_1eda_0cd4(&g_seg0C74[0x01EC], LG8(0x58E4), &es_348) == 0x00)
+		(void)renamed_1206_0038(&ch_349, &dx_350, &bp_152, &ds_152);
 
 	*dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */
 	return 0x0000;     /* BP return artifact: not meaningful in flat C */
@@ -270,7 +270,7 @@ u16 engine_clock_tick /* was fn0C74_02D8 */(u16 wArg02, u16 * dsOut)
 	u16 dx_269;
 	u16 dx_273;
 	u16 dx_274;
-	u16 ds_44 = 0x0000;     /* fn1EDA_098A DS output (dropped selector) */
+	u16 ds_44 = 0x0000;     /* renamed_1eda_098a DS output (dropped selector) */
 	s16 cx_270;
 	s16 dx_45;
 	s16 bx_271;
@@ -292,7 +292,7 @@ u16 engine_clock_tick /* was fn0C74_02D8 */(u16 wArg02, u16 * dsOut)
 	/* cmp byte [58BEh],0 ; jnz 02EEh */
 	if (LG8(0x58BE) == 0x00)
 	{
-		(void)fn1E78_029C(wArg02, &dx_269);
+		(void)renamed_1e78_029c(wArg02, &dx_269);
 		if (rad_pace_trace_on())
 			rad_pace_trace("02D8-idle", wArg02, 0, 0);
 	}
@@ -309,14 +309,14 @@ u16 engine_clock_tick /* was fn0C74_02D8 */(u16 wArg02, u16 * dsOut)
 				/* First 098Ah: quotient ([58DAh]:[58D8h] / 3Ch) -> 58CCh:58CEh.
 				 * The unused wArg00/wArg02 stack slots are seeded 0 (they are
 				 * only read on the divide-by-zero fatal path, not taken). */
-				LG16(0x58CC) = (u16)fn1EDA_098A(0x003C, LG32(0x58D8),
+				LG16(0x58CC) = (u16)renamed_1eda_098a(0x003C, LG32(0x58D8),
 				                                0x0000, 0x0000,
 				                                &cx_270, &dx_45, &bx_271,
 				                                (void *)&ds_44);
 				LG16(0x58CE) = (u16)dx_45;
 
 				/* Second (identical) 098Ah: remainder -> 58DCh:58DEh. */
-				(void)fn1EDA_098A(0x003C, LG32(0x58D8),
+				(void)renamed_1eda_098a(0x003C, LG32(0x58D8),
 				                  0x0000, 0x0000,
 				                  &cx_68, &dx_272, &bx_67,
 				                  (void *)&ds_44);
@@ -334,7 +334,7 @@ u16 engine_clock_tick /* was fn0C74_02D8 */(u16 wArg02, u16 * dsOut)
 				}
 				else
 				{
-					(void)fn1E78_029C(0x0002, &dx_273);
+					(void)renamed_1e78_029c(0x0002, &dx_273);
 				}
 
 				/* cmp dx,[58C6h] ; jnz 0388h ; cmp ax,[58C4h] ; jz 039Ch */
@@ -348,7 +348,7 @@ u16 engine_clock_tick /* was fn0C74_02D8 */(u16 wArg02, u16 * dsOut)
 				}
 				else
 				{
-					(void)fn1E78_029C(0x0002, &dx_274);
+					(void)renamed_1e78_029c(0x0002, &dx_274);
 				}
 
 				/* mov ax,[bp-2h] ; cmp ax,[bp-4h] ; jz 03AEh ; jmp 0310h */

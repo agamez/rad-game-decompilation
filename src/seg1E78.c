@@ -5,22 +5,22 @@
  * Function order = ascending offset; Reko offset comments retained.
  *
  * Hardware / DOS replaced (CONVENTIONS.md rule 4):
- *   int 10h (the single instruction in fn1E78_0609, reached with many AH
+ *   int 10h (the single instruction in renamed_1e78_0609, reached with many AH
  *            subfunctions) -> pal_bios_int10(regs) with regs = AX,BX,CX,DX.
  *            C has no AH/AL registers, so the recovered callers stage the
  *            register values in the file-scope g_bios10_* block exactly
  *            where the original loaded AH/AL/BX/... before `call 0609h`;
- *            fn1E78_0609() copies them into regs, dispatches, and copies the
+ *            renamed_1e78_0609() copies them into regs, dispatches, and copies the
  *            outputs back.  AH=00 set mode and AH=0F get mode keep sharing
  *            the mode state with bios_video_*(); the BIOS text services
  *            (AH=01/02/03/06/07/08/09/0A/0E/10/11/12) are now handled by
  *            pal_bios_int10 (see pal/int.c); no service remains dropped.
  *   int 16h AH=01 -> bios_kbd_check_keystroke; AH=00 -> bios_kbd_get_keystroke
- *   int 23h -> dropped (fn1E78_0143)
+ *   int 23h -> dropped (renamed_1e78_0143)
  *   in al,61h / out 61h,al -> pal_inport(0x61) / pal_outport(0x61, ...)
  *   out 43h,al             -> pal_outport(0x43, ...)
  *   out 42h,al             -> pal_outport(0x42, ...)
- *   int 21h AH=25h (fn1E78_002E) -> msdos_set_interrupt_vector
+ *   int 21h AH=25h (renamed_1e78_002e) -> msdos_set_interrupt_vector
  *
  * The BIOS Data Area cells read directly by the original (0040:0000,
  * 0040:006C tick counter, 0040:0087 video control) have no pal.h mapping and
@@ -42,7 +42,7 @@
 static u8 g_bda_0000;   /* 0040:0000 */
 static u8 g_bda_0087;   /* 0040:0087 (video control byte) */
 
-/* Emulated-machine delay pacing (see fn1E78_029C / fn1E78_02BF below).  After
+/* Emulated-machine delay pacing (see renamed_1e78_029c / renamed_1e78_02bf below).  After
  * the startup calibration this holds the real-time cost of ONE spin iteration
  * of the 02BFh busy-wait on the machine the calibration measured; on era
  * hardware that is ~1ms/[0xB8B4], which is exactly the value stored here.  A
@@ -97,25 +97,25 @@ void fn1E78_pace_ns(unsigned long long ns)
 }
 
 /* int 10h register gateway: C has no AH/AL/BH/BL/CH/CL/DH/DL registers, so
- * callers stage the values here before invoking fn1E78_0609(), exactly as the
+ * callers stage the values here before invoking renamed_1e78_0609(), exactly as the
  * original loaded them before `call 0609h`. */
 static u16 g_bios10_ax;
 static u16 g_bios10_bx;
 static u16 g_bios10_cx;
 static u16 g_bios10_dx;
 
-// 1E78:0000: void fn1E78_0000(void)
-void fn1E78_0000(void)
+// 1E78:0000: void renamed_1e78_0000(void)
+void renamed_1e78_0000(void)
 {
-	fn1E78_002E();
-	fn1E78_032F(&g_dgroup[0xB8BC]);
-	fn1EDA_0565(&g_dgroup[0xB8BC]);
-	fn1E78_032F(&g_dgroup[0xB9BC]);
-	fn1EDA_056A(&g_dgroup[0xB9BC]);
+	renamed_1e78_002e();
+	renamed_1e78_032f(&g_dgroup[0xB8BC]);
+	renamed_1eda_0565(&g_dgroup[0xB8BC]);
+	renamed_1e78_032f(&g_dgroup[0xB9BC]);
+	renamed_1eda_056a(&g_dgroup[0xB9BC]);
 }
 
-// 1E78:002E: void fn1E78_002E(void)
-void fn1E78_002E(void)
+// 1E78:002E: void renamed_1e78_002e(void)
+void renamed_1e78_002e(void)
 {
 	u8 al_6;
 	u16 dx_117;
@@ -125,13 +125,13 @@ void fn1E78_002E(void)
 	u16 count;
 
 	g_bios10_ax = 0x0F00;                            /* AH=0Fh get mode */
-	al_6 = (u8)fn1E78_0609();
+	al_6 = (u8)renamed_1e78_0609();
 	if (al_6 != 0x07 && al_6 > 0x03)
-		fn1E78_0097(0x03);
-	fn1E78_00E5(&dx_117);
+		renamed_1e78_0097(0x03);
+	renamed_1e78_00e5(&dx_117);
 	g_bios10_ax = 0x0800;                            /* AH=08h read char */
 	g_bios10_bx = (u16)(g_bios10_bx & 0xFF00);       /* BH=0 */
-	ax_38 = fn1E78_0609();
+	ax_38 = renamed_1e78_0609();
 	ah_38 = (u8)(ax_38 >> 8);
 	LG8(0xB8B8) = (u8)(ah_38 & 0x7F);
 	LG8(0xB8AE) = (u8)(ah_38 & 0x7F);
@@ -144,7 +144,7 @@ void fn1E78_002E(void)
 	while (al_58 == g_bda_006C)
 		;
 	al_58 = g_bda_006C;
-	count = fn1E78_02BF(&g_bda_006C, al_58, 0xFFFF);
+	count = renamed_1e78_02bf(&g_bda_006C, al_58, 0xFFFF);
 	LG16(0xB8B4) = (u16)((u16)~count / 0x37);
 	/* The emulated machine's per-iteration spin cost: one calibrated unit
 	 * (one 029Ch millisecond) is [0xB8B4] iterations, so one iteration is
@@ -156,8 +156,8 @@ void fn1E78_002E(void)
 	msdos_set_interrupt_vector(0x1B, (void *)&g_seg1E78[0x12D]);
 }
 
-// 1E78:0097: void fn1E78_0097(u16 ax)
-void fn1E78_0097(u16 ax)
+// 1E78:0097: void renamed_1e78_0097(u16 ax)
+void renamed_1e78_0097(u16 ax)
 {
 	u8 al = (u8)ax;
 	u8 ah = (u8)(ax >> 8);
@@ -170,31 +170,31 @@ void fn1E78_0097(u16 ax)
 			ax_18 = (u16)(((u16)ah << 8) | 0x03);
 	}
 	g_bios10_ax = (u16)(u8)ax_18;                    /* AH=0 set mode, AL=ax_18 */
-	fn1E78_0609();
+	renamed_1e78_0609();
 	if (ah != 0x00)
 	{
 		g_bios10_ax = 0x1112;                        /* AH=11h AL=12h */
 		g_bios10_bx = (u16)(g_bios10_bx & 0xFF00);   /* BL=0 */
-		fn1E78_0609();
+		renamed_1e78_0609();
 		g_bios10_ax = 0x1130;                        /* AH=11h AL=30h */
 		g_bios10_bx = (u16)(g_bios10_bx & 0x00FF);   /* BH=0 */
 		g_bios10_dx = (u16)(g_bios10_dx & 0xFF00);   /* DL=0 */
-		fn1E78_0609();
+		renamed_1e78_0609();
 		if ((u8)g_bios10_dx == 0x2A)
 		{
 			g_bda_0087 = (u8)(g_bda_0087 | 0x01);
 			g_bios10_ax = 0x0100;
 			g_bios10_cx = 0x0600;
-			fn1E78_0609();
+			renamed_1e78_0609();
 			g_bios10_ax = (u16)((g_bios10_ax & 0x00FF) | 0x1200);
 			g_bios10_bx = (u16)((g_bios10_bx & 0xFF00) | 0x0020);
-			fn1E78_0609();
+			renamed_1e78_0609();
 		}
 	}
 }
 
-// 1E78:00E5: u8 fn1E78_00E5(u16 * dxOut)
-u8 fn1E78_00E5(u16 * dxOut)
+// 1E78:00E5: u8 renamed_1e78_00e5(u16 * dxOut)
+u8 renamed_1e78_00e5(u16 * dxOut)
 {
 	u16 ax_71;
 	u8 ah_5;
@@ -205,11 +205,11 @@ u8 fn1E78_00E5(u16 * dxOut)
 	u16 dx_50;
 
 	g_bios10_ax = 0x0F00;                            /* AH=0Fh get mode */
-	ax_71 = fn1E78_0609();
+	ax_71 = renamed_1e78_0609();
 	g_bios10_ax = 0x1130;                            /* AH=11h AL=30h */
 	g_bios10_bx = (u16)(g_bios10_bx & 0x00FF);       /* BH=0 */
 	g_bios10_dx = (u16)(g_bios10_dx & 0xFF00);       /* DL=0 */
-	fn1E78_0609();
+	renamed_1e78_0609();
 	ah_5 = (u8)(ax_71 >> 8);
 	al_6 = (u8)ax_71;
 	dl_21 = (u8)g_bios10_dx;
@@ -233,8 +233,8 @@ u8 fn1E78_00E5(u16 * dxOut)
 	return 0x00;
 }
 
-// 1E78:0143: u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut)
-u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut)
+// 1E78:0143: u16 renamed_1e78_0143(s16 dx, u16 wArg04, s16 * dxOut)
+u16 renamed_1e78_0143(s16 dx, u16 wArg04, s16 * dxOut)
 {
 	u16 ax = 0;
 	u16 dx_42;
@@ -245,11 +245,11 @@ u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut)
 		LG8(0xB8BA) = 0x00;
 		while (bios_kbd_check_keystroke())
 			(void)bios_kbd_get_keystroke();
-		fn1E78_047C(0x5E, dx);
-		fn1E78_047C(0x43, dx);
-		fn1E78_0475(0x00, dx);
+		renamed_1e78_047c(0x5E, dx);
+		renamed_1e78_047c(0x43, dx);
+		renamed_1e78_0475(0x00, dx);
 		/* int 23h dropped */
-		ax_39 = fn1E78_016B(wArg04, &dx_42);
+		ax_39 = renamed_1e78_016b(wArg04, &dx_42);
 		*dxOut = (s16)dx_42;
 		return ax_39;
 	}
@@ -257,28 +257,28 @@ u16 fn1E78_0143(s16 dx, u16 wArg04, s16 * dxOut)
 	return ax;
 }
 
-// 1E78:016B: u16 fn1E78_016B(u16 wArg04, u16 * dxOut)
-u16 fn1E78_016B(u16 wArg04, u16 * dxOut)
+// 1E78:016B: u16 renamed_1e78_016b(u16 wArg04, u16 * dxOut)
+u16 renamed_1e78_016b(u16 wArg04, u16 * dxOut)
 {
 	u16 dx_22;
 
-	fn1E78_0097(wArg04);
-	fn1E78_00E5(&dx_22);
+	renamed_1e78_0097(wArg04);
+	renamed_1e78_00e5(&dx_22);
 	LG8(0xB8AE) = LG8(0xB8B8);
 	*dxOut = dx_22;
 	return (u16)LG8(0xB8B8);
 }
 
-// 1E78:01C0: void fn1E78_01C0(void)
-void fn1E78_01C0(void)
+// 1E78:01C0: void renamed_1e78_01c0(void)
+void renamed_1e78_01c0(void)
 {
 	g_bios10_ax = 0x0600;                            /* AH=06h scroll */
 	g_bios10_bx = (u16)((g_bios10_bx & 0xFF00) | (u16)LG8(0xB8AE));
 	g_bios10_cx = LG16(0xB8B0);
 	g_bios10_dx = LG16(0xB8B2);
-	fn1E78_0609();
+	renamed_1e78_0609();
 	g_bios10_dx = LG16(0xB8B0);
-	fn1E78_04FD();
+	renamed_1e78_04fd();
 }
 
 /* ---- RAD_PACE_TRACE: env-gated pacing diagnostics (host-only) ----
@@ -302,10 +302,10 @@ void rad_pace_trace(const char *site, unsigned a, unsigned b, long long ns)
 	        site, a, b, ns);
 }
 
-// 1E78:029C: u8 fn1E78_029C(u16 wArg04, u16 * dxOut)
+// 1E78:029C: u8 renamed_1e78_029c(u16 wArg04, u16 * dxOut)
 //
 // Pacing primitive: waits wArg04 ticks of the calibrated delay unit.  On the
-// original hardware fn1E78_002E's startup calibration sizes DGROUP:0xB8B4 so
+// original hardware renamed_1e78_002e's startup calibration sizes DGROUP:0xB8B4 so
 // that one 02BFh busy-wait = 1/55 of a BIOS tick = one game millisecond, on
 // whatever CPU is running.  The Linux host's spin loop is thousands of times
 // denser than the emulated machine's, so the raw spin of [0xB8B4] iterations
@@ -315,7 +315,7 @@ void rad_pace_trace(const char *site, unsigned a, unsigned b, long long ns)
 // literal, and the call is held for cx * g_029C_iter_ns of real time when the
 // watched byte never changed -- exactly what the calibrated spin delivered on
 // the original machine.  One 029Ch unit = one millisecond, as calibrated.
-u8 fn1E78_029C(u16 wArg04, u16 * dxOut)
+u8 renamed_1e78_029c(u16 wArg04, u16 * dxOut)
 {
 	u16 dx_33 = wArg04;
 	u16 ax = 0;
@@ -338,7 +338,7 @@ u8 fn1E78_029C(u16 wArg04, u16 * dxOut)
 		u16 bx_21 = LG16(0xB8B4);
 		do
 		{
-			fn1E78_02BF(&g_bda_0000, al_19, bx_21);
+			renamed_1e78_02bf(&g_bda_0000, al_19, bx_21);
 			--dx_33;
 			ax = (u16)al_19;
 		} while (dx_33 != 0x00);
@@ -356,7 +356,7 @@ u8 fn1E78_029C(u16 wArg04, u16 * dxOut)
 	return (u8)(ax >> 8);
 }
 
-// 1E78:02BF: u16 fn1E78_02BF(volatile u8 * es_di, u8 al, u16 cx)
+// 1E78:02BF: u16 renamed_1e78_02bf(volatile u8 * es_di, u8 al, u16 cx)
 // Spin until *es_di differs from al, at most cx iterations (the literal
 // recovered loop).  On the cx-exhaustion exit the call additionally occupies
 // cx * g_029C_iter_ns of real time: that is the duration the same cx-iteration
@@ -364,7 +364,7 @@ u8 fn1E78_029C(u16 wArg04, u16 * dxOut)
 // every 029Ch delay unit is defined against.  The byte-change exit (the
 // calibration watching the 0040:006Ch tick byte) returns immediately, as the
 // original's does when the tick arrives.
-u16 fn1E78_02BF(volatile u8 * es_di, u8 al, u16 cx)
+u16 renamed_1e78_02bf(volatile u8 * es_di, u8 al, u16 cx)
 {
 	u16 left = cx;
 
@@ -382,8 +382,8 @@ u16 fn1E78_02BF(volatile u8 * es_di, u8 al, u16 cx)
 	return left;
 }
 
-// 1E78:02C7: void fn1E78_02C7(u16 wArg04)
-void fn1E78_02C7(u16 wArg04)
+// 1E78:02C7: void renamed_1e78_02c7(u16 wArg04)
+void renamed_1e78_02c7(u16 wArg04)
 {
 	if (wArg04 > 0x12)
 	{
@@ -399,16 +399,16 @@ void fn1E78_02C7(u16 wArg04)
 	}
 }
 
-// 1E78:02F4: u8 fn1E78_02F4(void)
-u8 fn1E78_02F4(void)
+// 1E78:02F4: u8 renamed_1e78_02f4(void)
+u8 renamed_1e78_02f4(void)
 {
 	u8 al_4 = pal_inport(0x61);
 	pal_outport(0x61, (u8)(al_4 & 0xFC));
 	return (u8)(al_4 & 0xFC);
 }
 
-// 1E78:02FB: u8 fn1E78_02FB(void)
-u8 fn1E78_02FB(void)
+// 1E78:02FB: u8 renamed_1e78_02fb(void)
+u8 renamed_1e78_02fb(void)
 {
 	if (LG8(0xB8B9) == 0x00)
 	{
@@ -418,8 +418,8 @@ u8 fn1E78_02FB(void)
 	return 0x01;
 }
 
-// 1E78:030D: u16 fn1E78_030D(s16 dx, u16 wArg02, u16 * dxOut)
-u16 fn1E78_030D(s16 dx, u16 wArg02, u16 * dxOut)
+// 1E78:030D: u16 renamed_1e78_030d(s16 dx, u16 wArg02, u16 * dxOut)
+u16 renamed_1e78_030d(s16 dx, u16 wArg02, u16 * dxOut)
 {
 	s16 dx_38;
 	u16 ax_35;
@@ -439,14 +439,14 @@ u16 fn1E78_030D(s16 dx, u16 wArg02, u16 * dxOut)
 	}
 	/* The original's AL carries through 0143's normal `ret`; the ctrl-C
 	 * branch terminates via int 23h (dropped). */
-	ax_35 = fn1E78_0143(dx, wArg02, &dx_38);
+	ax_35 = renamed_1e78_0143(dx, wArg02, &dx_38);
 	(void)ax_35;                             /* kept for the side effect */
 	*dxOut = (u16)dx_38;
 	return al_6;
 }
 
-// 1E78:032F: void fn1E78_032F(void * ptrArg04)
-void fn1E78_032F(void * ptrArg04)
+// 1E78:032F: void renamed_1e78_032f(void * ptrArg04)
+void renamed_1e78_032f(void * ptrArg04)
 {
 	u8 *p = (u8 *)ptrArg04;
 	*(u16 *)(p + 0x02) = 0xD7B0;
@@ -459,14 +459,14 @@ void fn1E78_032F(void * ptrArg04)
 }
 
 /* 1E78:035A -- console stream OPEN callback (the +0x10 slot stored by
- * fn1E78_032F).  Arms the operation slots for the new mode:
+ * renamed_1e78_032f).  Arms the operation slots for the new mode:
  *   id D7B1 (read) : {+14: 0392 read-line, +18: 0470 dummy, +1C: 0470}
  *   otherwise      : id <- D7B2 (write), {+14: 043F, +18: 043F, +1C: 0470}
  * The original stores far pointers (offset,CS) in the three slots; the flat
  * port keeps the offset words only -- the resolver (seg1EDA_stream_cb) is
  * offset-keyed and 0392/043F/0470 do not collide with the 1EDA file-stream
  * slots.  AX = 0 (success). */
-u16 fn1E78_035A(u8 * block)
+u16 renamed_1e78_035a(u8 * block)
 {
 	u16 ax = 0x0392;
 	u16 bx = 0x0470;
@@ -485,7 +485,7 @@ u16 fn1E78_035A(u8 * block)
 }
 
 /* 1E78:0470 -- console stream dummy op. */
-u16 fn1E78_0470(u8 * block)
+u16 renamed_1e78_0470(u8 * block)
 {
 	(void)block;
 	return 0x0000;                          /* xor ax,ax ; retf 4 */
@@ -497,7 +497,7 @@ u16 fn1E78_0470(u8 * block)
  * not emulate the text plane, so both branches route through the teletype
  * helper (documented deviation -- the count/state effects are identical).
  * Tail-calls 0143h (the ctrl-C check; int 23h dropped).  AX = 0. */
-u16 fn1E78_043F(u8 * block)
+u16 renamed_1e78_043f(u8 * block)
 {
 	u16 cx = *(u16 *)(block + 0x08);
 	s16 dxTmp;
@@ -509,9 +509,9 @@ u16 fn1E78_043F(u8 * block)
 		u16 i;
 
 		for (i = 0; i < cx; i++)
-			fn1E78_047C(buf[i], 0);         /* DX ignored (04F6 re-reads) */
+			renamed_1e78_047c(buf[i], 0);         /* DX ignored (04F6 re-reads) */
 	}
-	(void)fn1E78_0143(0, 0, &dxTmp);
+	(void)renamed_1e78_0143(0, 0, &dxTmp);
 	return 0x0000;
 }
 
@@ -523,7 +523,7 @@ u16 fn1E78_043F(u8 * block)
  * the high-water mark, AL < 20h is swallowed.  The original clears the
  * pending-key byte [B8B9] before each 030Dh call, so extended-key scan
  * codes pended by 030Dh are dropped -- transcribed as-is.  AX = 0. */
-u16 fn1E78_0392(u8 * block)
+u16 renamed_1e78_0392(u8 * block)
 {
 	u16 dxLimit = (u16)(*(u16 *)(block + 0x04) - 2);
 	u16 siHi = *(u16 *)(block + 0x08);
@@ -536,7 +536,7 @@ u16 fn1E78_0392(u8 * block)
 	for (;;)
 	{
 		LG8(0xB8B9) = 0x00;                 /* 03A8h */
-		al = (u8)fn1E78_030D(0, 0, &dxTmp); /* push cs ; call 30Dh */
+		al = (u8)renamed_1e78_030d(0, 0, &dxTmp); /* push cs ; call 30Dh */
 		cx = 0x0001;
 		if (al == 0x08 || al == 0x13)
 			goto l3EC;
@@ -557,7 +557,7 @@ u16 fn1E78_0392(u8 * block)
 			continue;                       /* line full */
 		buf[bx] = al;
 		++bx;
-		fn1E78_047C(al, 0);                 /* echo */
+		renamed_1e78_047c(al, 0);                 /* echo */
 		if (bx > siHi)
 			siHi = bx;
 		continue;
@@ -567,9 +567,9 @@ u16 fn1E78_0392(u8 * block)
 		{
 			if (bx == 0x0000)
 				break;                      /* or bx,bx ; jz 03A8h */
-			fn1E78_047C(0x08, 0);
-			fn1E78_047C(0x20, 0);
-			fn1E78_047C(0x08, 0);
+			renamed_1e78_047c(0x08, 0);
+			renamed_1e78_047c(0x20, 0);
+			renamed_1e78_047c(0x08, 0);
 			--bx;
 			if (--cx == 0x0000)
 				break;                      /* loop falls through */
@@ -584,7 +584,7 @@ u16 fn1E78_0392(u8 * block)
 			al = buf[bx];
 			if (al < 0x20)
 				break;
-			fn1E78_047C(al, 0);
+			renamed_1e78_047c(al, 0);
 			++bx;
 			if (--cx == 0x0000)
 				break;
@@ -599,7 +599,7 @@ u16 fn1E78_0392(u8 * block)
 		goto l42E;
 
 	l424:                                   /* CR: CRLF + terminator */
-		fn1E78_0475(0x00, 0);
+		renamed_1e78_0475(0x00, 0);
 		buf[bx] = 0x0D;                     /* mov word,0A0Dh (little-endian) */
 		buf[bx + 1] = 0x0A;
 		++bx;
@@ -612,16 +612,16 @@ u16 fn1E78_0392(u8 * block)
 	}
 }
 
-// 1E78:0475: void fn1E78_0475(u8 ah, s16 dx)
-void fn1E78_0475(u8 ah, s16 dx)
+// 1E78:0475: void renamed_1e78_0475(u8 ah, s16 dx)
+void renamed_1e78_0475(u8 ah, s16 dx)
 {
 	(void)ah;
-	fn1E78_047C(0x0D, dx);
-	fn1E78_047C(0x0A, dx);
+	renamed_1e78_047c(0x0D, dx);
+	renamed_1e78_047c(0x0A, dx);
 }
 
-// 1E78:047C: u8 fn1E78_047C(u8 al, s16 dx)
-u8 fn1E78_047C(u8 al, s16 dx)
+// 1E78:047C: u8 renamed_1e78_047c(u8 al, s16 dx)
+u8 renamed_1e78_047c(u8 al, s16 dx)
 {
 	u8 al_29 = al;
 	u8 dh_38;
@@ -630,7 +630,7 @@ u8 fn1E78_047C(u8 al, s16 dx)
 	(void)dx;   /* the original pushes DX and restores it at the end; the
 	             * body always works from the CURRENT cursor read below. */
 
-	fn1E78_04F6();                                   /* AH=03h read cursor shape */
+	renamed_1e78_04f6();                                   /* AH=03h read cursor shape */
 	/* pal_bios_int10's AH=03 handler returns the cursor in the DX register
 	 * image, which 0609 copies back to g_bios10_dx. */
 	dh_38 = (u8)(g_bios10_dx >> 8);
@@ -638,7 +638,7 @@ u8 fn1E78_047C(u8 al, s16 dx)
 	if (al_29 == 0x07)
 	{
 		g_bios10_ax = (u16)((g_bios10_ax & 0x00FF) | (u16)(0x0E00 | al_29));
-		fn1E78_0609();
+		renamed_1e78_0609();
 		goto l1E78_04CD;
 	}
 	if (al_29 == 0x08)
@@ -659,21 +659,21 @@ u8 fn1E78_047C(u8 al, s16 dx)
 	g_bios10_bx = (u16)LG8(0xB8AE);                  /* BL=attr, BH=0 */
 	g_bios10_cx = 0x0001;
 	g_bios10_dx = (u16)(((u16)dh_38 << 8) | dl_38);
-	fn1E78_0609();
+	renamed_1e78_0609();
 	++dl_38;
 	if (dl_38 <= LG8(0xB8B2))
 		goto l1E78_04CD;
 	dl_38 = LG8(0xB8B0);
 l1E78_04CA:
-	fn1E78_04D5(dh_38);
+	renamed_1e78_04d5(dh_38);
 l1E78_04CD:
 	g_bios10_dx = (u16)(((u16)dh_38 << 8) | dl_38);
-	fn1E78_04FD();
+	renamed_1e78_04fd();
 	return 0x00;
 }
 
-// 1E78:04D5: void fn1E78_04D5(u8 dh)
-void fn1E78_04D5(u8 dh)
+// 1E78:04D5: void renamed_1e78_04d5(u8 dh)
+void renamed_1e78_04d5(u8 dh)
 {
 	++dh;
 	if (dh <= LG8(0xB8B3))
@@ -683,31 +683,31 @@ void fn1E78_04D5(u8 dh)
 	g_bios10_bx = (u16)((g_bios10_bx & 0xFF00) | (u16)LG8(0xB8AE));
 	g_bios10_cx = LG16(0xB8B0);
 	g_bios10_dx = LG16(0xB8B2);
-	fn1E78_0609();
+	renamed_1e78_0609();
 }
 
-// 1E78:04F6: void fn1E78_04F6(void)
-void fn1E78_04F6(void)
+// 1E78:04F6: void renamed_1e78_04f6(void)
+void renamed_1e78_04f6(void)
 {
 	g_bios10_ax = (u16)((g_bios10_ax & 0x00FF) | 0x0300);   /* AH=03h */
 	g_bios10_bx = (u16)(g_bios10_bx & 0xFF00);              /* BH=0 */
-	fn1E78_0609();
+	renamed_1e78_0609();
 }
 
-// 1E78:04FD: u16 fn1E78_04FD(void)
-u16 fn1E78_04FD(void)
+// 1E78:04FD: u16 renamed_1e78_04fd(void)
+u16 renamed_1e78_04fd(void)
 {
 	g_bios10_ax = (u16)((g_bios10_ax & 0x00FF) | 0x0200);   /* AH=02h */
 	g_bios10_bx = (u16)(g_bios10_bx & 0xFF00);              /* BH=0 */
-	return fn1E78_0609();
+	return renamed_1e78_0609();
 }
 
-// 1E78:0609: u16 fn1E78_0609(void)
+// 1E78:0609: u16 renamed_1e78_0609(void)
 // Generic int 10h gateway (original body: push si/di/bp/es; int 10h; pop ...).
 // The staged g_bios10_* words are handed to the PAL as a 4-word register
 // image (AX,BX,CX,DX) and the post-interrupt values are copied back, exactly
 // where the original callers consumed AX/BX/CX/DX after `int 10h`.
-u16 fn1E78_0609(void)
+u16 renamed_1e78_0609(void)
 {
 	u16 regs[4];
 

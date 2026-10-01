@@ -12,7 +12,7 @@
  *   None.  No int 10h / int 16h / int 21h, no `in`/`out` port instruction,
  *   no __cli/__sti and no int 23h occur in 0000..04E3.  Every BIOS/DOS
  *   service reached from here goes through segment 1E5F (dos_get_interrupt_vector /
- *   0171, the AH=35h/25h vector wrappers), segment 1E78 (fn1E78_016B) and
+ *   0171, the AH=35h/25h vector wrappers), segment 1E78 (renamed_1e78_016b) and
  *   segment 1EDA/0C74/11C8, and is replaced in those ports, not here.
  *
  * Flat-model far pointers:
@@ -39,17 +39,17 @@
 #include "seg0C74.h"
 #include "seg13E2.h"
 
-// 0800:0000: u16 fn0800_0000(void)
+// 0800:0000: u16 renamed_0800_0000(void)
 // Terminate/deinit path: video (1AB8) and keyboard/PIT (1E78) teardown, then
 // the AdLib (11C8) shutdown, then the CRT fatal exit fn1EDA_00E9(0).
-u16 fn0800_0000(void)
+u16 renamed_0800_0000(void)
 {
 	u16 dx_69;
 
 	bgi_shutdown_video_driver();
 	bgi_swap_graphics_gateway();
 	/* push word ptr [0B8ACh] ; call far 1E78h:016Bh */
-	fn1E78_016B(LG16(0xB8AC), &dx_69);
+	renamed_1e78_016b(LG16(0xB8AC), &dx_69);
 	audio_init_opl3();
 	/* xor ax,ax ; call far 1EDAh:00E9h -- the process exit (no return).
 	 * The frozen prototype returns u16, so the callee pointer result is
@@ -57,11 +57,11 @@ u16 fn0800_0000(void)
 	return (u16)(uintptr_t)fn1EDA_00E9(0x0000);
 }
 
-// 0800:0024: void fn0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+// 0800:0024: void renamed_0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 // Draw text via the video helper.  The second 1AB8:0F93 call's arguments are
 // pushed in the order 10CE(), 10E1() (asm 0800:0030..003C), so they are
 // evaluated left to right here.
-void fn0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+void renamed_0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	u16 wLoc10CE;
 	u16 wLoc10E1;
@@ -73,18 +73,18 @@ void fn0800_0024(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 	bgi_draw_text_rectangle(0x01, wLoc10E1, wLoc10CE, 0x00, 0x00);
 }
 
-// 0800:005A: void fn0800_005A(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
-void fn0800_005A(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+// 0800:005A: void renamed_0800_005a(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
+void renamed_0800_005a(u16 wArg02, u16 wArg04, u16 wArg06, u16 wArg08)
 {
 	/* push 1h ; push 3h ; call far 1AB8h:1175h */
 	bgi_set_text_font_size(0x03, 0x01);
 	bgi_draw_rectangle(wArg02, wArg04, wArg06, wArg08);
 }
 
-// 0800:00C1: u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)
+// 0800:00C1: u8 renamed_0800_00c1(u16 wArg02, u16 wArg04, u16 * dxOut)
 // Install the 0800:007B interrupt handler on vector 1Ch the first time; save
 // the previous vector at ds:58C0h and set the "installed" flag at 58BEh.
-u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)
+u8 renamed_0800_00c1(u16 wArg02, u16 wArg04, u16 * dxOut)
 {
 	u16 dx = 0x0000;
 	u16 ax = 0x0000;
@@ -107,9 +107,9 @@ u8 fn0800_00C1(u16 wArg02, u16 wArg04, u16 * dxOut)
 	return (u8)(ax >> 8);
 }
 
-// 0800:0103: void fn0800_0103(void)
-// Restore the vector saved by fn0800_00C1 when installed.
-void fn0800_0103(void)
+// 0800:0103: void renamed_0800_0103(void)
+// Restore the vector saved by renamed_0800_00c1 when installed.
+void renamed_0800_0103(void)
 {
 	u16 dx_52 = 0x0000;
 
@@ -122,7 +122,7 @@ void fn0800_0103(void)
 }
 
 /* ---- emulated int-1Ch handler (cs:007Bh) ------------------------------
- * The handler installed by fn0800_00C1 is, in the original binary:
+ * The handler installed by renamed_0800_00c1 is, in the original binary:
  *   add word [53E2h],37h        ; one 55ms BIOS tick of milliseconds
  *   cmp word [53E2h],3E8h       ; reached 1000?
  *   jb done
@@ -137,7 +137,7 @@ void fn0800_0103(void)
  * only while the handler is installed (58BEh != 0).  Driven from fn0800_0C71h
  * (the per-frame tick) and from the 1E78 pacing primitive (time passes
  * inside long animation waits, as it does under real interrupts).  The tick
- * phase restarts at every fn0800_00C1 arm / fn0800_0103 disarm. */
+ * phase restarts at every renamed_0800_00c1 arm / renamed_0800_0103 disarm. */
 static int g_timer_t0_valid;
 static struct timespec g_timer_t0;
 static unsigned long long g_timer_ticks_applied;
@@ -198,10 +198,10 @@ void fn0800_timer_service(void)
 
 /* ---- end emulated int-1Ch handler ------------------------------------ */
 
-// 0800:0147: u16 fn0800_0147(void)
+// 0800:0147: u16 renamed_0800_0147(void)
 // Load the .RAD.STR stream: open "RAD.STR", allocate one record per slot in
 // the 0x5992 far-pointer table, read one record into each, then close.
-u16 fn0800_0147(void)
+u16 renamed_0800_0147(void)
 {
 	u8  abBuf[0x80];         /* [bp-0082h] DOS stream (DAT) block */
 	u16 wLoc84;              /* [bp-0084h] record size (Reko wLoc8C_242) */
@@ -217,10 +217,10 @@ u16 fn0800_0147(void)
 
 	/* cs:0125 = {7,"RAD.STR"}; on failure report via cs:012Dh. */
 	if (engine_probe_file(&g_seg0800[0x0125], &dx_270) == 0x00)
-		fn13E2_0193(&g_seg0800[0x012D]);
+		renamed_13e2_0193(&g_seg0800[0x012D]);
 
-	fn1EDA_0FA2(&g_seg0800[0x0125], abBuf);
-	fn1EDA_0FD0(wLoc84, abBuf, &dx_271);
+	renamed_1eda_0fa2(&g_seg0800[0x0125], abBuf);
+	renamed_1eda_0fd0(wLoc84, abBuf, &dx_271);
 
 	bLoc03 = 0x00;
 	for (;;)
@@ -233,24 +233,24 @@ u16 fn0800_0147(void)
 		LG16((u16)(0x5992 + (u16)bLoc03 * 4)) = (u16)dx_ax_272;
 		LG16((u16)(0x5994 + (u16)bLoc03 * 4)) = (u16)(dx_ax_272 >> 16);
 		/* read one record into the freshly allocated block: the block is
-		 * the dropped [bp+0Ch] data pointer of fn1EDA_10BB (g_1EDA_io_buffer
+		 * the dropped [bp+0Ch] data pointer of renamed_1eda_10bb (g_1EDA_io_buffer
 		 * in the port); ptrArg04 = 0, wArg08 = 1, ptrArg0E = stream block. */
-		ax_194 = fn1EDA_10BB((u8 *)0, 0x01,
+		ax_194 = renamed_1eda_10bb((u8 *)0, 0x01,
 		              (u8 *)far_ptr(LG32((u16)(0x5992 + (u16)bLoc03 * 4))), abBuf);
 		if (bLoc03 == 0xC7)          /* cmp byte [bp-1h],0C7h ; jnz */
 			break;
 		++bLoc03;
 	}
-	fn1EDA_1051((u8)ax_194, abBuf);
+	renamed_1eda_1051((u8)ax_194, abBuf);
 
 	return 0x0000;   /* original returns the dropped DGROUP selector */
 }
 
-// 0800:01FE: void fn0800_01FE(void)
+// 0800:01FE: void renamed_0800_01fe(void)
 // Load the .RAD.DAT grid: read the saved level/mission parameters, clamp the
 // mission byte to 10, then blit every occupied cell of the 0x10 x 0x1D tile
 // table at 0x5CE0.
-void fn0800_01FE(void)
+void renamed_0800_01fe(void)
 {
 	u8  abBuf[0x80];   /* [bp-0080h] DOS stream (DAT) block */
 	u8  bLoc82;        /* [bp-0082h] outer row index (Reko bLoc84_301) */
@@ -259,13 +259,13 @@ void fn0800_01FE(void)
 	u16 dx_348;
 	u16 ax_1085;
 
-	fn1EDA_0FA2(&g_seg0800[0x01F6], abBuf);          /* cs:01F6 = {7,"RAD.DAT"} */
-	fn1EDA_0FD0(0x0219, abBuf, &dx_346);
+	renamed_1eda_0fa2(&g_seg0800[0x01F6], abBuf);          /* cs:01F6 = {7,"RAD.DAT"} */
+	renamed_1eda_0fd0(0x0219, abBuf, &dx_346);
 	/* seek to record [5990h]:[598Eh], read one record (data pointer dropped). */
-	ax_1085 = fn1EDA_1085((u8)fn1EDA_1123(LG16(0x598E), LG16(0x5990), abBuf), abBuf);
-	fn1EDA_1051((u8)ax_1085, abBuf);
+	ax_1085 = renamed_1eda_1085((u8)renamed_1eda_1123(LG16(0x598E), LG16(0x5990), abBuf), abBuf);
+	renamed_1eda_1051((u8)ax_1085, abBuf);
 	/* mov di,[5CB4h] then [5ECEh]: copy 6 bytes */
-	fn1EDA_0A39(0x06, &g_dgroup[0x5ECE], &g_dgroup[0x5CB4], &dx_348);
+	renamed_1eda_0a39(0x06, &g_dgroup[0x5ECE], &g_dgroup[0x5CB4], &dx_348);
 
 	LG8(0x53D9) = LG8(0x5CDE);
 	LG8(0x53DA) = LG8(0x5CDF);
@@ -276,7 +276,7 @@ void fn0800_01FE(void)
 	LG8(0x53DD) = LG8(0x5CDC);
 	LG8(0x53DE) = LG8(0x5CDD);
 
-	fn0800_0024(0x0176, 0x027E, 0x0001, 0x0001);
+	renamed_0800_0024(0x0176, 0x027E, 0x0001, 0x0001);
 
 	bLoc82 = 0x00;
 	for (;;)
@@ -305,12 +305,12 @@ void fn0800_01FE(void)
 	}
 }
 
-// 0800:031B: u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
+// 0800:031B: u16 renamed_0800_031b(u16 * bpOut, u16 * dsOut)
 // Poll one keyboard event, derive the "Fichier" selection from the cursor
 // line (5982h-17h)/34h, map it to an attribute code and repaint.  Drains the
 // event queue until a poll returns 0, then returns AX = (AH of the last poll)
 // : result byte.
-u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
+u16 renamed_0800_031b(u16 * bpOut, u16 * dsOut)
 {
 	s16  wLoc04;        /* [bp-0004h] selection index (Reko wFFFC) */
 	u8   bLoc07;        /* [bp-0007h] attribute code (Reko bFFF9) */
@@ -323,7 +323,7 @@ u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
 	u8   ah;
 
 	/* push 0h ; call far 1206h:015Bh */
-	ax = fn1206_015B(&ch, &dx, &bp, &ds);
+	ax = renamed_1206_015b(&ch, &dx, &bp, &ds);
 	ah = (u8)(ax >> 8);
 	if ((u8)ax != 0x00)
 	{
@@ -353,7 +353,7 @@ u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
 		}
 		do
 		{
-			ax = fn1206_015B(&ch, &dx, &bp, &ds);
+			ax = renamed_1206_015b(&ch, &dx, &bp, &ds);
 			ah = (u8)(ax >> 8);
 		} while ((u8)ax != 0x00);
 	}
@@ -364,10 +364,10 @@ u16 fn0800_031B(u16 * bpOut, u16 * dsOut)
 	return (u16)(((u16)ah << 8) | (u16)bLoc01);
 }
 
-// 0800:03F8: u16 fn0800_03F8(void)
+// 0800:03F8: u16 renamed_0800_03f8(void)
 // Load the .RAD.BUT tile bitmap: open "RAD.BUT", allocate one record per
 // 0x5388 far-pointer slot, read each record, then free the scratch block.
-u16 fn0800_03F8(void)
+u16 renamed_0800_03f8(void)
 {
 	u8  abBuf[0x80];    /* [bp-0082h] DOS stream (DAT) block */
 	u16 wLoc88;         /* [bp-0088h] per-slot record size (Reko ax_121) */
@@ -383,15 +383,15 @@ u16 fn0800_03F8(void)
 	u32 dx_ax_332;
 	u32 dx_ax_335;
 
-	(void)fn0800_0147();
+	(void)renamed_0800_0147();
 
 	/* cs:03DD = {7,"RAD.BUT"}; on failure report via cs:03E5h. */
 	if (engine_probe_file(&g_seg0800[0x03DD], &dx_333) == 0x00)
-		fn13E2_0193(&g_seg0800[0x03E5]);
+		renamed_13e2_0193(&g_seg0800[0x03E5]);
 
-	fn1EDA_0FA2(&g_seg0800[0x03DD], abBuf);
+	renamed_1eda_0fa2(&g_seg0800[0x03DD], abBuf);
 	ax_04 = LG16(0x0004);                /* record size = word at [0004h] */
-	fn1EDA_0FD0(ax_04, abBuf, &dx_334);
+	renamed_1eda_0fd0(ax_04, abBuf, &dx_334);
 
 	/* push 0 ; push 0 ; push 2Bh ; push 2Bh ; call far 1AB8h:13A3h */
 	wLoc88 = bgi_clamp_rectangle_coords(0x002B, 0x002B, 0x0000, 0x0000);
@@ -410,8 +410,8 @@ u16 fn0800_03F8(void)
 		LG16((u16)(0x5388 + (u16)bLoc03 * 4)) = (u16)dx_ax_335;
 		LG16((u16)(0x538A + (u16)bLoc03 * 4)) = (u16)(dx_ax_335 >> 16);
 		/* read one record into the allocated block (the block is the
-		 * dropped data pointer of fn1EDA_10BB = g_1EDA_io_buffer). */
-		(void)fn1EDA_10BB((u8 *)0, 0x01,
+		 * dropped data pointer of renamed_1eda_10bb = g_1EDA_io_buffer). */
+		(void)renamed_1eda_10bb((u8 *)0, 0x01,
 		                  (u8 *)far_ptr(LG32((u16)(0x5388 + (u16)bLoc03 * 4))), abBuf);
 		if (bLoc03 == 0x10)
 			break;
@@ -419,18 +419,18 @@ u16 fn0800_03F8(void)
 	}
 	{
 		/* block far pointer = wLoc84:wLoc86 (seg:off); free it. */
-		s16 ret_0254 = fn1EDA_0254(ax_04, wLoc86, wLoc84, 0,
+		s16 ret_0254 = renamed_1eda_0254(ax_04, wLoc86, wLoc84, 0,
 		                           &dx_336, &ds_249);
-		fn1EDA_1051((u8)ret_0254, abBuf);
+		renamed_1eda_1051((u8)ret_0254, abBuf);
 	}
 
 	(void)ds_249;
 	return 0x0000;   /* original returns the dropped DGROUP selector */
 }
 
-// 0800:04CC: s16 fn0800_04CC(u8 bArg02)
+// 0800:04CC: s16 renamed_0800_04cc(u8 bArg02)
 // Grid coordinate: row/col index -> pixel line (index * 22 + 1).
-s16 fn0800_04CC(u8 bArg02)
+s16 renamed_0800_04cc(u8 bArg02)
 {
 	u16 wLoc02;
 
@@ -439,10 +439,10 @@ s16 fn0800_04CC(u8 bArg02)
 	return (s16)wLoc02;
 }
 
-// 0800:04E3: u8 fn0800_04E3(u16 * dsOut)
+// 0800:04E3: u8 renamed_0800_04e3(u16 * dsOut)
 // Render the six HUD counters (rows 53DBh/53DCh/53DEh) at the two on-screen
 // positions used by the original.
-u8 fn0800_04E3(u16 * dsOut)
+u8 renamed_0800_04e3(u16 * dsOut)
 {
 	u8 *abBuf = g_dgroup + 0xF700;
 	                    /* [bp-0100h] number/format scratch (Reko ptrLoc010A).
@@ -455,7 +455,7 @@ u8 fn0800_04E3(u16 * dsOut)
 	u8  ch;
 
 	/* push 120h ; push 189h ; push 1A0h ; push 193h ; call 005Ah */
-	fn0800_005A(0x0193, 0x01A0, 0x0189, 0x0120);
+	renamed_0800_005a(0x0193, 0x01A0, 0x0189, 0x0120);
 	bgi_load_video_driver_file(0x01, 0x00, 0x00, &ds_43);
 	bgi_set_text_rectangle(0x01, 0x01);
 	bgi_get_text_cursor_attributes(0x08);

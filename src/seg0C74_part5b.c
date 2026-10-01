@@ -60,7 +60,7 @@ u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 	u32 dwLoc0E;             /* [bp-0Eh]/[bp-0Ch] far block B (023F of wLoc04) */
 	u8  bLoc01;              /* [bp-01h] blit-loop counter */
 	u16 dsTmp = 0x0000;      /* reusable u16 dsOut (023F/0254/070D) */
-	u16 dxTmp = 0x0000;      /* fn1EDA_0254 dxOut */
+	u16 dxTmp = 0x0000;      /* renamed_1eda_0254 dxOut */
 	/* ss:[wArg02-4]: the original reads the caller's [bp-4] word through the
 	 * pushed BP (`push bp` at every call site).  Flat C has no SS:BP chain, so
 	 * -- exactly like the byte-identical twin engine_draw_status_sprites (the UP arm
@@ -120,10 +120,10 @@ u16 engine_blit_field_edges /* was fn0C74_1D95 */(u16 wArg02, void * dsOut)
 	}
 
 	/* push [bp-8h] ; push [bp-0Ah] ; push [bp-6h] ; call 0254h */
-	(void)fn1EDA_0254(wLoc06, (u16)((dwLoc0A) & 0xFFFFu), (u16)((dwLoc0A) >> 16), 0,
+	(void)renamed_1eda_0254(wLoc06, (u16)((dwLoc0A) & 0xFFFFu), (u16)((dwLoc0A) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 	/* push [bp-0Ch] ; push [bp-0Eh] ; push [bp-4h] ; call 0254h */
-	(void)fn1EDA_0254(wLoc04, (u16)((dwLoc0E) & 0xFFFFu), (u16)((dwLoc0E) >> 16), 0,
+	(void)renamed_1eda_0254(wLoc04, (u16)((dwLoc0E) & 0xFFFFu), (u16)((dwLoc0E) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 
 	*(u16 *)dsOut = 0x0000;  /* DGROUP selector dropped in the flat model */

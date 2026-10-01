@@ -6,11 +6,11 @@
 
 #include "radtypes.h"
 
-extern u16 fn0C43_0000(u8 bArg02, void * dsOut);
-extern u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut);
-extern void fn0C43_0056(void);
-extern u16 fn0C43_0095(u16 ax, u16 wArg02, void * dsOut);
-extern u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut);
-extern void fn0C43_02FB(void);
+extern u16 renamed_0c43_0000(u8 bArg02, void * dsOut);
+extern u16 renamed_0c43_001e(u8 * ptrArg02, u16 * bpOut, void * dsOut);
+extern void renamed_0c43_0056(void);
+extern u16 renamed_0c43_0095(u16 ax, u16 wArg02, void * dsOut);
+extern u16 renamed_0c43_00b9(u8 * ptrArg04, u16 * dsOut);
+extern void renamed_0c43_02fb(void);
 
 #endif /* SEG0C43_H */

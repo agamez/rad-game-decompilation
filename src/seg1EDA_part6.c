@@ -54,7 +54,7 @@
 /* Definitions of the cross-part slots declared in seg1EDA_shared.h.  The
  * defaults reproduce the only buffer/PSP the recovered port can prove:
  *   - 0x5CB4 is the DGROUP record buffer of the startup load path
- *     (fn0800_01FE -> fn1EDA_1085/1091);
+ *     (renamed_0800_01fe -> renamed_1eda_1085/1091);
  *   - g_dgroup stands in for the unreachable PSP segment. */
 u8 *g_1EDA_io_buffer = (u8 *)&g_dgroup[0x5CB4];
 u8 *g_1EDA_psp = g_dgroup;
@@ -74,16 +74,16 @@ u32 fn1EDA_1076(u8 * es_di)
 }
 
 /* 1EDA:1085 -- mov ah,3Fh ; mov dx,64h ; jmp 1091h (read record). */
-u16 fn1EDA_1085(u8 al, u8 * ptrArg08)
+u16 renamed_1eda_1085(u8 al, u8 * ptrArg08)
 {
-	return fn1EDA_1091((u16)(0x3F00u | (u16)al), 0x0064u, ptrArg08);
+	return renamed_1eda_1091((u16)(0x3F00u | (u16)al), 0x0064u, ptrArg08);
 }
 
 /* 1EDA:108C -- mov ah,40h ; mov dx,65h (falls through into 1091h; the result
  * survives 1091's retf 4h but the frozen prototype is void). */
-void fn1EDA_108C(u8 al, u8 * ptrArg08)
+void renamed_1eda_108c(u8 al, u8 * ptrArg08)
 {
-	(void)fn1EDA_1091((u16)(0x4000u | (u16)al), 0x0065u, ptrArg08);
+	(void)renamed_1eda_1091((u16)(0x4000u | (u16)al), 0x0065u, ptrArg08);
 }
 
 /* 1EDA:1091 -- read/write one record.  AX = the INT 21h function (AH=3F/40),
@@ -91,7 +91,7 @@ void fn1EDA_108C(u8 al, u8 * ptrArg08)
  * +0, record size at +4).  The original also loaded the data-buffer far
  * pointer from [bp+6h]; the frozen prototype dropped it, so the flat port
  * reads g_1EDA_io_buffer (see notes).  The record count is block[+4]. */
-u16 fn1EDA_1091(u16 ax, u16 dx, u8 * ptrArg08)
+u16 renamed_1eda_1091(u16 ax, u16 dx, u8 * ptrArg08)
 {
 	u8 ah = (u8)(ax >> 8);
 	u16 handle;
@@ -125,7 +125,7 @@ u16 fn1EDA_1091(u16 ax, u16 dx, u8 * ptrArg08)
  * only the read entry, so the flat port always reads (the header cannot carry
  * BL).  The data buffer is the dropped [bp+0Ch] argument (g_1EDA_io_buffer).
  * wArg08 == 0 short-circuits straight to the result store. */
-u16 fn1EDA_10BB(u8 * ptrArg04, u16 wArg08, u8 * ptrArg0C, u8 * ptrArg0E)
+u16 renamed_1eda_10bb(u8 * ptrArg04, u16 wArg08, u8 * ptrArg0C, u8 * ptrArg0E)
 {
 	u16 ax = 0x0000;
 
@@ -187,7 +187,7 @@ l1EDA_1111:
  * index = wArg04 + (wArg06 << 16)), i.e. offset = index * block[+4].  INT 21h
  * AH=42 AL=00.  Returns AX (the new position low word; on error the DOS word)
  * and latches a failure into DGROUP:0x5380. */
-u8 fn1EDA_1123(u16 wArg04, u16 wArg06, u8 * ptrArg08)
+u8 renamed_1eda_1123(u16 wArg04, u16 wArg06, u8 * ptrArg08)
 {
 	u16 ax = 0x0000;
 
@@ -212,14 +212,14 @@ u8 fn1EDA_1123(u16 wArg04, u16 wArg06, u8 * ptrArg08)
 /* 1EDA:116A -- file-length in records: 119A yields DX:AX = current position
  * and BX:CX = file size; the quotient size / block[+4] is returned (record
  * size 1 skips the division).  dsOut is the dropped DGROUP selector. */
-u16 fn1EDA_116A(u8 * ptrArg04, u16 * dsOut)
+u16 renamed_1eda_116a(u8 * ptrArg04, u16 * dsOut)
 {
 	u32 bx_cx;
 	s32 dx_ax;
 	u8 *es_di;
 	u16 ax;
 
-	if (fn1EDA_119A(ptrArg04, &bx_cx, &dx_ax, (u8 *)&es_di) != 0x00)  /* jc 1182h */
+	if (renamed_1eda_119a(ptrArg04, &bx_cx, &dx_ax, (u8 *)&es_di) != 0x00)  /* jc 1182h */
 	{
 		*dsOut = 0x0000;
 		return 0x0000;              /* AX left by 119A's error path */
@@ -235,7 +235,7 @@ u16 fn1EDA_116A(u8 * ptrArg04, u16 * dsOut)
 			s16 bx_74;
 			void *ds_098A = NULL;
 			/* BX=0, CX=recsize -> bx_cx = recsize; DX:AX = file size. */
-			ax = (u16)fn1EDA_098A((u32)rec, bx_cx, 0x0000, 0x0000,
+			ax = (u16)renamed_1eda_098a((u32)rec, bx_cx, 0x0000, 0x0000,
 			                      &cx_72, &dx_73, &bx_74, &ds_098A);
 		}
 	}
@@ -245,7 +245,7 @@ u16 fn1EDA_116A(u8 * ptrArg04, u16 * dsOut)
 
 /* 1EDA:1185 -- 1 if position >= file size else 0: 119A yields DX:AX =
  * position and BX:CX = size; `sub ax,cx ; sbb dx,bx ; jc`. */
-u16 fn1EDA_1185(u8 * ptrArg04)
+u16 renamed_1eda_1185(u8 * ptrArg04)
 {
 	u32 bx_cx;
 	s32 dx_ax;
@@ -255,7 +255,7 @@ u16 fn1EDA_1185(u8 * ptrArg04)
 	u16 cx;
 	u16 bx;
 
-	if (fn1EDA_119A(ptrArg04, &bx_cx, &dx_ax, (u8 *)&es_di) != 0x00)  /* jc 1195h */
+	if (renamed_1eda_119a(ptrArg04, &bx_cx, &dx_ax, (u8 *)&es_di) != 0x00)  /* jc 1195h */
 		return 0x0000;
 
 	ax = (u16)dx_ax;                /* AX = position low  */
@@ -276,7 +276,7 @@ u16 fn1EDA_1185(u8 * ptrArg04)
  * INT 21h AH=42.  Out: BX:CX = file size, DX:AX = current position, ES:DI =
  * the block; returns the carry of the last seek (1 = error).  DS:DI/CX/BX
  * values cross the frozen pointer signatures as 16-bit casts. */
-u8 fn1EDA_119A(u8 * ptrArg06, u32 * bx_cxOut, s32 * dx_axOut, u8 * es_diOut)
+u8 renamed_1eda_119a(u8 * ptrArg06, u32 * bx_cxOut, s32 * dx_axOut, u8 * es_diOut)
 {
 	u16 handle;
 
@@ -305,7 +305,7 @@ u8 fn1EDA_119A(u8 * ptrArg06, u32 * bx_cxOut, s32 * dx_axOut, u8 * es_diOut)
 /* 1EDA:11DF -- copy wArg04 bytes from ptrArg0A to ptrArg06.  The original
  * compares the 16-bit SI/DI offsets and uses a backward `rep movsb` when
  * source < destination, otherwise a forward one. */
-void fn1EDA_11DF(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
+void renamed_1eda_11df(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 {
 	u16 si_off = (u16)(uintptr_t)ptrArg0A;
 	u16 di_off = (u16)(uintptr_t)ptrArg06;
@@ -329,7 +329,7 @@ void fn1EDA_11DF(u16 wArg04, u8 * ptrArg06, u8 * ptrArg0A)
 
 /* 1EDA:1202 -- xor al,al-independent `rep stosb`: fill wArg06 bytes at
  * ptrArg08 with bArg04 (the original stores AL = [bp+4h]). */
-void fn1EDA_1202(u8 bArg04, u16 wArg06, u8 * ptrArg08)
+void renamed_1eda_1202(u8 bArg04, u16 wArg06, u8 * ptrArg08)
 {
 	memset(ptrArg08, (int)bArg04, (u32)wArg06);
 }
@@ -339,7 +339,7 @@ void fn1EDA_1202(u8 bArg04, u16 wArg06, u8 * ptrArg08)
  *   wArg04 == 0 -> the program path from the DOS environment (PSP:002C),
  *                  falling back to es_si when DOS < 3.
  * The buffer is ptrArg06: [0] = length, [1..] = bytes. */
-void fn1EDA_1216(void * es_si, u16 wArg04, u8 * ptrArg06)
+void renamed_1eda_1216(void * es_si, u16 wArg04, u8 * ptrArg06)
 {
 	u8 *src;
 	u16 ax;
@@ -481,7 +481,7 @@ u8 * fn1EDA_126C(u16 dx, u16 * axOut, u16 * bxOut)
  * wArg04 characters).  bArg0A == 0 selects the current default drive,
  * otherwise it is the DOS drive number; DL = drive.  The carry path of the
  * AH=47 call writes a NUL at buffer[3]; the pal call reports no failure. */
-u8 fn1EDA_129E(u8 dh, u16 wArg04, u8 * ptrArg06, u8 bArg0A)
+u8 renamed_1eda_129e(u8 dh, u16 wArg04, u8 * ptrArg06, u8 bArg0A)
 {
 	u8 buffer[0x80];                /* [bp-80h] */
 	u8 al;
@@ -524,7 +524,7 @@ u8 fn1EDA_129E(u8 dh, u16 wArg04, u8 * ptrArg06, u8 bArg0A)
 }
 
 /* 1EDA:1384 -- fold a-z to A-Z (unsigned compares). */
-u8 fn1EDA_1384(u8 bArg04)
+u8 renamed_1eda_1384(u8 bArg04)
 {
 	u8 al = bArg04;
 

@@ -15,8 +15,8 @@
  *   NONE directly.  No int 10h / int 16h / int 21h, no raw `in`/`out` port
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   37C3.  Every hardware-touching action is reached through already-ported
- *   callees: the 1AB8 video driver (13D7 / 1E3C), fn1E78_02FB (input poll),
- *   fn1206_015B (INT 33h mouse wrapper, seg1206.c), audio_get_soundcard_port / 0354 (sound)
+ *   callees: the 1AB8 video driver (13D7 / 1E3C), renamed_1e78_02fb (input poll),
+ *   renamed_1206_015b (INT 33h mouse wrapper, seg1206.c), audio_get_soundcard_port / 0354 (sound)
  *   and the 0C74 helpers 0D43 / 02D8.
  *
  * Flat-model / ABI adaptations (recorded in docs/notes-0C74.md "## part 10"):
@@ -61,9 +61,9 @@ u8 engine_bar_retract /* was fn0C74_37C3 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 	u8  bLoc02 = 0x00;      /* [bp-02h] animation counter (5..1) / sprite index */
 	u8  bLoc03 = 0x00;      /* [bp-03h] row counter (1..16h) */
 	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
-	u8  chTmp = 0x00;       /* fn1206_015B chOut */
-	u16 dxTmp = 0x0000;     /* fn1206_015B dxOut */
-	u16 bpScratch = 0x0000; /* engine_redraw_bars_up / fn1206_015B bpOut artifact */
+	u8  chTmp = 0x00;       /* renamed_1206_015b chOut */
+	u16 dxTmp = 0x0000;     /* renamed_1206_015b dxOut */
+	u16 bpScratch = 0x0000; /* engine_redraw_bars_up / renamed_1206_015b bpOut artifact */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut for 0D43 / 02D8 / 1206 */
 
 	/* 37C3..37D4: cmp word [58B4h],1h ; ja 37D5h -- only run above 1. */
@@ -138,11 +138,11 @@ l0C74_3850:
 	if (LG8(0x58B2) != 0x00)
 	{
 		/* 3891: call 1E78:02FBh ; or al,al ; jz 389Fh */
-		if (fn1E78_02FB() != 0x00)
+		if (renamed_1e78_02fb() != 0x00)
 			LG8(0x58B1) = 0x01;
 
 		/* 389F: push 0h ; call 1206:015Bh ; or al,al ; jz 38B4h */
-		if ((u8)fn1206_015B(&chTmp, &dxTmp, &bpScratch, &dsTmp) != 0x00)
+		if ((u8)renamed_1206_015b(&chTmp, &dxTmp, &bpScratch, &dsTmp) != 0x00)
 		{
 			LG8(0x58E0) = 0x01;
 			LG8(0x58B1) = 0x01;

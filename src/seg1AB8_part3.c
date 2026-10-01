@@ -147,14 +147,14 @@ void bgi_set_text_font_size(u16 wArg04, u16 wArg06)  /* was fn1AB8_1175 */
 void bgi_load_font_file(u16 wArg04, u8 * ptrArg06)  /* was fn1AB8_11A0 */
 {
 	u8 buf[8];                  /* local [bp-8h], 8 bytes */
-	fn1EDA_0953(0x08, buf, ptrArg06);
+	renamed_1eda_0953(0x08, buf, ptrArg06);
 	if (bgi_get_char_width() < wArg04)
 		LG16(0xB818) = ~0x0A;
 	else
 	{
 		LG16(0xB862) = 0x0C;
 		LG16(0xB864) = wArg04;
-		fn1EDA_0953(0x08, g_dgroup + 0xB866, buf);
+		renamed_1eda_0953(0x08, g_dgroup + 0xB866, buf);
 		bgi_set_text_cursor_attributes((u8)wArg04, buf);
 	}
 }

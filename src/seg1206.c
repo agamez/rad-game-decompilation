@@ -33,14 +33,14 @@ typedef struct {
     u16 ax, bx, cx, dx, bp, si, di, ds, es, flags;
 } TRegFrame;
 
-// 1206:0000: u8 fn1206_0000(void)
-u8 fn1206_0000(void)
+// 1206:0000: u8 renamed_1206_0000(void)
+u8 renamed_1206_0000(void)
 {
     return 0x01;
 }
 
-// 1206:000D: u16 fn1206_000D(u16 * siOut, void * esOut, void * dsOut)
-u16 fn1206_000D(u16 *siOut, void *esOut, void *dsOut)
+// 1206:000D: u16 renamed_1206_000d(u16 * siOut, void * esOut, void * dsOut)
+u16 renamed_1206_000d(u16 *siOut, void *esOut, void *dsOut)
 {
     TRegFrame r = {0};
 
@@ -53,8 +53,8 @@ u16 fn1206_000D(u16 *siOut, void *esOut, void *dsOut)
     return r.bx;                /* AX at retf = frame word 1 */
 }
 
-// 1206:0038: u8 fn1206_0038(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut)
-u8 fn1206_0038(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
+// 1206:0038: u8 renamed_1206_0038(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut)
+u8 renamed_1206_0038(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
 {
     TRegFrame r = {0};
 
@@ -73,8 +73,8 @@ u8 fn1206_0038(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
     return 0x00;
 }
 
-// 1206:0066: u8 fn1206_0066(void * bpOut, u16 * dsOut)
-u8 fn1206_0066(void *bpOut, u16 *dsOut)
+// 1206:0066: u8 renamed_1206_0066(void * bpOut, u16 * dsOut)
+u8 renamed_1206_0066(void *bpOut, u16 *dsOut)
 {
     TRegFrame r = {0};
 
@@ -91,8 +91,8 @@ u8 fn1206_0066(void *bpOut, u16 *dsOut)
     return 0x00;
 }
 
-// 1206:0094: u8 fn1206_0094(u16 * dxOut, u16 * bpOut, u16 * dsOut)
-u8 fn1206_0094(u16 *dxOut, u16 *bpOut, u16 *dsOut)
+// 1206:0094: u8 renamed_1206_0094(u16 * dxOut, u16 * bpOut, u16 * dsOut)
+u8 renamed_1206_0094(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 {
     TRegFrame r = {0};
 
@@ -109,8 +109,8 @@ u8 fn1206_0094(u16 *dxOut, u16 *bpOut, u16 *dsOut)
     return 0x00;
 }
 
-// 1206:00D1: u16 fn1206_00D1(void * ds, u16 * siOut, void * esOut, void * dsOut)
-u16 fn1206_00D1(void *ds, u16 *siOut, void *esOut, void *dsOut)
+// 1206:00D1: u16 renamed_1206_00d1(void * ds, u16 * siOut, void * esOut, void * dsOut)
+u16 renamed_1206_00d1(void *ds, u16 *siOut, void *esOut, void *dsOut)
 {
     TRegFrame r = {0};
 
@@ -129,8 +129,8 @@ u16 fn1206_00D1(void *ds, u16 *siOut, void *esOut, void *dsOut)
     return r.ax;                /* AX at retf (trampoline register image) */
 }
 
-// 1206:00FF: u16 fn1206_00FF(u16 * dsOut)
-u16 fn1206_00FF(u16 *dsOut)
+// 1206:00FF: u16 renamed_1206_00ff(u16 * dsOut)
+u16 renamed_1206_00ff(u16 *dsOut)
 {
     TRegFrame r = {0};
 
@@ -145,8 +145,8 @@ u16 fn1206_00FF(u16 *dsOut)
     return r.ax;
 }
 
-// 1206:012D: u16 fn1206_012D(void * ds, void * dsOut)
-u16 fn1206_012D(void *ds, void *dsOut)
+// 1206:012D: u16 renamed_1206_012d(void * ds, void * dsOut)
+u16 renamed_1206_012d(void *ds, void *dsOut)
 {
     TRegFrame r = {0};
 
@@ -162,8 +162,8 @@ u16 fn1206_012D(void *ds, void *dsOut)
     return r.ax;
 }
 
-// 1206:015B: u16 fn1206_015B(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut)
-u16 fn1206_015B(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
+// 1206:015B: u16 renamed_1206_015b(u8 * chOut, u16 * dxOut, void * bpOut, u16 * dsOut)
+u16 renamed_1206_015b(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
 {
     u8  bResult = 0x00;         /* [bp-1h] result flag */
     u16 wLoc04 = 0x0000;        /* [bp-4h] BX (button state) after 0094 */
@@ -175,8 +175,8 @@ u16 fn1206_015B(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
 
     if (LG8(0x597E) != 0x00)
     {
-        /* original: fn1206_0094(ss:bp-8, ss:bp-6, ss:bp-4) */
-        (void)fn1206_0094(&wLoc08, &wLoc06, &wLoc04);
+        /* original: renamed_1206_0094(ss:bp-8, ss:bp-6, ss:bp-4) */
+        (void)renamed_1206_0094(&wLoc08, &wLoc06, &wLoc04);
 
         LG16(0x5982) = wLoc06;      /* mov [5982h],ax  (cursor x) */
         LG16(0x5984) = wLoc08;      /* mov [5984h],ax  (cursor y) */
@@ -199,8 +199,8 @@ u16 fn1206_015B(u8 *chOut, u16 *dxOut, void *bpOut, u16 *dsOut)
     return (u16)((wLoc08 & 0xFF00) | (u16)bResult);
 }
 
-// 1206:01AC: u16 fn1206_01AC(u16 * siOut, void * esOut, u16 * dsOut)
-u16 fn1206_01AC(u16 *siOut, void *esOut, u16 *dsOut)
+// 1206:01AC: u16 renamed_1206_01ac(u16 * siOut, void * esOut, u16 * dsOut)
+u16 renamed_1206_01ac(u16 *siOut, void *esOut, u16 *dsOut)
 {
     u16  siLoc = 0x0000;
     void *esLoc = 0;
@@ -209,10 +209,10 @@ u16 fn1206_01AC(u16 *siOut, void *esOut, u16 *dsOut)
 
     LG8(0x597E) = 0x00;         /* mov byte ptr [597Eh],0h */
 
-    if (fn1206_0000() != 0x00)
+    if (renamed_1206_0000() != 0x00)
     {
-        /* original: fn1206_000D(ds:597Ch, ds:597Ah) */
-        bpLoc = fn1206_000D((u16 *)&g_dgroup[0x597C],
+        /* original: renamed_1206_000d(ds:597Ch, ds:597Ah) */
+        bpLoc = renamed_1206_000d((u16 *)&g_dgroup[0x597C],
                             (void *)&g_dgroup[0x597A], &dsLoc);
 
         if (LG16(0x597A) != 0x00)   /* cmp word ptr [597Ah],0h */
@@ -222,17 +222,17 @@ u16 fn1206_01AC(u16 *siOut, void *esOut, u16 *dsOut)
         {
             LG8(0x598C) = 0x00;
 
-            /* original: fn1206_0094(ds:5984h, ds:5982h, ds:5980h) */
-            (void)fn1206_0094((u16 *)&g_dgroup[0x5984],
+            /* original: renamed_1206_0094(ds:5984h, ds:5982h, ds:5980h) */
+            (void)renamed_1206_0094((u16 *)&g_dgroup[0x5984],
                               (u16 *)&g_dgroup[0x5982],
                               (u16 *)&g_dgroup[0x5980]);
 
             /* The original pushes two word arguments before each call; the
              * frozen prototypes carry none (see notes).  Only the register
              * outputs can be forwarded. */
-            (void)fn1206_00FF(&dsLoc);
-            (void)fn1206_012D(0, &dsLoc);
-            bpLoc = fn1206_00D1(0, &siLoc, &esLoc, &dsLoc);
+            (void)renamed_1206_00ff(&dsLoc);
+            (void)renamed_1206_012d(0, &dsLoc);
+            bpLoc = renamed_1206_00d1(0, &siLoc, &esLoc, &dsLoc);
         }
     }
 
@@ -250,9 +250,9 @@ u8 *fn1206_0217(u16 *bpOut, void *dsOut)
     u16  dsLoc = 0x0000;
     u16  bpLoc;
 
-    /* original pushes 0,0,27Fh,1DFh,0,0 (six word args) for fn1206_01AC;
+    /* original pushes 0,0,27Fh,1DFh,0,0 (six word args) for renamed_1206_01ac;
      * the frozen prototype of 01AC has no slots for them. */
-    bpLoc = fn1206_01AC(&siLoc, &esLoc, &dsLoc);
+    bpLoc = renamed_1206_01ac(&siLoc, &esLoc, &dsLoc);
 
     *bpOut = bpLoc;             /* BP register output of 01AC */
     (void)dsOut;                /* DS selector output dropped */

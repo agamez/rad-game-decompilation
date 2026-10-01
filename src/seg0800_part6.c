@@ -12,16 +12,16 @@
  *   None.  No int 10h / int 16h / int 21h, no `in`/`out` port instruction,
  *   no __cli/__sti, no int 23h and no raw IVT dispatch occur in 1D55..2004.
  *   The mouse cursor/position is reached through segment 1206
- *   (fn1206_0094 / fn1206_0066 / fn1206_015B, themselves INT 33h wrappers
+ *   (renamed_1206_0094 / renamed_1206_0066 / renamed_1206_015b, themselves INT 33h wrappers
  *   replaced in seg1206.c), the keyboard/PIT delay through segment 1E78
- *   (fn1E78_02FB / fn1E78_030D / fn1E78_029C, replaced there with
+ *   (renamed_1e78_02fb / renamed_1e78_030d / renamed_1e78_029c, replaced there with
  *   bios_kbd_* / pal_*), and every text/drawing primitive through segment
  *   1AB8 (bgi_get_text_cols / 14F4 / 1536 / 1C32 / 1D82) and segment 1EDA
- *   (fn1EDA_0CD4, the bit test).  No PAL call is issued in this file.
+ *   (renamed_1eda_0cd4, the bit test).  No PAL call is issued in this file.
  *
  * Flat-model far pointers:
- *   fn0800_1E3F stages the ds:2306h + (row<<8) table as
- *   &g_dgroup[(u16)((row << 8) + 0x2306)]; fn0800_2004 stages
+ *   renamed_0800_1e3f stages the ds:2306h + (row<<8) table as
+ *   &g_dgroup[(u16)((row << 8) + 0x2306)]; renamed_0800_2004 stages
  *   ds:3706h + (row<<8) as &g_dgroup[(u16)((row << 8) + 0x3706)].  The
  *   cs:1DE0h / cs:1E1Fh (1E3F) and cs:1FB5h / cs:1FE4h (2004) bit-test
  *   tables become &g_seg0800[0x1DE0] / [0x1E1F] / [0x1FB5] / [0x1FE4]; the
@@ -42,14 +42,14 @@
 #include "seg1206.h"
 #include "seg1E78.h"
 
-/* 0800:1D55: u8 fn0800_1D55(u16 * dxOut, void * bpOut, u16 * dsOut)
- * Hit-test the mouse cursor (polled from INT 33h through fn1206_0094) against
+/* 0800:1D55: u8 renamed_0800_1d55(u16 * dxOut, void * bpOut, u16 * dsOut)
+ * Hit-test the mouse cursor (polled from INT 33h through renamed_1206_0094) against
  * the eight slot boxes whose edges live in DGROUP 53E2h (left), 53FEh (right),
  * 53F0h (top) and 540Ch (bottom), each indexed by the 1..7 slot number.  The
  * first slot that strictly contains the cursor (left < x < right and
  * top < y < bottom) yields its function-key code 3Ah + slot (F1..F7); if none
  * matches the result is 0.  The poll loop repeats while a button is held. */
-u8 fn0800_1D55(u16 *dxOut, void *bpOut, u16 *dsOut)
+u8 renamed_0800_1d55(u16 *dxOut, void *bpOut, u16 *dsOut)
 {
 	/* The frame's dead words [bp-2h] and [bp-0Ah] hold no live value and
 	 * are not modelled. */
@@ -64,7 +64,7 @@ u8 fn0800_1D55(u16 *dxOut, void *bpOut, u16 *dsOut)
 	 * leaves them unwritten. */
 	do
 	{
-		(void)fn1206_0094(&wLoc08, &wLoc06, &wLoc04);
+		(void)renamed_1206_0094(&wLoc08, &wLoc06, &wLoc04);
 	} while (wLoc04 != 0x0000);
 
 	bLoc01 = 0x00;
@@ -97,7 +97,7 @@ u8 fn0800_1D55(u16 *dxOut, void *bpOut, u16 *dsOut)
 		++bLoc09;
 	}
 
-	/* Register-output threading (the only caller, fn0800_3D9D:3ED9, uses AL
+	/* Register-output threading (the only caller, renamed_0800_3d9d:3ED9, uses AL
 	 * only): DX at ret is 1206:0094's cursor-y output = wLoc08; BP is the
 	 * saved caller frame (no flat meaning); DS is the dropped DGROUP
 	 * selector. */
@@ -107,17 +107,17 @@ u8 fn0800_1D55(u16 *dxOut, void *bpOut, u16 *dsOut)
 	return bLoc01;
 }
 
-/* 0800:1E3F: u16 fn0800_1E3F(s16 dx, u16 * dsOut)
+/* 0800:1E3F: u16 renamed_0800_1e3f(s16 dx, u16 * dsOut)
  * The 20-row (rows 1..14h) "SUITE." command screen.  Drains the key buffer,
- * draws the frame with fn0800_1315 and, per row, blits the ds:2306h +
+ * draws the frame with renamed_0800_1315 and, per row, blits the ds:2306h +
  * (row<<8) label twice (normal then highlighted) with bgi_get_char_size_info, choosing
  * attribute 0Ah when the row's bit is set in the cs:1DE0h table (via
- * fn1EDA_0CD4) and 0Bh otherwise.  Then it draws the cs:1E00h string block,
+ * renamed_1eda_0cd4) and 0Bh otherwise.  Then it draws the cs:1E00h string block,
  * waits for a key or a mouse button, and on a key that is present in the
  * cs:1E1Fh table (while DGROUP 53D8h is set) defers an action by writing
  * 0FFh to DGROUP 0002h.  Finally it repaints the string block with the
- * highlight flag set and draws the closing box via fn0800_0024. */
-u16 fn0800_1E3F(s16 dx, u16 *dsOut)
+ * highlight flag set and draws the closing box via renamed_0800_0024. */
+u16 renamed_0800_1e3f(s16 dx, u16 *dsOut)
 {
 	u16 wLoc02;        /* [bp-2h]  x anchor, 2Ah then +8           */
 	u16 wLoc04;        /* [bp-4h]  10CE() - 2Ah                    */
@@ -148,9 +148,9 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 	/* l0800_1E43: drain the key buffer.  The original calls 030D with no
 	 * pushed argument; wArg02 is a stale word (seeded 0) and dx is the
 	 * incoming parameter, re-threaded through dxOut. */
-	while (fn1E78_02FB() != 0x00)
+	while (renamed_1e78_02fb() != 0x00)
 	{
-		(void)fn1E78_030D(dx, 0x0000, (u16 *)&dx);
+		(void)renamed_1e78_030d(dx, 0x0000, (u16 *)&dx);
 	}
 
 	/* l0800_1E53: frame setup. */
@@ -158,10 +158,10 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 	wLoc06 = 0x0014;                          /* mov [bp-6h],14h */
 	wLoc04 = (u16)(bgi_get_text_cols() - 0x002A);   /* sub ax,2Ah */
 	wLoc08 = 0x016A;                          /* mov [bp-8h],16Ah */
-	fn1206_0066(&bp_36, &ds_40);
+	renamed_1206_0066(&bp_36, &ds_40);
 	/* push [bp-2h] ; push [bp-6h] ; push [bp-4h] ; push [bp-8h] ;
 	 * call 1315h */
-	fn0800_1315(wLoc08, wLoc04, wLoc06, wLoc02);
+	renamed_0800_1315(wLoc08, wLoc04, wLoc06, wLoc02);
 	wLoc02 = (u16)(wLoc02 + 0x0008);          /* add ax,8h */
 	wLoc06 = (u16)(wLoc06 + 0x0008);          /* add ax,8h */
 	/* push 0h ; push 1h ; call far 1AB8h:14F4h */
@@ -186,7 +186,7 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 		/* push <row> ; mov di,1DE0h ; push cs ; push di ;
 		 * call far 1EDAh:0CD4h ; jz 1EF7h.
 		 * 0CD4 != 0 -> tested bit CLEAR -> attribute 0Bh. */
-		if (!fn1EDA_0CD4(&g_seg0800[0x1DE0], bLoc0B, &es_473))
+		if (!renamed_1eda_0cd4(&g_seg0800[0x1DE0], bLoc0B, &es_473))
 			(void)bgi_get_text_cursor_attributes(0x0A);          /* bit set   */
 		else
 			(void)bgi_get_text_cursor_attributes(0x0B);          /* bit clear */
@@ -207,50 +207,50 @@ u16 fn0800_1E3F(s16 dx, u16 *dsOut)
 
 	/* l0800_1F28: push 5h ; push 140h ; push 14Ah ; push cs:1E00h ;
 	 * push 0h ; call 19E1h */
-	(void)fn0800_19E1(0x00, &g_seg0800[0x1E00], 0x014A, 0x0140, 0x0005,
+	(void)renamed_0800_19e1(0x00, &g_seg0800[0x1E00], 0x014A, 0x0140, 0x0005,
 	                  &dx_251, &bp_475, &ds_250);
 
 	/* l0800_1F3A: wait for a key or a mouse button. */
-	while (fn1E78_02FB() == 0x00)
+	while (renamed_1e78_02fb() == 0x00)
 	{
-		if ((u8)fn1206_015B(&ch_476, &dx_251, &bp_477, &ds_250) != 0x00)
+		if ((u8)renamed_1206_015b(&ch_476, &dx_251, &bp_477, &ds_250) != 0x00)
 			break;
 	}
 
 	/* l0800_1F4E: a key is pending -- test it against cs:1E1Fh. */
-	if (fn1E78_02FB() != 0x00)
+	if (renamed_1e78_02fb() != 0x00)
 	{
-		ax = fn1E78_030D(dx_251, 0x0000, &dx_481);
+		ax = renamed_1e78_030d(dx_251, 0x0000, &dx_481);
 		/* call 0CD4 ; jz 1F75h: proceed only when the bit is SET
 		 * (0CD4 == 0). */
-		if (fn1EDA_0CD4(&g_seg0800[0x1E1F], (u8)ax, &es_482) == 0x00 &&
+		if (renamed_1eda_0cd4(&g_seg0800[0x1E1F], (u8)ax, &es_482) == 0x00 &&
 		    LG8(0x53D8) != 0x00)
 			LG8(0x0002) = 0xFF;
 	}
 
 	/* l0800_1F75: repaint the block with the flag word = 1, then the
 	 * epilogue box. */
-	(void)fn0800_19E1(0x01, &g_seg0800[0x1E00], 0x014A, 0x0140, 0x0005,
+	(void)renamed_0800_19e1(0x01, &g_seg0800[0x1E00], 0x014A, 0x0140, 0x0005,
 	                  &dx_478, &bp_479, &ds_370);
-	fn1206_0066(&bp_382, &ds_386);
-	(void)fn1E78_029C(0x0096, &dx_480);
+	renamed_1206_0066(&bp_382, &ds_386);
+	(void)renamed_1e78_029c(0x0096, &dx_480);
 	/* mov ax,[bp-2h] ; sub ax,0Ch ; push ; ... ; call 0024h */
-	fn0800_0024((u16)(wLoc08 + 0x0004), (u16)(wLoc04 + 0x0004),
+	renamed_0800_0024((u16)(wLoc08 + 0x0004), (u16)(wLoc04 + 0x0004),
 	            (u16)(wLoc06 - 0x000C), (u16)(wLoc02 - 0x000C));
 
 	*dsOut = ds_386;
 	return 0x0000;   /* original returns a frame word (dropped here) */
 }
 
-/* 0800:2004: u16 fn0800_2004(void)
+/* 0800:2004: u16 renamed_0800_2004(void)
  * The 21-row (rows 1..15h) registration screen.  Clears DGROUP 53D8h, draws
- * the frame with fn0800_1315 and, per row, blits the ds:3706h + (row<<8)
+ * the frame with renamed_0800_1315 and, per row, blits the ds:3706h + (row<<8)
  * label twice through bgi_get_char_size_info, choosing attribute 0Ah/0Bh from the
  * cs:1FB5h bit table.  Then it draws the cs:1FD5h string block, waits for a
  * key or mouse button, and on a key present in the cs:1FE4h table sets
  * DGROUP 53D8h.  Finally it repaints the block with flag 1, runs the
- * epilogue and calls fn0800_1E3F. */
-u16 fn0800_2004(void)
+ * epilogue and calls renamed_0800_1e3f. */
+u16 renamed_0800_2004(void)
 {
 	u16 wLoc02;         /* [bp-2h]  9Ch then +8                   */
 	u16 wLoc04;         /* [bp-4h]  1E0h                          */
@@ -287,7 +287,7 @@ u16 fn0800_2004(void)
 	wLoc08 = 0x016A;
 	/* push [bp-2h] ; push [bp-6h] ; push [bp-4h] ; push [bp-8h] ;
 	 * call 1315h */
-	fn0800_1315(wLoc08, wLoc04, wLoc06, wLoc02);
+	renamed_0800_1315(wLoc08, wLoc04, wLoc06, wLoc02);
 	wLoc02 = (u16)(wLoc02 + 0x0008);          /* add ax,8h  */
 	wLoc06 = (u16)(wLoc06 + 0x000C);          /* add ax,0Ch */
 	/* push 1h ; push 1h ; call far 1AB8h:14F4h */
@@ -314,7 +314,7 @@ u16 fn0800_2004(void)
 		/* push <row> ; mov di,1FB5h ; push cs ; push di ;
 		 * call far 1EDAh:0CD4h ; jz 20AEh.
 		 * 0CD4 != 0 -> tested bit CLEAR -> attribute 0Bh. */
-		if (!fn1EDA_0CD4(&g_seg0800[0x1FB5], bLoc09, &es_458))
+		if (!renamed_1eda_0cd4(&g_seg0800[0x1FB5], bLoc09, &es_458))
 			(void)bgi_get_text_cursor_attributes(0x0A);          /* bit set   */
 		else
 			(void)bgi_get_text_cursor_attributes(0x0B);          /* bit clear */
@@ -334,33 +334,33 @@ u16 fn0800_2004(void)
 
 	/* l0800_20EB: push 5h ; push 140h ; push 14Ah ; push cs:1FD5h ;
 	 * push 0h ; call 19E1h. */
-	(void)fn0800_19E1(0x00, &g_seg0800[0x1FD5], 0x014A, 0x0140, 0x0005,
+	(void)renamed_0800_19e1(0x00, &g_seg0800[0x1FD5], 0x014A, 0x0140, 0x0005,
 	                  &dx_221, &bp_460, &ds_220);
 
 	/* l0800_20FD: wait for a key or a mouse button. */
-	while (fn1E78_02FB() == 0x00)
+	while (renamed_1e78_02fb() == 0x00)
 	{
-		if ((u8)fn1206_015B(&ch_461, &dx_221, &bp_462, &ds_220) != 0x00)
+		if ((u8)renamed_1206_015b(&ch_461, &dx_221, &bp_462, &ds_220) != 0x00)
 			break;
 	}
 
 	/* l0800_2111: a key is pending -- test it against cs:1FE4h. */
-	if (fn1E78_02FB() != 0x00)
+	if (renamed_1e78_02fb() != 0x00)
 	{
-		ax = fn1E78_030D((s16)dx_221, 0x0000, &dx_466);
+		ax = renamed_1e78_030d((s16)dx_221, 0x0000, &dx_466);
 		/* call 0CD4 ; jz 2131h: set 53D8h only when the bit is SET
 		 * (0CD4 == 0). */
-		if (fn1EDA_0CD4(&g_seg0800[0x1FE4], (u8)ax, &es_467) == 0x00)
+		if (renamed_1eda_0cd4(&g_seg0800[0x1FE4], (u8)ax, &es_467) == 0x00)
 			LG8(0x53D8) = 0x01;
 	}
 
 	/* l0800_2131: repaint the block with the flag word = 1, epilogue,
-	 * then fn0800_1E3F. */
-	(void)fn0800_19E1(0x01, &g_seg0800[0x1FD5], 0x014A, 0x0140, 0x0005,
+	 * then renamed_0800_1e3f. */
+	(void)renamed_0800_19e1(0x01, &g_seg0800[0x1FD5], 0x014A, 0x0140, 0x0005,
 	                  &dx_463, &bp_464, &ds_338);
-	fn1206_0066(&bp_465, &ds_354);
-	(void)fn1E78_029C(0x0096, &dx_366);
-	(void)fn0800_1E3F((s16)dx_366, &ds_381);
+	renamed_1206_0066(&bp_465, &ds_354);
+	(void)renamed_1e78_029c(0x0096, &dx_366);
+	(void)renamed_0800_1e3f((s16)dx_366, &ds_381);
 
 	return ds_381;   /* original returns the dropped DGROUP selector (0) */
 }

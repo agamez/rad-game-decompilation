@@ -8,7 +8,7 @@
  * Hardware / DOS: this segment has no direct `int 10h` / `int 16h` /
  * `int 21h`, no `in`/`out` port instruction, no __cli/__sti and no int 23h.
  * The keyboard reads in vgaerr_read_input go through segment 1E78
- * (fn1E78_02FB / fn1E78_030D) and the mouse cursor calls through segment
+ * (renamed_1e78_02fb / renamed_1e78_030d) and the mouse cursor calls through segment
  * 13C8; both already translate their interrupt traffic to the PAL.  No
  * segment-0xA000 VGA far pointer literal occurs here either.  Far pointers
  * are DGROUP (g_dgroup + off), code-segment (g_seg133F + off) or stack
@@ -40,14 +40,14 @@ u16 vgaerr_init_bgi(u16 * dsOut) /* was fn133F_0056 */
     wLoc6 = bgi_get_error_code();
     if (wLoc6 != 0x00)
     {
-        fn1EDA_08CE(0x00, &g_seg133F[0x0001], &g_dgroup[0xB9BC], &cx_87);
+        renamed_1eda_08ce(0x00, &g_seg133F[0x0001], &g_dgroup[0xB9BC], &cx_87);
         bgi_color_name_to_string(wLoc6, abLoc020C);
-        fn1EDA_08CE(0x00, abLoc020C, &g_dgroup[0xB9BC], &cx_107);
-        (void)fn1EDA_0848(0x00, cx_107, &g_dgroup[0xB9BC]);
-        fn1EDA_08CE(0x00, &g_seg133F[0x0014], &g_dgroup[0xB9BC], &cx_146);
-        (void)fn1EDA_0848(0x00, cx_146, &g_dgroup[0xB9BC]);
-        fn1EDA_08CE(0x00, &g_seg133F[0x003D], &g_dgroup[0xB9BC], &cx_185);
-        (void)fn1EDA_0848(0x00, cx_185, &g_dgroup[0xB9BC]);
+        renamed_1eda_08ce(0x00, abLoc020C, &g_dgroup[0xB9BC], &cx_107);
+        (void)renamed_1eda_0848(0x00, cx_107, &g_dgroup[0xB9BC]);
+        renamed_1eda_08ce(0x00, &g_seg133F[0x0014], &g_dgroup[0xB9BC], &cx_146);
+        (void)renamed_1eda_0848(0x00, cx_146, &g_dgroup[0xB9BC]);
+        renamed_1eda_08ce(0x00, &g_seg133F[0x003D], &g_dgroup[0xB9BC], &cx_185);
+        (void)renamed_1eda_0848(0x00, cx_185, &g_dgroup[0xB9BC]);
         (void)fn1EDA_00E9(0x0001);   /* fatal BGI error dispatcher */
     }
 
@@ -103,8 +103,8 @@ u8 vgaerr_draw_error_rect(u8 *ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 
     u16 p1, p2, p3, p4;
     u16 ax10CE, ax10E1;
 
-    /* original: fn1EDA_0A39(FFh, ss:bp-100h, ptrArg04) */
-    fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_296);
+    /* original: renamed_1eda_0a39(FFh, ss:bp-100h, ptrArg04) */
+    renamed_1eda_0a39(0xFF, abLoc0100, ptrArg04, &dx_296);
     bgi_set_text_rectangle(0x01, 0x01);
     /* original: bgi_load_video_driver_file(wArg08, 0, wArg0A, out ds) */
     (void)bgi_load_video_driver_file(wArg08, 0x00, wArg0A, dsOut);
@@ -193,16 +193,16 @@ u8 vgaerr_display_position_error(u16 wArg04, u16 wArg06, u16 *dxOut, void *dsOut
     num = (s32)(s16)(u16)(LG16(0x6CC4) - LG16(0x6CC8));
     quot = (s16)(num / (s16)LG16(0x6CC0));
     dw = (u32)(s32)quot;
-    fn1EDA_0F26(0x02, abLoc04, 0x02, dw);
+    renamed_1eda_0f26(0x02, abLoc04, 0x02, dw);
 
     num = (s32)(s16)(u16)(LG16(0x6CC6) - LG16(0x6CCA));
     quot = (s16)(num / (s16)LG16(0x6CC2));
     dw = (u32)(s32)quot;
-    fn1EDA_0F26(0x02, abLoc08, 0x02, dw);
+    renamed_1eda_0f26(0x02, abLoc08, 0x02, dw);
 
-    fn1EDA_0A1F(abLoc04, abLoc0108);
-    fn1EDA_0AAC(&g_seg133F[0x0269], abLoc0108);
-    fn1EDA_0AAC(abLoc08, abLoc0108);
+    renamed_1eda_0a1f(abLoc04, abLoc0108);
+    renamed_1eda_0aac(&g_seg133F[0x0269], abLoc0108);
+    renamed_1eda_0aac(abLoc08, abLoc0108);
     /* original: vgaerr_draw_error_rect(ss:bp-108h, 1, 0, wArg04, wArg06) */
     (void)vgaerr_draw_error_rect(abLoc0108, 0x01, 0x00, wArg04, wArg06, dxOut, (u16 *)dsOut);
     return 0x00;   /* Reko: return 0x00 (asm leaves 014B's AL, ignored) */
@@ -217,19 +217,19 @@ void vgaerr_strip_trailing_space(u8 *ptrArg04, u8 bArg08) /* was fn133F_02DF */
     u16 dx_172;
     u16 dx_171;
 
-    fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_170);
+    renamed_1eda_0a39(0xFF, abLoc0100, ptrArg04, &dx_170);
 
 l133F_02F6:
     if (abLoc0100[abLoc0100[0]] == 0x20)
     {
-        /* original: fn1EDA_0A6B(bLen-1, 1, ss:bp-100h, ss:bp-200h) */
-        fn1EDA_0A6B((u16)(abLoc0100[0] - 0x01), 0x01, abLoc0100, abLoc0200);
-        fn1EDA_0A39(0xFF, abLoc0100, abLoc0200, &dx_172);
+        /* original: renamed_1eda_0a6b(bLen-1, 1, ss:bp-100h, ss:bp-200h) */
+        renamed_1eda_0a6b((u16)(abLoc0100[0] - 0x01), 0x01, abLoc0100, abLoc0200);
+        renamed_1eda_0a39(0xFF, abLoc0100, abLoc0200, &dx_172);
         goto l133F_02F6;
     }
 
-    /* original: fn1EDA_0A39(FFh, ds:(bArg08<<8)+6DEAh, ss:bp-100h) */
-    fn1EDA_0A39(0xFF, &g_dgroup[(u16)(((u16)bArg08 << 8) + 0x6DEA)],
+    /* original: renamed_1eda_0a39(FFh, ds:(bArg08<<8)+6DEAh, ss:bp-100h) */
+    renamed_1eda_0a39(0xFF, &g_dgroup[(u16)(((u16)bArg08 << 8) + 0x6DEA)],
                 abLoc0100, &dx_171);
 }
 
@@ -244,7 +244,7 @@ u16 vgaerr_setup_text_rectangle(u8 *ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C
     s16 d1, d2, q1, q2;
     u16 t1, t2;
 
-    fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_325);
+    renamed_1eda_0a39(0xFF, abLoc0100, ptrArg04, &dx_325);
 
     LG8(0x6CD0) = (u8)(LG8(0x6CD0) + 0x01);
     LG8((u16)(LG8(0x6CD0) + 0x6DCA)) = bArg10;
@@ -306,7 +306,7 @@ u16 vgaerr_init_text_area(u8 *ptrArg04) /* was fn133F_04DE */
     u16 dx_132 = 0, bp_99 = 0, ds_103 = 0;
     u16 bp_130 = 0, ds_131 = 0;
 
-    fn1EDA_0A39(0xFF, abLoc0100, ptrArg04, &dx_129);
+    renamed_1eda_0a39(0xFF, abLoc0100, ptrArg04, &dx_129);
     ax10CE = bgi_get_text_cols();
     ax10E1 = bgi_get_text_rows();
     /* original: vgaerr_configure_text_area(10E1, 10CE, 0, 0) */
@@ -343,11 +343,11 @@ u16 vgaerr_read_input(s16 dx, u8 *ptrArg06, u8 *ptrArg0A, u8 *ptrArg0E,
     *(u16 *)ptrArg0A = LG16(0x6CC4);       /* x    */
     *(u16 *)ptrArg06 = LG16(0x6CC6);       /* y    */
 
-    if (fn1E78_02FB() == 0x00)
+    if (renamed_1e78_02fb() == 0x00)
         goto l133F_0715;
 
     /* ---- character available ---- */
-    bLoc2 = (u8)fn1E78_030D(dx_cur, 0x0000, (u16 *)&dx_cur);
+    bLoc2 = (u8)renamed_1e78_030d(dx_cur, 0x0000, (u16 *)&dx_cur);
     if (bLoc2 == 0x0D)
     {
         *(u16 *)ptrArg0E = 0x0001;         /* Enter */
@@ -360,14 +360,14 @@ u16 vgaerr_read_input(s16 dx, u8 *ptrArg06, u8 *ptrArg0A, u8 *ptrArg0E,
     }
     if (bLoc2 >= 0x21 && bLoc2 <= 0x7D)
     {
-        *(u16 *)ptrArg0E = (u16)fn1EDA_1384(bLoc2);
+        *(u16 *)ptrArg0E = (u16)renamed_1eda_1384(bLoc2);
         goto l133F_065D;
     }
     if (bLoc2 != 0x00)
         goto l133F_065D;
 
     /* ---- extended (scan) code ---- */
-    bLoc2 = (u8)fn1E78_030D(dx_cur, 0x0000, (u16 *)&dx_cur);
+    bLoc2 = (u8)renamed_1e78_030d(dx_cur, 0x0000, (u16 *)&dx_cur);
     if (bLoc2 >= 0x3B && bLoc2 <= 0x40)
     {
         *(u16 *)ptrArg0E = (u16)bLoc2;

@@ -25,7 +25,7 @@
  *     (offset | segment<<16, low word at the lower address, matching
  *     `[bp-06h]/[bp-04h]`) and materialised with `far_ptr(dw)` at the
  *     call sites, the same convention as seg0800_part3.c / seg1229_part1.c.
- *   - fn1EDA_098A's frozen `void * dsOut` receives a `void *` local (`dsv`)
+ *   - renamed_1eda_098a's frozen `void * dsOut` receives a `void *` local (`dsv`)
  *     because the callee stores a full pointer; engine_scale_and_tick_clock's `void * dsOut`
  *     receives the `u16` scratch (`dsTmp`), matching seg0C74_part2.c.
  *   - fn1EDA_023F / 0254 / 098A require stack words the original never pushes
@@ -56,13 +56,13 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 	u8  bCount = 0x00;         /* [bp-01h] loop counter (Reko [bp_139-1]) */
 	u32 dwBlock = 0x00000000;  /* [bp-06h]/[bp-04h] far block, off|seg<<16 */
 	u8  dlTmp = 0x00;          /* bgi_draw_line dlOut scratch */
-	void *dsv = NULL;          /* engine_scale_and_tick_clock / fn1EDA_098A dsOut scratch */
+	void *dsv = NULL;          /* engine_scale_and_tick_clock / renamed_1eda_098a dsOut scratch */
 	u16 dsTmp = 0x0000;        /* engine_clock_tick / fn1EDA_023F/0254 dsOut (u16) */
-	u16 dxTmp = 0x0000;        /* fn1EDA_0254 dxOut */
+	u16 dxTmp = 0x0000;        /* renamed_1eda_0254 dxOut */
 	u16 bpTmp = 0x0000;        /* engine_redraw_bars_down/0D43 bpOut, engine_per_frame_muck bpOut */
-	s16 cxT = 0;               /* fn1EDA_098A cxOut */
-	s16 dxT = 0;               /* fn1EDA_098A dxOut */
-	s16 bxT = 0;               /* fn1EDA_098A bxOut */
+	s16 cxT = 0;               /* renamed_1eda_098a cxOut */
+	s16 dxT = 0;               /* renamed_1eda_098a dxOut */
+	s16 bxT = 0;               /* renamed_1eda_098a bxOut */
 
 	/* --- 0C74:1B3B prologue: three pixels (colors 3,1,1) ---------------- */
 	(void)bgi_get_line_attributes(0x03, (u16)(LG16(0x58B8) + 0x001C),
@@ -107,7 +107,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 
 	/* --- 0C74:1C1E: tick (098A(4, 096F(...)) -> 02D8) ------------------- */
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -132,7 +132,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 	if (bCount == 0x00)
 	{
 		/* 1C99: nothing left to animate; release the block. */
-		(void)fn1EDA_0254(LG16(0x595E), (u16)((dwBlock) & 0xFFFFu), (u16)((dwBlock) >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(LG16(0x595E), (u16)((dwBlock) & 0xFFFFu), (u16)((dwBlock) >> 16), 0, &dxTmp, &dsTmp);
 	}
 	else
 	{
@@ -177,7 +177,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 		}
 
 	/* 1D48: release the block. */
-		(void)fn1EDA_0254(LG16(0x595E), (u16)((dwBlock) & 0xFFFFu), (u16)((dwBlock) >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(LG16(0x595E), (u16)((dwBlock) & 0xFFFFu), (u16)((dwBlock) >> 16), 0, &dxTmp, &dsTmp);
 
 		if (LG8(0x58B3) == 0x00)
 		{
@@ -187,7 +187,7 @@ u16 engine_rocket_trajectory /* was fn0C74_1B3B */(void *dsOut)
 			                 LG16(0x58B4), LG16(0x58B8), (int)LG16(0x5968), (int)LG8(0x58B3));
 			/* 1D60: final tick and direction-dependent sweep. */
 			cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-			(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+			(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 			        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 			                    (u16)(s16)LG16(0x58E6)),
 			        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);

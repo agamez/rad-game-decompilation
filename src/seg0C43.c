@@ -2,17 +2,17 @@
  *
  * Literal recovery.  Segment 0C43 (6 functions, ascending offset
  * 0000/001E/0056/0095/00B9/02FB) is the mode-13h file/picture loader used by
- * fn0800_4255:
- *   - fn0C43_0000 / fn0C43_001E build the register frame at DGROUP:589Ch and
+ * renamed_0800_4255:
+ *   - renamed_0c43_0000 / renamed_0c43_001e build the register frame at DGROUP:589Ch and
  *     issue INT 10h through dos_interrupt_trampoline (1E5F:000B), the register-frame
  *     interrupt trampoline (PAL: pal_int_dispatch()).  Both are vector 10h.
- *   - fn0C43_0056 is an RLE decoder that expands the far-heap block at
+ *   - renamed_0c43_0056 is an RLE decoder that expands the far-heap block at
  *     ds:5884/5886 into VGA memory (es = [5882h] = 0A000h, set by 02FB).
- *   - fn0C43_0095 closes the stream block at ss:bp-0D4h and frees the far
+ *   - renamed_0c43_0095 closes the stream block at ss:bp-0D4h and frees the far
  *     heap block.
- *   - fn0C43_00B9 opens a file, loads/decompresses it into VRAM and drives
+ *   - renamed_0c43_00b9 opens a file, loads/decompresses it into VRAM and drives
  *     the small in-loop menu.
- *   - fn0C43_02FB seeds the VRAM selector word 5882h = 0A000h.
+ *   - renamed_0c43_02fb seeds the VRAM selector word 5882h = 0A000h.
  *
  * There is no direct int 10h/int 16h/int 21h, no in/out port site, no
  * __cli/__sti and no int 23h in this segment; the two INT 10h issues go
@@ -31,15 +31,15 @@
 #include "seg1E5F.h"
 #include "pal.h"
 
-/* fn0C43_0000 / fn0C43_001E share the DGROUP register frame the trampoline
+/* renamed_0c43_0000 / renamed_0c43_001e share the DGROUP register frame the trampoline
  * writes back.  1E5F:0045 stores AX,BX,CX,DX,BP,SI,DI,DS,ES,FLAGS at byte
  * offsets 0,2,...,0x12, so the frame occupies 589Ch..58AFh:
  *   589Ch AX  589Eh BX  58A0h CX  58A2h DX  58A4h BP
  *   58A6h SI  58A8h DI  58AAh DS  58ACh ES  58AEh FLAGS
  * (0x58AC is the ES word 001E fills; 0x58A2 the DX word.) */
 
-/* fn0C43_00B9 runs with `enter 0E4h`: its locals are [bp-0E4h]..[bp-1h].
- * The original hands a pointer into this frame (SS:bp-0D4h) to fn0C43_0095
+/* renamed_0c43_00b9 runs with `enter 0E4h`: its locals are [bp-0E4h]..[bp-1h].
+ * The original hands a pointer into this frame (SS:bp-0D4h) to renamed_0c43_0095
  * as a u16 word, so the frame is modelled as a file-static image whose base
  * stands in for SS.  FLOC(off) is the [bp-off] byte address. */
 static u8 g_frame0C43_00B9[0x00E4];
@@ -47,8 +47,8 @@ static u8 g_frame0C43_00B9[0x00E4];
 #define FL16(off) (*(u16 *)FLOC(off))
 #define FL8(off)  (*(u8  *)FLOC(off))
 
-// 0C43:0000: u16 fn0C43_0000(u8 bArg02, void * dsOut)
-u16 fn0C43_0000(u8 bArg02, void * dsOut)
+// 0C43:0000: u16 renamed_0c43_0000(u8 bArg02, void * dsOut)
+u16 renamed_0c43_0000(u8 bArg02, void * dsOut)
 {
     LG8(0x589D) = 0x00;                     /* AH = 00h */
     LG8(0x589C) = bArg02;                   /* AL = mode    */
@@ -58,8 +58,8 @@ u16 fn0C43_0000(u8 bArg02, void * dsOut)
     return LG16(0x58A4);
 }
 
-// 0C43:001E: u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut)
-u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut)
+// 0C43:001E: u16 renamed_0c43_001e(u8 * ptrArg02, u16 * bpOut, void * dsOut)
+u16 renamed_0c43_001e(u8 * ptrArg02, u16 * bpOut, void * dsOut)
 {
     LG8(0x589D) = 0x10;                     /* AH = 10h */
     LG8(0x589C) = 0x12;                     /* AL = 12h */
@@ -79,8 +79,8 @@ u16 fn0C43_001E(u8 * ptrArg02, u16 * bpOut, void * dsOut)
     return LG16(0x58AE);
 }
 
-// 0C43:0056: void fn0C43_0056(void)
-void fn0C43_0056(void)
+// 0C43:0056: void renamed_0c43_0056(void)
+void renamed_0c43_0056(void)
 {
     /* mov es,[5882h] ; mov di,[589Ah] ; xor cx,cx ; mov cl,[5892h] ;
      * mov bx,[5894h] ; push ds ; lds si,[5884h] ; add bx,si */
@@ -120,8 +120,8 @@ void fn0C43_0056(void)
     LG8(0x5892) = cl;
 }
 
-// 0C43:0095: u16 fn0C43_0095(u16 ax, u16 wArg02, void * dsOut)
-u16 fn0C43_0095(u16 ax, u16 wArg02, void * dsOut)
+// 0C43:0095: u16 renamed_0c43_0095(u16 ax, u16 wArg02, void * dsOut)
+u16 renamed_0c43_0095(u16 ax, u16 wArg02, void * dsOut)
 {
     /* mov di,[bp+4h] ; add di,0FF2Ch : the original resolves SS:bp-0D4h.
      * wArg02 is the caller's frame top as a 16-bit word (0E4h here); the
@@ -132,15 +132,15 @@ u16 fn0C43_0095(u16 ax, u16 wArg02, void * dsOut)
     u16 blkSeg = LG16(0x5886);
     u16 blkOff = LG16(0x5884);               /* push [5886h] ; push [5884h] */
 
-    fn1EDA_1051((u8)ax, pStream);           /* call far 1EDAh:1051h */
-    (void)fn1EDA_0254(0x00F1, blkOff, blkSeg, 0, &dx_41, &ds_40);
+    renamed_1eda_1051((u8)ax, pStream);           /* call far 1EDAh:1051h */
+    (void)renamed_1eda_0254(0x00F1, blkOff, blkSeg, 0, &dx_41, &ds_40);
     (void)ds_40;
     (void)dsOut;                            /* DS selector dropped (flat) */
     return dx_41;
 }
 
-// 0C43:00B9: u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
-u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
+// 0C43:00B9: u16 renamed_0c43_00b9(u8 * ptrArg04, u16 * dsOut)
+u16 renamed_0c43_00b9(u8 * ptrArg04, u16 * dsOut)
 {
     u16 ds_45 = 0x0000;
     u16 ds_126 = 0x0000;
@@ -175,16 +175,16 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
     (void)dsOut;                            /* DS selector dropped (flat) */
 
     /* les di,[bp+6h] ; push es ; push di ; lea di,[bp-50h] ; ... push 4Fh */
-    (void)fn1EDA_0A39(0x4F, FLOC(0x50), ptrArg04, &dx_762);
+    (void)renamed_1eda_0a39(0x4F, FLOC(0x50), ptrArg04, &dx_762);
     /* push 13h ; call 0000h */
-    (void)fn0C43_0000(0x13, &ds_45);
+    (void)renamed_0c43_0000(0x13, &ds_45);
     /* lea di,[bp+0FF2Ch] ; ... lea di,[bp-50h] ; call 0FA2h */
-    fn1EDA_0FA2(FLOC(0x50), FLOC(0xD4));
+    renamed_1eda_0fa2(FLOC(0x50), FLOC(0xD4));
     /* lea di,[bp+0FF2Ch] ; push 1h ; call 0FD0h */
-    (void)fn1EDA_0FD0(0x0001, FLOC(0xD4), &dx_621);
+    (void)renamed_1eda_0fd0(0x0001, FLOC(0xD4), &dx_621);
 
     {
-        u16 ax_95 = fn1EDA_04A2();
+        u16 ax_95 = renamed_1eda_04a2();
         LG8(0x556E) = (u8)((ax_95 != 0x0000) ? 0x01 : 0x00);
     }
     if (LG8(0x556E) != 0x00)
@@ -194,7 +194,7 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
     LG16(0x5884) = (u16)dx_ax_763;          /* mov [5884h],ax */
     LG16(0x5886) = (u16)(dx_ax_763 >> 16);  /* mov [5886h],dx */
     /* lea di,[bp-0E0h] data buffer (dropped by 10BB), push 2, 0, 0 */
-    (void)fn1EDA_10BB((u8 *)0, 0x0002, FLOC(0xE0), FLOC(0xD4));
+    (void)renamed_1eda_10bb((u8 *)0, 0x0002, FLOC(0xE0), FLOC(0xD4));
     (void)fn1EDA_04A9(0x0000, 0x0000, &ch_765, &ds_172);
     /* cmp byte [bp-0DFh],5h ; mov al,0 ; jnc */
     ax_754 = (u16)((FL8(0xDF) < 0x05) ? 0x0001 : 0x0000);
@@ -202,7 +202,7 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
     if (LG8(0x556E) != 0x00)
     {
         /* push bp */
-        dx_621 = fn0C43_0095(ax_754, 0x00E4, &ds_45);
+        dx_621 = renamed_0c43_0095(ax_754, 0x00E4, &ds_45);
         return dx_621;                      /* 0147: jmp 02F7h */
     }
 
@@ -211,7 +211,7 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
         /* push 0F1h ; call 023Fh ; mov [5884h],ax ; mov [5886h],dx done above;
          * here: lea di,[bp-0FF2Ch] ; call 116Ah ; call 04A9h ;
          *       sub ax,301h ; sbb dx,0h ; mov [bp-0FF28h],ax ; [bp-0FF2Ah],dx */
-        u16 ax_116A = fn1EDA_116A(FLOC(0xD4), &ds_207);
+        u16 ax_116A = renamed_1eda_116a(FLOC(0xD4), &ds_207);
         dx_ax_757 = fn1EDA_04A9(0x0000, 0x0000, &ch_766, &ds_217);
         /* The flat fn1EDA_04A9 cannot return the register-preserved DX (it
          * returns 0); keep 116Ah's AX and leave the high word as produced. */
@@ -221,7 +221,7 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
                            (u16)((u16)dx_ax_757 < 0x0301));
     }
     /* lea di,[bp-0FF2Ch] ; push 0h ; push 80h ; call 1123h ; call 04A9h */
-    (void)fn1EDA_1123(0x0080, 0x0000, FLOC(0xD4));
+    (void)renamed_1eda_1123(0x0080, 0x0000, FLOC(0xD4));
     (void)fn1EDA_04A9(0x0000, 0x0000, &ch_768, &ds_254);
     FL16(0xDC) = 0x0080;                    /* mov word [bp-0FF24h],80h */
     FL16(0xDA) = 0x0000;                    /* mov word [bp-0FF26h],0 */
@@ -235,7 +235,7 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
 
         /* lea di,[bp-0FF2Ch] ; les di,[5884h] ; push 0F1h ;
          * mov di,5894h ; call 10BBh ; call 04A9h */
-        (void)fn1EDA_10BB((u8 *)&g_dgroup[0x5894], 0x00F1,
+        (void)renamed_1eda_10bb((u8 *)&g_dgroup[0x5894], 0x00F1,
                           (u8 *)far_ptr(LG32(0x5884)), FLOC(0xD4));
         (void)fn1EDA_04A9(0x0000, 0x0000, &ch_776, &ds_307);
 
@@ -268,9 +268,9 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
             }
         }
         /* l0C43_01EB: call 0056h */
-        fn0C43_0056();
+        renamed_0c43_0056();
         /* lea di,[bp-0FF2Ch] ; call 1185h ; call 04A9h ; or al,al ; jnz 021Bh */
-        r_1185 = fn1EDA_1185(FLOC(0xD4));
+        r_1185 = renamed_1eda_1185(FLOC(0xD4));
         (void)fn1EDA_04A9(0x0000, 0x0000, &ch_770, &ds_254);
         /* The flat 04A9 preserves no AL; keep 1185's low byte. */
         if ((u8)r_1185 != 0x00)
@@ -284,21 +284,21 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
     }
 
     /* l0C43_021B */
-    (void)fn1EDA_1123(FL16(0xD8), FL16(0xD6), FLOC(0xD4));
+    (void)renamed_1eda_1123(FL16(0xD8), FL16(0xD6), FLOC(0xD4));
     (void)fn1EDA_04A9(0x0000, 0x0000, &ch_772, &ds_429);
-    (void)fn1EDA_10BB((u8 *)0, 0x0001, FLOC(0xDD), FLOC(0xD4));
+    (void)renamed_1eda_10bb((u8 *)0, 0x0001, FLOC(0xDD), FLOC(0xD4));
     (void)fn1EDA_04A9(0x0000, 0x0000, &ch_774, &ds_470);
     /* cmp byte [bp-0FF23h],0Ch ; mov al,0 ; jz */
     ax_758 = (u16)((FL8(0xDD) != 0x0C) ? 0x0001 : 0x0000);
     LG8(0x556E) = (u8)ax_758;
     if (LG8(0x556E) != 0x00)
     {
-        dx_621 = fn0C43_0095(ax_758, 0x00E4, &ds_45);
+        dx_621 = renamed_0c43_0095(ax_758, 0x00E4, &ds_45);
         return dx_621;                      /* 0263: jmp 02F7h */
     }
 
     /* l0C43_026A */
-    (void)fn1EDA_10BB((u8 *)0, 0x0300, &g_dgroup[0x5582], FLOC(0xD4));
+    (void)renamed_1eda_10bb((u8 *)0, 0x0300, &g_dgroup[0x5582], FLOC(0xD4));
     (void)fn1EDA_04A9(0x0000, 0x0000, &ch_778, &ds_528);
     FL8(0x51) = 0x00;                       /* mov byte [bp-51h],0 */
     for (;;)
@@ -321,17 +321,17 @@ u16 fn0C43_00B9(u8 * ptrArg04, u16 * dsOut)
     }
 
     /* l0C43_02EB: mov di,5582h ; push ds ; push di ; call 001Eh */
-    ax_597 = fn0C43_001E((u8 *)&g_dgroup[0x5582], &bp_598, &ds_602);
+    ax_597 = renamed_0c43_001e((u8 *)&g_dgroup[0x5582], &bp_598, &ds_602);
     (void)bp_598;
     /* push bp ; call 0095h */
-    dx_621 = fn0C43_0095(ax_597, 0x00E4, &ds_45);
+    dx_621 = renamed_0c43_0095(ax_597, 0x00E4, &ds_45);
 
     (void)ds_602;
     return dx_621;
 }
 
-// 0C43:02FB: void fn0C43_02FB(void)
-void fn0C43_02FB(void)
+// 0C43:02FB: void renamed_0c43_02fb(void)
+void renamed_0c43_02fb(void)
 {
     LG16(0x5882) = 0xA000;                  /* mov word [5882h],0A000h */
 }

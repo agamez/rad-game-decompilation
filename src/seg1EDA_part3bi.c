@@ -7,8 +7,8 @@
  * See CONVENTIONS.md and docs/notes-1EDA.md ("## chunk 3b-i").
  *
  * These are the buffered-stream character primitives used by the chunk-4
- * line drivers (fn1EDA_081A / 0896 / 0918 read, fn1EDA_0848 / 08CE write).
- * The stream block is the Turbo-C descriptor built by fn1EDA_04F5 (chunk 3a):
+ * line drivers (renamed_1eda_081a / 0896 / 0918 read, renamed_1eda_0848 / 08CE write).
+ * The stream block is the Turbo-C descriptor built by renamed_1eda_04f5 (chunk 3a):
  *   +0x00 handle   +0x02 id (0xD7B0 closed / 0xD7B1 read / 0xD7B2 write)
  *   +0x04 limit (write path)   +0x08 cursor   +0x0A limit (read path)
  *   +0x0C..+0x0E buffer far pointer (the offset word encodes low16(block)+0x80)
@@ -43,7 +43,7 @@
 #include "seg1EDA.h"
 
 /* Flat reconstruction of the `es:[bx+di]` buffer access: ES:DI is the stream
- * buffer far pointer.  fn1EDA_04F5 stores its block-relative offset
+ * buffer far pointer.  renamed_1eda_04f5 stores its block-relative offset
  * (low16(block)+0x80) in the +0x0C word with the segment half dropped, so the
  * flat host pointer is recovered from the block base exactly as the chunk-3c
  * cb helpers do. */
@@ -59,7 +59,7 @@ static u8 * stream_buffer(u8 * block)
  * reports failure.  It then loads BX = +0x08, DX = +0x0A and ES:DI = +0x0C;
  * the flat outputs carry the cursor word in es_bxOut, the limit word in dxOut
  * and the buffer offset word in diOut.  ES (the +0x0E segment) is dropped. */
-u8 fn1EDA_0776(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)
+u8 renamed_1eda_0776(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)
 {
 	u8 z;
 
@@ -85,7 +85,7 @@ u8 fn1EDA_0776(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)
 /* 1EDA:07B6 -- putc prelude, the write-path twin of 0776: id 0xD7B2, error
  * code 0x69, and DX = block[+0x04] (the write buffer limit) instead of
  * block[+0x0A].  The outputs are otherwise the same. */
-u8 fn1EDA_07B6(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)
+u8 renamed_1eda_07b6(u8 * es_di, u8 * es_bxOut, u16 * dxOut, u16 * diOut)
 {
 	u8 z;
 

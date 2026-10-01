@@ -6,17 +6,17 @@
 
 #include "radtypes.h"
 
-extern void fn1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A);
-extern u8 fn1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut);
-extern void fn1229_039D(void);
-extern u16 fn1229_0486(void);
-extern u16 fn1229_050A(u8 bArg02, u8 * ptrArg04, u16 * dsOut);
-extern u16 fn1229_061B(s16 * dxOut, u16 * dsOut);
-extern u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut);
-extern void fn1229_09F9(u8 bArg02, u8 * ptrArg04);
-extern u16 fn1229_0AA8(void);
-extern void fn1229_0C58(void);
-extern void fn1229_0CCE(void);
-extern u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut);
+extern void renamed_1229_0000(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A);
+extern u8 renamed_1229_0040(u8 * ptrArg04, u16 wArg08, u16 wArg0A, u16 wArg0C, u16 wArg0E, u8 * ptrArg10, void * dsOut);
+extern void renamed_1229_039d(void);
+extern u16 renamed_1229_0486(void);
+extern u16 renamed_1229_050a(u8 bArg02, u8 * ptrArg04, u16 * dsOut);
+extern u16 renamed_1229_061b(s16 * dxOut, u16 * dsOut);
+extern u8 renamed_1229_0735(s16 * dxOut, void * bpOut, void * dsOut);
+extern void renamed_1229_09f9(u8 bArg02, u8 * ptrArg04);
+extern u16 renamed_1229_0aa8(void);
+extern void renamed_1229_0c58(void);
+extern void renamed_1229_0cce(void);
+extern u16 renamed_1229_0dcc(u8 * ptrArg04, u16 * bpOut, u16 * dsOut);
 
 #endif /* SEG1229_H */

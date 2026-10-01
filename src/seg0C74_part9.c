@@ -17,8 +17,8 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   3236..3615.  Every hardware-touching action is reached through
  *   already-ported callees: the 1AB8 video driver (13A3/13D7/10F4/1AF6/1C32/
- *   1E3C/1E54/1E6B), the 1EDA far-heap helpers (023F/0254), fn1E78_029C
- *   (keyboard/pacing), fn1E78_02FB (input poll), fn1206_015B (INT 33h mouse
+ *   1E3C/1E54/1E6B), the 1EDA far-heap helpers (023F/0254), renamed_1e78_029c
+ *   (keyboard/pacing), renamed_1e78_02fb (input poll), renamed_1206_015b (INT 33h mouse
  *   wrapper, seg1206.c), audio_get_soundcard_port/0354 (sound) and the 0C74 helpers
  *   070D/02D8/2BBD/0CFA.
  *
@@ -146,7 +146,7 @@ u8 engine_bar_pull_sibling /* was fn0C74_3236 */(u16 *bpOut, u16 *dsOut)
 
 		/* 33??: free block #2, then rebuild it one row taller
 		 * ([58B4h]+1Eh instead of +1Dh) and stamp it. */
-		(void)fn1EDA_0254(wLoc10, (u16)((blk2) & 0xFFFFu), (u16)((blk2) >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(wLoc10, (u16)((blk2) & 0xFFFFu), (u16)((blk2) >> 16), 0, &dxTmp, &dsTmp);
 		wLoc10 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 		                     (u16)(LG16(0x58B4) + 0x001E),
 		                     (u16)(LG16(0x58B8) + 0x000D),
@@ -229,7 +229,7 @@ u8 engine_bar_pull_sibling /* was fn0C74_3236 */(u16 *bpOut, u16 *dsOut)
 		}
 
 		/* 3584..359A: free block #2, then start the 16h-step pull-in. */
-		(void)fn1EDA_0254(wLoc10, (u16)((blk2) & 0xFFFFu), (u16)((blk2) >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(wLoc10, (u16)((blk2) & 0xFFFFu), (u16)((blk2) >> 16), 0, &dxTmp, &dsTmp);
 		bLoc02 = 0x01;
 		bLoc03 = 0x01;
 
@@ -237,7 +237,7 @@ u8 engine_bar_pull_sibling /* was fn0C74_3236 */(u16 *bpOut, u16 *dsOut)
 		 * drawing table[58E4h + bLoc02*4]. */
 		while (1)
 		{
-			(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0002), &dxTmp);
+			(void)renamed_1e78_029c((u16)((s16)LG16(0x58E6) / 0x0002), &dxTmp);
 			(void)engine_clock_tick(0x000A, &dsTmp);
 			++bLoc02;
 			if (bLoc02 == 0x05)
@@ -260,7 +260,7 @@ u8 engine_bar_pull_sibling /* was fn0C74_3236 */(u16 *bpOut, u16 *dsOut)
 		}
 
 		/* 3602..360F: free block #1. */
-		(void)fn1EDA_0254(wLoc0E, (u16)((blk1) & 0xFFFFu), (u16)((blk1) >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(wLoc0E, (u16)((blk1) & 0xFFFFu), (u16)((blk1) >> 16), 0, &dxTmp, &dsTmp);
 	}
 
 	/* 3610: mov al,[bp-1h] ; leave ; ret */
@@ -286,10 +286,10 @@ u8 engine_bar_march /* was fn0C74_3615 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 	u8  bLoc02 = 0x00;      /* [bp-02h] animation counter (5..1) */
 	u8  bLoc03 = 0x00;      /* [bp-03h] row counter */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut for 02D8 / 0CFA / 1206 */
-	u16 dxTmp2 = 0x0000;    /* fn1206_015B dxOut */
+	u16 dxTmp2 = 0x0000;    /* renamed_1206_015b dxOut */
 	u16 bpScratch = 0x0000; /* engine_redraw_bars_down bpOut artifact */
-	u16 bpScratch2 = 0x0000;/* fn1206_015B bpOut artifact */
-	u8  chTmp = 0x00;       /* fn1206_015B chOut */
+	u16 bpScratch2 = 0x0000;/* renamed_1206_015b bpOut artifact */
+	u8  chTmp = 0x00;       /* renamed_1206_015b chOut */
 	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
 
 	/* 3615..3627: cmp word [58B6h],27Eh ; jc 3628h */
@@ -350,10 +350,10 @@ u8 engine_bar_march /* was fn0C74_3615 */(u16 *dxOut, u16 *bpOut, u16 *dsOut)
 				/* 36DE..3716: input/mouse poll or latch compare. */
 				if (LG8(0x58B2) != 0x00)
 				{
-					if (fn1E78_02FB() != 0x00)
+					if (renamed_1e78_02fb() != 0x00)
 						LG8(0x58B1) = 0x01;
 					/* push 0h ; call 1206h:015Bh */
-					if ((u8)fn1206_015B(&chTmp, &dxTmp2, &bpScratch2,
+					if ((u8)renamed_1206_015b(&chTmp, &dxTmp2, &bpScratch2,
 					                    &dsTmp) != 0x00)
 					{
 						LG8(0x58E0) = 0x01;

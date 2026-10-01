@@ -11,13 +11,13 @@
  * Hardware / DOS replaced (CONVENTIONS.md rule 4):
  *   None.  No int 10h / int 16h / int 21h, no `in`/`out` port instruction,
  *   no __cli/__sti and no int 23h occur in 184C..19E1.  The mouse cursor is
- *   hidden/shown through segment 1206 (fn1206_0066 / fn1206_0038, themselves
+ *   hidden/shown through segment 1206 (renamed_1206_0066 / renamed_1206_0038, themselves
  *   INT 33h wrappers replaced in seg1206.c), so no PAL call is issued here.
  *
  * Flat-model far pointers:
  *   cs:1830h..cs:1848h (the button-label strings drawn by bgi_get_char_size_info) become
  *   &g_seg0800[0x1830] .. &g_seg0800[0x1848]; the DGROUP far pointer staged
- *   for fn1EDA_0A39 (ds:541Eh + 1Ah*slot) becomes &g_dgroup[...].
+ *   for renamed_1eda_0a39 (ds:541Eh + 1Ah*slot) becomes &g_dgroup[...].
  *
  * DGROUP offsets written/read: 53D4h (loop counter), 53DBh/53DCh/53DEh
  * (counters), 53E2h/53FEh/53F0h/540Ch (left/right/top/bottom edge tables),
@@ -34,12 +34,12 @@
 #include "seg1206.h"
 #include "seg13E2.h"
 
-// 0800:184C: u16 fn0800_184C(void * dsOut)
+// 0800:184C: u16 renamed_0800_184c(void * dsOut)
 // Draw the "Fichier" button panel: hide the cursor, paint the frame, loop the
-// eight slot cells (fn0800_09C2 per slot, repainting the cursor each time),
+// eight slot cells (renamed_0800_09c2 per slot, repainting the cursor each time),
 // then blit the two text rows (cs:1830h..1848h) and the second-frame strings,
 // and finally hand control to the 1206:01AC / 1206:0038 mouse wrappers.
-u16 fn0800_184C(void *dsOut)
+u16 renamed_0800_184c(void *dsOut)
 {
 	void *bp_535;        /* 1206:0066 bpOut (Reko frame ptr)    */
 	u16   ds_103;        /* 1206:0066 dsOut (dropped selector)  */
@@ -70,9 +70,9 @@ u16 fn0800_184C(void *dsOut)
 	u16   ds_517;        /* 1206:0038 dsOut (dropped selector)  */
 
 	/* call far 1206h:0066h -- hide the mouse cursor. */
-	fn1206_0066(&bp_535, &ds_103);
+	renamed_1206_0066(&bp_535, &ds_103);
 	bgi_set_text_window();
-	fn13E2_003B();
+	renamed_13e2_003b();
 	/* push 8h ; call far 1AB8h:1C32h */
 	bgi_get_text_cursor_attributes(0x08);
 	/* push 0h ; push 0h ; push 1h ; call far 1AB8h:10F4h */
@@ -80,7 +80,7 @@ u16 fn0800_184C(void *dsOut)
 	/* push 0h ; push 0h ; push 27Fh ; push 177h ; call far 1AB8h:112Eh */
 	bgi_clip_text_rectangle(0x0177, 0x027F, 0x00, 0x00);
 	/* push 3h ; push 17Bh ; push 27Ch ; push 1DAh ; call 1315h */
-	fn0800_1315(0x01DA, 0x027C, 0x017B, 0x0003);
+	renamed_0800_1315(0x01DA, 0x027C, 0x017B, 0x0003);
 	/* mov byte ptr [53DEh],0h ; [53DCh],0h ; [53DBh],0h */
 	LG8(0x53DE) = 0x00;
 	LG8(0x53DC) = 0x00;
@@ -91,9 +91,9 @@ u16 fn0800_184C(void *dsOut)
 	for (;;)
 	{
 		/* mov al,[53D4h] ; push ax ; call 09C2h */
-		fn0800_09C2(LG8(0x53D4), &bp_536, &ds_118);
+		renamed_0800_09c2(LG8(0x53D4), &bp_536, &ds_118);
 		/* call far 1206h:0066h */
-		fn1206_0066(&bp_537, &ds_103);
+		renamed_1206_0066(&bp_537, &ds_103);
 		if (LG16(0x53D4) == 0x0008)
 			break;
 		/* inc word ptr [53D4h] */
@@ -131,20 +131,20 @@ u16 fn0800_184C(void *dsOut)
 	/* push 1h ; push 198h ; push 16h ; call 04CCh ; push ax ;
 	 * push 1D1h ; push 9Ch ; push 1B4h ; call far 1206h:01ACh.
 	 * The frozen 01AC prototype (siOut/esOut/dsOut only) carries no slots
-	 * for the six staged words; the fn0800_04CC(16h) call is kept because
+	 * for the six staged words; the renamed_0800_04cc(16h) call is kept because
 	 * its evaluation sits between the pushes (it is pure). */
-	(void)fn0800_04CC(0x0016);
-	fn1206_01AC(&si_552, &es_553, &ds_502);
+	(void)renamed_0800_04cc(0x0016);
+	renamed_1206_01ac(&si_552, &es_553, &ds_502);
 
 	/* call far 1206h:0038h ; leave ; ret */
-	fn1206_0038(&ch_554, &dx_518, &bp_555, &ds_517);
+	renamed_1206_0038(&ch_554, &dx_518, &bp_555, &ds_517);
 	/* Reko: dsOut = ds_517 ; return dx_518.  DS is dropped in the flat
 	 * model, so the selector word at dsOut is 0; DX is the return. */
 	*(u16 *)dsOut = ds_517;
 	return dx_518;
 }
 
-// 0800:19E1: u8 fn0800_19E1(u8 flag, u8 * label, u16 y, u16 x, u16 slot, u16 * dxOut, void * bpOut, void * dsOut)
+// 0800:19E1: u8 renamed_0800_19e1(u8 flag, u8 * label, u16 y, u16 x, u16 slot, u16 * dxOut, void * bpOut, void * dsOut)
 // Draw one button/slot around (x,y): copy the caller's 0FFh-prefixed label
 // into [bp-0100h], compute the left/right/top/bottom edges from the label's
 // measured half-width/height, blit the 19h-byte slot record and draw the four
@@ -156,7 +156,7 @@ u16 fn0800_184C(void *dsOut)
 // [bp+0Ah] y, [bp+0Ch] x, [bp+0Eh] slot index.  The prototype now carries them
 // explicitly; Reko had reached the four non-pointer ones through the BP saved
 // by 1206:0066.
-u8 fn0800_19E1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpOut, void *dsOut)
+u8 renamed_0800_19e1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpOut, void *dsOut)
 {
 	u8 *buf100 = g_dgroup + 0xFB00;   /* [bp-0100h] copied label; [bp-0100h] is SS-resident, and SS==DS in the tiny model, so stage at DGROUP 0xFB00 for the ES:BX materialization */
 	u16 tFEFE;           /* [bp-0102h] left   edge (DGROUP 53E2h)        */
@@ -188,9 +188,9 @@ u8 fn0800_19E1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpO
 	u8    ret;
 
 	/* les di,[bp+6h] ; push es:di (src) ; push ss:buf (dst) ; push 0FFh */
-	fn1EDA_0A39(0xFF, buf100, label, &dx_819);
+	renamed_1eda_0a39(0xFF, buf100, label, &dx_819);
 	/* call far 1206h:0066h */
-	fn1206_0066(&bp_39, &ds_43);
+	renamed_1206_0066(&bp_39, &ds_43);
 	/* push 1h ; push 0h ; push 3h ; call far 1AB8h:1536h */
 	bgi_load_video_driver_file(0x03, 0x00, 0x01, &ds_66);
 	/* push 1h ; push 3h ; call far 1AB8h:1175h */
@@ -217,7 +217,7 @@ u8 fn0800_19E1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpO
 	LG16((u16)(0x5428 + ((u16)slot << 1))) = y;
 	/* imul di,[bp+0Eh],1Ah ; add di,541Eh ; push ds:di (dst) ;
 	 * push ss:buf (src) ; push 19h ; call far 1EDAh:0A39h */
-	fn1EDA_0A39(0x19, &g_dgroup[(u16)(0x541E + 0x001A * slot)],
+	renamed_1eda_0a39(0x19, &g_dgroup[(u16)(0x541E + 0x001A * slot)],
 	            buf100, &dx_820);
 
 	/* reload the four edges from the DGROUP tables */
@@ -286,7 +286,7 @@ u8 fn0800_19E1(u8 flag, u8 *label, u16 y, u16 x, u16 slot, u16 *dxOut, void *bpO
 	bgi_get_char_size_info(buf100, y, x, &ch_833);
 
 	/* call far 1206h:0038h ; leave ; ret 0Ch */
-	ret = fn1206_0038(&ch_834, &dx_768, &bp_763, &ds_767);
+	ret = renamed_1206_0038(&ch_834, &dx_768, &bp_763, &ds_767);
 	*dxOut = dx_768;
 	/* Reko dereferences 0038's returned BP (bp_777 = *(bp_763)); it is the
 	 * register-preservation chain artifact, so 0 is stored. */

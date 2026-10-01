@@ -14,7 +14,7 @@
  *   2AD9..2BBD.  Every hardware-touching operation is reached indirectly
  *   through already-ported callees: the 1AB8 video driver (13A3/1E6B/13D7/
  *   1C32/1AF6/1E3C/1E54), the 1EDA far-heap helpers (023F/0254/096F/098A),
- *   fn1E78_029C (keyboard/pacing) and audio_write_opl3_register/033B (sound).  engine_clock_tick /
+ *   renamed_1e78_029c (keyboard/pacing) and audio_write_opl3_register/033B (sound).  engine_clock_tick /
  *   070D / 0D43 / 0D94 / 0CFA / 0DE5 / 1F08 / 076B are 0C74 helpers handled by
  *   their own chunks.
  *
@@ -27,7 +27,7 @@
  *     (offset | segment<<16, low word at the lower address) and materialised
  *     through the segment mapper at the call sites, the same convention as
  *     seg0800_part3.c / seg0C74_part4.c / seg0C74_part6.c.
- *   - fn1EDA_098A's frozen `void * dsOut` receives a `void *` local (`dsv`).
+ *   - renamed_1eda_098a's frozen `void * dsOut` receives a `void *` local (`dsv`).
  *   - fn1EDA_023F / 098A / 0254 take stack words the original never pushes
  *     (far-return-address / leftover slots, read only on the fatal
  *     divide-by-zero dispatcher path); they are seeded 0.
@@ -64,9 +64,9 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 	u16 bpv    = 0x0000;    /* saved-BP out of 0D43/0CFA/1F08 (flat: 0) */
 	u16 dsTmp  = 0x0000;    /* dropped DGROUP selector out */
 	u16 dsTmp2 = 0x0000;    /* dropped DGROUP selector out (2B79 branch) */
-	u16 dxTmp  = 0x0000;    /* fn1EDA_0254 dxOut */
-	void *dsv  = NULL;      /* engine_scale_and_tick_clock / fn1EDA_098A dsOut */
-	s16 cxT = 0, dxT = 0, bxT = 0;  /* fn1EDA_098A cx/dx/bx outs */
+	u16 dxTmp  = 0x0000;    /* renamed_1eda_0254 dxOut */
+	void *dsv  = NULL;      /* engine_scale_and_tick_clock / renamed_1eda_098a dsOut */
+	s16 cxT = 0, dxT = 0, bxT = 0;  /* renamed_1eda_098a cx/dx/bx outs */
 
 	/* cmp word [5968h],1h ; jnz 2AF1h */
 	if (LG16(0x5968) == 0x0001)
@@ -133,7 +133,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 		                   (u16)((s16)LG16(0x58E6) < 0 ? 0xFFFFu : 0x0000u));
 		/* mov cx,4h ; xor bx,bx ; call 098Ah ; push ax ; call 02D8h */
 		(void)engine_clock_tick(
-		    (u16)fn1EDA_098A(0x00000004, prod, 0x0000, 0x0000,
+		    (u16)renamed_1eda_098a(0x00000004, prod, 0x0000, 0x0000,
 		                     &cxT, &dxT, &bxT, &dsv),
 		    &dsTmp2);
 
@@ -150,7 +150,7 @@ u16 engine_level_edge_march /* was fn0C74_2AD9 */(u16 *dsOut)
 		}
 
 		/* push [bp-4h] ; push [bp-6h] ; push [595Eh] ; call 0254h */
-		(void)fn1EDA_0254(LG16(0x595E), (u16)(wLoc06), (u16)(wLoc04), 0,
+		(void)renamed_1eda_0254(LG16(0x595E), (u16)(wLoc06), (u16)(wLoc04), 0,
 		                  &dxTmp, &dsTmp2);
 	}
 
@@ -182,7 +182,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 	u8  bLoc11 = 0x00;     /* [bp-11h] middle loop index */
 	u8  bLoc12 = 0x0F;     /* [bp-12h] outer loop index */
 	u16 dsTmp  = 0x0000;   /* dropped DGROUP selector out */
-	u16 dxTmp  = 0x0000;   /* bgi_set_pixel / fn1EDA_0254 dxOut */
+	u16 dxTmp  = 0x0000;   /* bgi_set_pixel / renamed_1eda_0254 dxOut */
 	u8  dlTmp  = 0x00;     /* bgi_draw_line dlOut */
 
 	/* push [bp+0Ah] ; push [bp+8h] ; push [bp+6h] ; push [bp+4h] ; call 13A3h */
@@ -226,7 +226,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 	            wArg06, wArg08);
 
 	/* push [bp-6h] ; push [bp-8h] ; push [bp-0Ah] ; call 0254h */
-	(void)fn1EDA_0254(wLoc0A, (u16)(wLoc08), (u16)(wLoc06), 0,
+	(void)renamed_1eda_0254(wLoc0A, (u16)(wLoc08), (u16)(wLoc06), 0,
 	                  &dxTmp, &dsTmp);
 
 	/* push wArg08+0Bh ; push wArg02 ; call 1E3Ch ; mov [bp-0Fh],al */
@@ -239,7 +239,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 	                   &dlTmp) == 0x0000)
 	{
 		/* mov ax,[58E6h] ; cwd ; mov cx,4h ; idiv cx ; push ax ; call 029Ch */
-		(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0004), &dxTmp);
+		(void)renamed_1e78_029c((u16)((s16)LG16(0x58E6) / 0x0004), &dxTmp);
 
 		/* inc word [bp+8h] ; inc word [bp+4h] ; inc word [bp-0Eh] */
 		wArg06 = (u16)(wArg06 + 0x0001);
@@ -275,7 +275,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 							                  (u16)bLoc10));
 
 						/* push 1h ; call 029Ch */
-						(void)fn1E78_029C(0x0001, &dxTmp);
+						(void)renamed_1e78_029c(0x0001, &dxTmp);
 
 						/* mov al,[bp-10h] ; cwd ; mov cx,3 ; div cx ;
 						 * xchg dx,ax ; or ax,ax ; jnz 2D4Ch/2DA4h */
@@ -338,7 +338,7 @@ u16 engine_sprite_grow /* was fn0C74_2BBD */(u16 wArg02, u16 wArg04, u16 wArg06,
 	}
 
 	/* 2E23: push [bp-2h] ; push [bp-4h] ; push [bp-0Ch] ; call 0254h */
-	(void)fn1EDA_0254(wLoc0C, (u16)(wLoc04), (u16)(wLoc02), 0,
+	(void)renamed_1eda_0254(wLoc0C, (u16)(wLoc04), (u16)(wLoc02), 0,
 	                  &dxTmp, &dsTmp);
 
 	/* mov al,[4D0Ah] ; xor ah,ah ; cmp ax,[bp-0Eh] ; jnc 2E56h

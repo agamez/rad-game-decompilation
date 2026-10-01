@@ -26,7 +26,7 @@
  *   - The 16:16 far blocks allocated by fn1EDA_023F are carried as `u32`
  *     (offset | segment<<16) and materialised with `far_ptr(dw)` at the
  *     call sites, the same convention as seg0800_part3.c / seg1229_part1.c.
- *   - fn1EDA_098A's frozen `void * dsOut` receives a `void *` local.
+ *   - renamed_1eda_098a's frozen `void * dsOut` receives a `void *` local.
  *   - fn1EDA_023F / 098A / 0254 require stack words the original never pushes
  *     (they are leftover-stack / far-return-address words used only on the
  *     fatal divide-by-zero path); they are seeded 0.
@@ -72,9 +72,9 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	u16 wLoc2A = 0x0000;    /* [bp-2Ah] */
 	u16 dsTmp = 0x0000;     /* reusable u16 dsOut (023F/0254/05B8/02D8/070D?) */
 	void *dsv = NULL;       /* reusable void * dsOut (098A/070D/0E2E) */
-	u16 dxTmp = 0x0000;     /* bgi_set_pixel / fn1EDA_0254 dxOut */
+	u16 dxTmp = 0x0000;     /* bgi_set_pixel / renamed_1eda_0254 dxOut */
 	u8  dlTmp = 0x00;       /* bgi_draw_line dlOut */
-	s16 cxT = 0, dxT = 0, bxT = 0;  /* fn1EDA_098A outs (cx/dx/bx) */
+	s16 cxT = 0, dxT = 0, bxT = 0;  /* renamed_1eda_098a outs (cx/dx/bx) */
 
 	/* --- prologue: paint the two status rectangles (0FA1..106C) ---------- */
 	wLoc20 = bgi_clamp_rectangle_coords(0x001B, 0x001C, 0x000D, 0x0019);
@@ -93,7 +93,7 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 
 	/* time tick: 098A(4, 096F([4D0Ch], [58E6h], 0, sign([58E6h]))) -> 02D8 */
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -102,9 +102,9 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	            (u16)(LG16(0x58B8) + 0x000D), wLoc24);
 	bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc14),
 	            (u16)(LG16(0x58B8) + 0x000D), wLoc26);
-	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
 	(void)bgi_get_text_cursor_attributes(0x00);
@@ -171,9 +171,9 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	if (wLoc04 != 0x0014)
 	{
 		(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
-		fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+		renamed_1eda_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 		            &dxTmp, &dsTmp);
-		fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+		renamed_1eda_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 		            &dxTmp, &dsTmp);
 		bLoc01 = 0x00;
 		goto l0C74_1B36;
@@ -210,7 +210,7 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 		else
 		{
 			/* --- 0C74:13A0 ----------------------------------------------- */
-			fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+			renamed_1eda_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 			            &dxTmp, &dsTmp);
 			wLoc22 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 			                     (u16)(LG16(0x58B4) + 0x001D + wLoc04),
@@ -238,11 +238,11 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 			}
 
 			/* --- 0C74:144D ----------------------------------------------- */
-			fn1EDA_0254(wLoc22, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+			renamed_1eda_0254(wLoc22, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 			            &dxTmp, &dsTmp);
 			wLoc04 = 0x0014;
 			(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
-			fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+			renamed_1eda_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 			            &dxTmp, &dsTmp);
 			bLoc01 = 0x00;
 			goto l0C74_1B36;
@@ -274,7 +274,7 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 		goto l0C74_15D9;
 
 	/* --- 0C74:14FE ------------------------------------------------------- */
-	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	wLoc22 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(LG16(0x58B4) + 0x0011 - wLoc04),
@@ -304,9 +304,9 @@ u8 engine_per_frame_muck /* was fn0C74_0FA1 */(void *bpOut, u16 *dsOut)
 	/* --- 0C74:15AB ------------------------------------------------------- */
 	wLoc04 = 0x0014;
 	(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
-	fn1EDA_0254(wLoc22, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+	renamed_1eda_0254(wLoc22, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	bLoc01 = 0x00;
 	goto l0C74_1B36;
@@ -318,7 +318,7 @@ l0C74_15D9:
 	/* --- 0C74:15E7: level-complete / score animation -------------------- */
 l0C74_15E7:
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -356,7 +356,7 @@ l0C74_16B6:
 	/* --- 0C74:16C1: victory sequence ------------------------------------ */
 l0C74_16C1:
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -369,7 +369,7 @@ l0C74_16C1:
 	LG16(0x58BA) = (u16)(LG16(0x58BA) - 0x0001);
 	bgi_signed_rectangle_intersect(0x00, far_ptr(dwLoc18),
 	            (u16)(LG16(0x58BA) - 0x000E), LG16(0x58B4));
-	fn1EDA_0254(wLoc1E, (u16)((dwLoc18) & 0xFFFFu), (u16)((dwLoc18) >> 16), 0,
+	renamed_1eda_0254(wLoc1E, (u16)((dwLoc18) & 0xFFFFu), (u16)((dwLoc18) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
 	(void)bgi_get_text_cursor_attributes(0x00);
@@ -392,7 +392,7 @@ l0C74_16C1:
 	} while ((u16)(LG16(0x58B8) + 0x002B) != LG16(0x58BA));
 
 	/* --- 0C74:17EF ------------------------------------------------------- */
-	fn1EDA_0254(wLoc1E, (u16)((dwLoc18) & 0xFFFFu), (u16)((dwLoc18) >> 16), 0,
+	renamed_1eda_0254(wLoc1E, (u16)((dwLoc18) & 0xFFFFu), (u16)((dwLoc18) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	wLoc28 = bgi_clamp_rectangle_coords(LG16(0x58BA), LG16(0x58B6), LG16(0x58B8),
 	                     LG16(0x58B4));
@@ -401,7 +401,7 @@ l0C74_16C1:
 	            LG16(0x58B8), LG16(0x58B4));
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -422,11 +422,11 @@ l0C74_1867:
 	/* --- 0C74:18B0 ------------------------------------------------------- */
 l0C74_18B0:
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
-	fn1EDA_0254(wLoc28, (u16)((dwLoc1C) & 0xFFFFu), (u16)((dwLoc1C) >> 16), 0,
+	renamed_1eda_0254(wLoc28, (u16)((dwLoc1C) & 0xFFFFu), (u16)((dwLoc1C) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	bgi_set_text_background_color(0x0001, 0x0000, 0x0000);
 	(void)bgi_get_text_cursor_attributes(0x00);
@@ -456,13 +456,13 @@ l0C74_194A:
 
 	/* --- 0C74:1954 ------------------------------------------------------- */
 l0C74_1954:
-	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
-	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 	            &dxTmp, &dsTmp);
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);
@@ -492,7 +492,7 @@ l0C74_1954:
 	}
 
 	/* --- 0C74:1A27 ------------------------------------------------------- */
-	fn1EDA_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc14) & 0xFFFFu), (u16)((dwLoc14) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	wLoc20 = bgi_clamp_rectangle_coords((u16)(LG16(0x58B8) + 0x001B),
 	                     (u16)(wLoc0C + 0x0003),
@@ -519,13 +519,13 @@ l0C74_1954:
 	}
 
 	/* --- 0C74:1ACF ------------------------------------------------------- */
-	fn1EDA_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
+	renamed_1eda_0254(wLoc20, (u16)((dwLoc10) & 0xFFFFu), (u16)((dwLoc10) >> 16), 0,
 	            &dxTmp, &dsTmp);
 	wLoc04 = 0x0013;
 	(void)engine_draw_status_sprites(wLoc04, &dsv);   /* the caller's [bp-4] word */
 
 	cxT = 0; dxT = 0; bxT = 0; dsv = NULL;
-	(void)engine_clock_tick((u16)fn1EDA_098A(0x0004,
+	(void)engine_clock_tick((u16)renamed_1eda_098a(0x0004,
 	        fn1EDA_096F(LG16(0x4D0C), LG16(0x58E6), 0x0000,
 	                    (u16)(s16)LG16(0x58E6)),
 	        0x0000, 0x0000, &cxT, &dxT, &bxT, &dsv), &dsTmp);

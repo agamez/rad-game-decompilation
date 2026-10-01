@@ -35,15 +35,15 @@
 u16 (*seg1EDA_stream_cb(u16 off))(u8 *)
 {
 	switch (off) {
-	case 0x060C: return fn1EDA_060C;
-	case 0x06E8: return fn1EDA_06E8;
-	case 0x0718: return fn1EDA_0718;
-	case 0x073D: return fn1EDA_073D;
-	case 0x075D: return fn1EDA_075D;
-	case 0x035A: return fn1E78_035A;   /* 1E78 console: open/arm  */
-	case 0x0392: return fn1E78_0392;   /* 1E78 console: read line */
-	case 0x043F: return fn1E78_043F;   /* 1E78 console: write     */
-	case 0x0470: return fn1E78_0470;   /* 1E78 console: dummy     */
+	case 0x060C: return renamed_1eda_060c;
+	case 0x06E8: return renamed_1eda_06e8;
+	case 0x0718: return renamed_1eda_0718;
+	case 0x073D: return renamed_1eda_073d;
+	case 0x075D: return renamed_1eda_075d;
+	case 0x035A: return renamed_1e78_035a;   /* 1E78 console: open/arm  */
+	case 0x0392: return renamed_1e78_0392;   /* 1E78 console: read line */
+	case 0x043F: return renamed_1e78_043f;   /* 1E78 console: write     */
+	case 0x0470: return renamed_1e78_0470;   /* 1E78 console: dummy     */
 	default:     return 0;
 	}
 }
@@ -51,7 +51,7 @@ u16 (*seg1EDA_stream_cb(u16 off))(u8 *)
 /* 1EDA:0801 -- the error/epilogue label as a helper: store AX into the
  * error word, then reload the register image from the block exactly as the
  * `pop di / pop es / mov ax,es:[di+0Ah] ...` sequence does. */
-u16 fn1EDA_0801(u16 ax, u32 dwArg00, u16 * cxOut, u16 * dxOut, void * bxOut,
+u16 renamed_1eda_0801(u16 ax, u32 dwArg00, u16 * cxOut, u16 * dxOut, void * bxOut,
                 u16 * siOut, u16 * diOut, void * esOut, void * dsOut)
 {
 	u8 *block = g_dgroup + (u16)(uintptr_t)dwArg00; /* 16:16, seg 0x2014 */
@@ -81,7 +81,7 @@ u8 * fn1EDA_07E9(u8 * es_di, u16 cx, u8 * bx, u16 * axOut, u16 * cxOut,
 	if (ax != 0x00) {
 		u16 cx_r, dx_r, si_r, di_r;
 		void *bx_r, *es_r, *ds_r;
-		ax = fn1EDA_0801(ax, (u32)((uintptr_t)block - (uintptr_t)g_dgroup),
+		ax = renamed_1eda_0801(ax, (u32)((uintptr_t)block - (uintptr_t)g_dgroup),
 		                 &cx_r, &dx_r, &bx_r, &si_r, &di_r, &es_r, &ds_r);
 		*cxOut = cx;                        /* CX is preserved across 07E9 */
 		*siOut = si_r;
@@ -111,7 +111,7 @@ u8 * fn1EDA_07DA(u8 * es_bx, u8 al, u16 cx, u16 dx, u16 di, u8 * ptrArg02,
 	 * [block+0x0C] = (u16)block + 0x80; block_buffer()/stream_buffer()
 	 * resolve it the same way).  Addressing it through the block pointer
 	 * (instead of g_dgroup[bx+di]) also serves non-DGROUP stream blocks --
-	 * fn0800_2C0C builds its RAD.MEM block on the stack. */
+	 * renamed_0800_2c0c builds its RAD.MEM block on the stack. */
 	ptrArg02[0x80 + bx] = al;               /* mov es:[bx+di],al */
 	bx++;                                   /* inc bx */
 	if (bx == dx) {                         /* cmp bx,dx / jz 07E3 */
@@ -127,7 +127,7 @@ u8 * fn1EDA_07DA(u8 * es_bx, u8 al, u16 cx, u16 dx, u16 di, u8 * ptrArg02,
 		if (ax != 0x00) {
 			u16 cx_r, dx_r, si_r, di_r;
 			void *bx_r, *es_r, *ds_r;
-			(void)fn1EDA_0801(ax,
+			(void)renamed_1eda_0801(ax,
 			    (u32)((uintptr_t)block - (uintptr_t)g_dgroup),
 			    &cx_r, &dx_r, &bx_r, &si_r, &di_r, &es_r, &ds_r);
 		}

@@ -1,7 +1,7 @@
 /* int.c — RAD Linux port: software-interrupt register-frame dispatch.
  *
  * Appended for the recovered interrupt trampoline fn1E5F_000B (1E5F:000B) and
- * the BIOS video gateway fn1E78_0609 (1E78:0609).  The DOS-era code invoked
+ * the BIOS video gateway renamed_1e78_0609 (1E78:0609).  The DOS-era code invoked
  * INT 10h (video) and INT 33h (mouse) with a register image; C has no
  * AH/AL/BH/... registers, so the recovered wrappers pass a word array.
  *

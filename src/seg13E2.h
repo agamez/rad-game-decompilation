@@ -6,11 +6,11 @@
 
 #include "radtypes.h"
 
-extern u8 fn13E2_0001(u16 * dsOut);
-extern u8 fn13E2_003B(void);
-extern u16 fn13E2_0080(void);
-extern void fn13E2_00FB(void);
-extern u16 fn13E2_0193(u8 * ptrArg04);
-extern u16 fn13E2_0220(void);
+extern u8 renamed_13e2_0001(u16 * dsOut);
+extern u8 renamed_13e2_003b(void);
+extern u16 renamed_13e2_0080(void);
+extern void renamed_13e2_00fb(void);
+extern u16 renamed_13e2_0193(u8 * ptrArg04);
+extern u16 renamed_13e2_0220(void);
 
 #endif /* SEG13E2_H */

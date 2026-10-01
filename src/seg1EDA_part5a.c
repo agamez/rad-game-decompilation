@@ -44,7 +44,7 @@ static u32 seg1EDA_dword(u16 off)
 
 /* 1EDA:0E07 -- latch the current DOS time into DGROUP:0x5382 (CX = hour:
  * minute) and DGROUP:0x5384 (DX = second:hundredths).  int 21h AH=2Ch. */
-void fn1EDA_0E07(void)
+void renamed_1eda_0e07(void)
 {
 	u8 ch_5;                                    /* hour       */
 	u8 cl_8;                                    /* minute     */
@@ -149,7 +149,7 @@ l1EDA_0E42:
  *
  * `di` is a memptr in Reko, i.e. the flat byte pointer; the `es`
  * byte-segment parameter is redundant in the flat model and dropped. */
-u8 fn1EDA_0E8E(u16 cx, u8 * di, void * es, u16 * axOut, u16 * cxOut, u16 * siOut, u8 * diOut)
+u8 renamed_1eda_0e8e(u16 cx, u8 * di, void * es, u16 * axOut, u16 * cxOut, u16 * siOut, u8 * diOut)
 {
 	u16 ax_102 = 0x0000;                /* xor ax,ax */
 	u16 dx_91 = 0x0000;                 /* xor dx,dx */

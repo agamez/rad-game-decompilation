@@ -32,15 +32,15 @@ void audio_transfer_rom_data(u8 bArg02, u16 wArg04, u8 * ptrArg06)
 		bLoc03_111 = 0x01;
 		while (1)
 		{
-			fn1EDA_0B4F(LG8((u16)(wArg04 & 0x0F) + 0x4DC4), buf1);
-			fn1EDA_0B7C(0x01, 0xFF, buf2, buf1);
+			renamed_1eda_0b4f(LG8((u16)(wArg04 & 0x0F) + 0x4DC4), buf1);
+			renamed_1eda_0b7c(0x01, 0xFF, buf2, buf1);
 			wArg04 >>= 0x04;
 			if (bLoc03_111 == bArg02)
 				break;
 			++bLoc03_111;
 		}
 	}
-	fn1EDA_0A39(0xFF, ptrArg06, buf2, &dx_146);
+	renamed_1eda_0a39(0xFF, ptrArg06, buf2, &dx_146);
 }
 
 // 11C8:0092: void audio_detect_and_init_sb(void)
@@ -51,7 +51,7 @@ void audio_detect_and_init_sb(void)
 	u8 bLoc0F_324 = 0x00;
 	u8 bLoc03_325 = 0x01;
 
-	fn1E78_01C0();
+	renamed_1e78_01c0();
 	while (bLoc03_325 < 0x07 && bLoc0F_324 == 0x00)
 	{
 		u16 wLoc0A_328 = 0x00;
@@ -111,10 +111,10 @@ void audio_detect_and_init_sb(void)
 			u16 cx_586;
 			u16 cx_587;
 
-			fn1EDA_08CE(0x00, &g_seg11C8[0x71], &g_dgroup[0xB9BC], &cx_586);
+			renamed_1eda_08ce(0x00, &g_seg11C8[0x71], &g_dgroup[0xB9BC], &cx_586);
 			audio_transfer_rom_data(0x03, LG16(0x5978), buf);
-			fn1EDA_08CE(0x00, buf, &g_dgroup[0xB9BC], &cx_587);
-			fn1EDA_086C(&g_dgroup[0xB9BC]);
+			renamed_1eda_08ce(0x00, buf, &g_dgroup[0xB9BC], &cx_587);
+			renamed_1eda_086c(&g_dgroup[0xB9BC]);
 			LG8(0x5976) = 0x01;
 		}
 		else
@@ -217,7 +217,7 @@ u16 audio_get_soundcard_port(void)
 	u16 dx;
 
 	if (LG8(0x5976) == 0x00)
-		dx = (u16)fn1E78_02F4();
+		dx = (u16)renamed_1e78_02f4();
 	else
 		dx = audio_write_adlib_port(0x00);
 	return dx;
@@ -231,7 +231,7 @@ void audio_write_opl3_register(u16 wArg04)
 	u8 bArg05 = (u8)(wArg04 >> 8);
 
 	if (LG8(0x5976) == 0x00)
-		fn1E78_02C7(wArg04);
+		renamed_1e78_02c7(wArg04);
 	else
 	{
 		audio_write_adlib_register(bArg04, (u8)(LG8(0x5975) + 0xA0));

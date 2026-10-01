@@ -46,8 +46,8 @@ void stub_dword_to_string(u32 dwArg04, u8 * ptrArg08) /* was fn13C1_0036 */
     u8 abBuf0100[0x100];    /* [bp-0100h]: scratch text buffer */
     void *dx_89 = 0;
 
-    fn1EDA_0F26(0xFF, abBuf0100, 0x00, dwArg04);
-    fn1EDA_0A39(0xFF, ptrArg08, abBuf0100, &dx_89);
+    renamed_1eda_0f26(0xFF, abBuf0100, 0x00, dwArg04);
+    renamed_1eda_0a39(0xFF, ptrArg08, abBuf0100, &dx_89);
 }
 
 // 13C1:0067: void * stub_init_video_info(void)

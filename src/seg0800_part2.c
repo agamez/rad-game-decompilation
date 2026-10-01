@@ -40,11 +40,11 @@
 #include "seg1206.h"
 #include "seg1E78.h"
 
-// 0800:0619: u16 fn0800_0619(void)
+// 0800:0619: u16 renamed_0800_0619(void)
 // Pause/mission-select overlay: paint the box, compare the current record at
 // ds:5ECE against cs:0605 ("DEMO"), build the two "MISSION n" labels from the
 // 3-byte selected-record buffer, and draw them.
-u16 fn0800_0619(void)
+u16 renamed_0800_0619(void)
 {
 	u8 *abBuf = g_dgroup + 0xF800;
 	                    /* [bp-0104h] formatted string / record scratch (Reko
@@ -66,57 +66,57 @@ u16 fn0800_0619(void)
 	u8  ch_576;
 	u8  ch_577;
 
-	fn0800_005A(0x01CF, 0x0264, 0x01A7, 0x0204);
+	renamed_0800_005a(0x01CF, 0x0264, 0x01A7, 0x0204);
 	(void)bgi_load_video_driver_file(0x0000, 0x0000, 0x0000, &ds_43);
 	bgi_set_text_rectangle(0x0001, 0x0001);
 
-	/* 0800:0627: fn1EDA_0B24(cs:0605, ds:5ECE) sets ZF when equal. */
-	if (fn1EDA_0B24(&g_seg0800[0x0605], &g_dgroup[0x5ECE], &ax_569, &dx_570) == 0x00)
+	/* 0800:0627: renamed_1eda_0b24(cs:0605, ds:5ECE) sets ZF when equal. */
+	if (renamed_1eda_0b24(&g_seg0800[0x0605], &g_dgroup[0x5ECE], &ax_569, &dx_570) == 0x00)
 	{
 		/* l0800_0651: not "DEMO" -- build the record from the far pointer
 		 * stored at [5990h]:[598Eh]. */
 		engine_format_u32(LG32(0x598E), abBuf);
-		(void)fn1EDA_0A39(0x03, bLoc04, abBuf, &dx_572);
+		(void)renamed_1eda_0a39(0x03, bLoc04, abBuf, &dx_572);
 	}
 	else
 	{
 		/* l0800_0672: equal -- the canonical {3,"000"} record. */
-		(void)fn1EDA_0A39(0x03, bLoc04, &g_seg0800[0x060A], &dx_571);
+		(void)renamed_1eda_0a39(0x03, bLoc04, &g_seg0800[0x060A], &dx_571);
 	}
 
 	/* The three "MISSION" strings; [bp-4h] (bLoc04[0]) is re-read after each
-	 * block because fn1EDA_0A39 rewrites the length byte. */
+	 * block because renamed_1eda_0a39 rewrites the length byte. */
 	if (bLoc04[0] < 0x02)
 	{
-		fn1EDA_0A1F(&g_seg0800[0x060E], abBuf);       /* {1,"0"} */
-		fn1EDA_0AAC(bLoc04, abBuf);
-		(void)fn1EDA_0A39(0x03, bLoc04, abBuf, &dx_573);
+		renamed_1eda_0a1f(&g_seg0800[0x060E], abBuf);       /* {1,"0"} */
+		renamed_1eda_0aac(bLoc04, abBuf);
+		(void)renamed_1eda_0a39(0x03, bLoc04, abBuf, &dx_573);
 	}
 	if (bLoc04[0] < 0x03)
 	{
-		fn1EDA_0A1F(&g_seg0800[0x060E], abBuf);       /* {1,"0"} */
-		fn1EDA_0AAC(bLoc04, abBuf);
-		(void)fn1EDA_0A39(0x03, bLoc04, abBuf, &dx_578);
+		renamed_1eda_0a1f(&g_seg0800[0x060E], abBuf);       /* {1,"0"} */
+		renamed_1eda_0aac(bLoc04, abBuf);
+		(void)renamed_1eda_0a39(0x03, bLoc04, abBuf, &dx_578);
 	}
 
 	bgi_get_text_cursor_attributes(0x08);
-	fn1EDA_0A1F(&g_seg0800[0x0610], abBuf);               /* {8,"MISSION "} */
-	fn1EDA_0AAC(bLoc04, abBuf);
+	renamed_1eda_0a1f(&g_seg0800[0x0610], abBuf);               /* {8,"MISSION "} */
+	renamed_1eda_0aac(bLoc04, abBuf);
 	(void)bgi_get_char_size_info(abBuf, 0x01AE, 0x0233, &ch_574);
 	(void)bgi_get_char_size_info(&g_dgroup[0x5ECE], 0x01C6, 0x0233, &ch_575);
 	bgi_get_text_cursor_attributes(0x0B);
-	fn1EDA_0A1F(&g_seg0800[0x0610], abBuf);               /* {8,"MISSION "} */
-	fn1EDA_0AAC(bLoc04, abBuf);
+	renamed_1eda_0a1f(&g_seg0800[0x0610], abBuf);               /* {8,"MISSION "} */
+	renamed_1eda_0aac(bLoc04, abBuf);
 	(void)bgi_get_char_size_info(abBuf, 0x01AF, 0x0234, &ch_576);
 	(void)bgi_get_char_size_info(&g_dgroup[0x5ECE], 0x01C7, 0x0234, &ch_577);
 
 	return ds_43;   /* original returns the dropped DGROUP selector (0) */
 }
 
-// 0800:0768: s16 fn0800_0768(u16 * bpOut, u16 * dsOut)
+// 0800:0768: s16 renamed_0800_0768(u16 * bpOut, u16 * dsOut)
 // "PRESSEZ UNE TOUCHE" wait: two timed waits (2500 and 5000 ticks) on the
 // mouse/keyboard, each followed by a key-release drain, then return.
-s16 fn0800_0768(u16 * bpOut, u16 * dsOut)
+s16 renamed_0800_0768(u16 * bpOut, u16 * dsOut)
 {
 	u16 wLoc02 = 0x0000;   /* [bp-0002h] wait counter (Reko bp_157.tFFFE) */
 	u16 wLoc04 = 0x0000;   /* uninitialised 030D wArg02 stack slot (Reko ss->*sp) */
@@ -135,7 +135,7 @@ s16 fn0800_0768(u16 * bpOut, u16 * dsOut)
 	(void)bgi_load_video_driver_file(0x0000, 0x0000, 0x0000, &ds_111);
 	bgi_set_text_rectangle(0x0001, 0x0001);
 	bgi_get_text_cursor_attributes(0x08);
-	fn0800_005A(0x01CF, 0x0264, 0x01A7, 0x0204);
+	renamed_0800_005a(0x01CF, 0x0264, 0x01A7, 0x0204);
 	(void)bgi_get_char_size_info(&g_seg0800[0x0755], 0x01AE, 0x0233, &ch_440);   /* {7,"PRESSEZ"} */
 	(void)bgi_get_char_size_info(&g_seg0800[0x075D], 0x01C6, 0x0233, &ch_441);   /* {10,"UNE TOUCHE"} */
 
@@ -150,9 +150,9 @@ l0768_07E4:
 	++wLoc02;
 
 l0768_07E7:
-	if ((u8)fn1206_015B(&ch_442, (u16 *)&dx_170, &bpDummy, &ds_111) != 0x00)
+	if ((u8)renamed_1206_015b(&ch_442, (u16 *)&dx_170, &bpDummy, &ds_111) != 0x00)
 		goto l0768_0875;
-	if (fn1E78_02FB() != 0x00)
+	if (renamed_1e78_02fb() != 0x00)
 		goto l0768_0875;
 	if (wLoc02 != 0x09C4)               /* 2500 */
 		goto l0768_07E4;
@@ -168,22 +168,22 @@ l0768_0832:
 	++wLoc02;
 
 l0768_0835:
-	if ((u8)fn1206_015B(&ch_445, (u16 *)&dx_170, &bpDummy, &ds_111) != 0x00)
+	if ((u8)renamed_1206_015b(&ch_445, (u16 *)&dx_170, &bpDummy, &ds_111) != 0x00)
 		goto l0768_0875;
-	if (fn1E78_02FB() != 0x00)
+	if (renamed_1e78_02fb() != 0x00)
 		goto l0768_0875;
 	if (wLoc02 != 0x1388)               /* 5000 */
 		goto l0768_0832;
 
 	/* l0800_0852: after the second timeout, wait for the key to be released,
 	 * draining the keyboard buffer, then restart the whole sequence. */
-	if (fn1E78_02FB() == 0x00)
+	if (renamed_1e78_02fb() == 0x00)
 		goto l0768_07B6;
 
 l0768_085E:
-	if (fn1E78_02FB() == 0x00)
+	if (renamed_1e78_02fb() == 0x00)
 		goto l0768_086E;
-	(void)fn1E78_030D(dx_170, wLoc04, (u16 *)&dx_170);
+	(void)renamed_1e78_030d(dx_170, wLoc04, (u16 *)&dx_170);
 	goto l0768_085E;
 
 l0768_086E:
@@ -195,11 +195,11 @@ l0768_0875:
 	return dx_170;
 }
 
-// 0800:0877: u8 fn0800_0877(void)
+// 0800:0877: u8 renamed_0800_0877(void)
 // Scan the 0x5EB0 grid for a cell equal to '^' whose bgi_draw_line result is not
 // 0x0F; returns 1 when the index reaches 0x1C while still scanning, else 0.
 
-/* Diagnostic (RAD_WIN_TRACE env): log fn0800_0877 outcomes; every ret=1,
+/* Diagnostic (RAD_WIN_TRACE env): log renamed_0800_0877 outcomes; every ret=1,
  * ret=0 sampled at powers-of-two call counts; inert unless the env is set. */
 static void rad0877_trace(u8 ret, u8 idx, u8 tile, u8 pix)
 {
@@ -218,7 +218,7 @@ static void rad0877_trace(u8 ret, u8 idx, u8 tile, u8 pix)
 	        cnt, ret, idx, tile, pix);
 }
 
-u8 fn0800_0877(void)
+u8 renamed_0800_0877(void)
 {
 	u8 bLoc01 = 0x00;   /* [bp-0001h] result flag (Reko bLoc03_64) */
 	u8 bLoc02 = 0x00;   /* [bp-0002h] grid index (Reko bLoc04_65) */
@@ -241,13 +241,13 @@ u8 fn0800_0877(void)
 	return bLoc01;
 }
 
-// 0800:08C0: u16 fn0800_08C0(void)
+// 0800:08C0: u16 renamed_0800_08c0(void)
 // If the 53DBh counter is positive, consume one via engine_frame_dispatch and return 1.
 /* NOTE: analysis/summary/iface.tsv documents this return as the dropped DGROUP
  * selector, but the .asm's only return write is `mov al,[bp-1h]` (the flag);
  * the frozen prototype is u16, so the flag is returned.  Every caller
- * (fn0800_2401/2827/2C0C/31B7) discards it. */
-u16 fn0800_08C0(void)
+ * (renamed_0800_2401/2827/2C0C/31B7) discards it. */
+u16 renamed_0800_08c0(void)
 {
 	u8 bLoc01 = 0x00;   /* [bp-0001h] result flag */
 	u16 bp_16 = 0x0000;
@@ -264,11 +264,11 @@ u16 fn0800_08C0(void)
 	return (u16)bLoc01;
 }
 
-// 0800:08E9: s16 fn0800_08E9(s16 dx)
+// 0800:08E9: s16 renamed_0800_08e9(s16 dx)
 // Grid hit-test loop: for every cell, call bgi_draw_line; when it reports 0x0F
 // select the cell via engine_scatter_starfield.  Esc sets the 58B3h latch.  Called from
-// fn0800_0C71 only; the return value is discarded there.
-s16 fn0800_08E9(s16 dx)
+// renamed_0800_0c71 only; the return value is discarded there.
+s16 renamed_0800_08e9(s16 dx)
 {
 	u8  bLoc02 = 0x00;   /* [bp-0002h] outer row index (Reko bLoc04_166) */
 	u8  bLoc01 = 0x00;   /* [bp-0001h] inner col index (Reko bLoc03_167) */
@@ -284,10 +284,10 @@ s16 fn0800_08E9(s16 dx)
 		for (;;)
 		{
 			dh_156 = (u8)((u16)dx >> 8);
-			if (fn1E78_02FB() != 0x00)
+			if (renamed_1e78_02fb() != 0x00)
 			{
 				dh_156 = (u8)((u16)dx_134 >> 8);
-				if ((u8)fn1E78_030D(dx, wLoc04, (u16 *)&dx_134) == 0x1B)
+				if ((u8)renamed_1e78_030d(dx, wLoc04, (u16 *)&dx_134) == 0x1B)
 				{
 					LG8(0x58B3) = 0x01;
 					return dx_134;
@@ -325,11 +325,11 @@ s16 fn0800_08E9(s16 dx)
 	}
 }
 
-// 0800:09C2: u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)
+// 0800:09C2: u8 renamed_0800_09c2(u8 bArg02, u16 * bpOut, u16 * dsOut)
 // Select one of the 0x11 button bitmaps: compute its screen line, blit the
 // 5388h far-pointer slot, frame it, then conditionally repaint the HUD (04E3)
-// and show the mouse cursor (fn1206_0038).
-u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)
+// and show the mouse cursor (renamed_1206_0038).
+u8 renamed_0800_09c2(u8 bArg02, u16 * bpOut, u16 * dsOut)
 {
 	u16 wLoc02 = 0x0000;   /* [bp-0002h] computed screen line */
 	u16 bp_236 = 0x0000;   /* 0066/0038 BP-register output */
@@ -345,15 +345,15 @@ u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)
 	if (bArg02 <= 0x08)
 	{
 		wLoc02 = (u16)((u16)bArg02 * 0x0008 +
-		               (u16)(fn0800_04CC((u8)(bArg02 << 0x01)) + 0x0016));
+		               (u16)(renamed_0800_04cc((u8)(bArg02 << 0x01)) + 0x0016));
 	}
 	else if (bArg02 >= 0x09 && bArg02 <= 0x10)
 	{
 		wLoc02 = (u16)((u16)((u16)bArg02 - 0x0009) * 0x0008 +
-		               (u16)(fn0800_04CC((u8)(((u16)bArg02 - 0x0009) << 0x01)) + 0x0016));
+		               (u16)(renamed_0800_04cc((u8)(((u16)bArg02 - 0x0009) << 0x01)) + 0x0016));
 	}
 	bgi_get_text_cursor_attributes(0x0B);
-	(void)fn1206_0066(&bp_236, &ds_198);
+	(void)renamed_1206_0066(&bp_236, &ds_198);
 	/* les di,[di+5388h] with di = bArg02*4 */
 	blk = far_ptr(LG32((u16)(0x5388 + (u16)bArg02 * 0x0004)));
 	(void)bgi_signed_rectangle_intersect(0x00, blk, 0x0198, wLoc02);
@@ -362,23 +362,23 @@ u8 fn0800_09C2(u8 bArg02, u16 * bpOut, u16 * dsOut)
 	(void)bgi_clip_text_rectangle(0x01C4, (u16)(wLoc02 + 0x002C), 0x0197,
 	                  (u16)(wLoc02 - 0x0001));
 	/* asm 0A7C: jz 0A86h -- call 04E3 when 0CD4 returns 0 (bit set). */
-	if (fn1EDA_0CD4(&g_seg0800[0x0982], bArg02, &es_297) == 0x00)
-		(void)fn0800_04E3(&ds_198);
+	if (renamed_1eda_0cd4(&g_seg0800[0x0982], bArg02, &es_297) == 0x00)
+		(void)renamed_0800_04e3(&ds_198);
 	/* asm 0A93: jnz 0A9Bh -- call 0038 when 0CD4 returns 1 (bit clear).
 	 * NOTE: Reko wrote this site as `if (!...)` but the machine code is the
 	 * opposite branch from the 0CD4 call above; the .asm is followed here. */
-	if (fn1EDA_0CD4(&g_seg0800[0x09A2], bArg02, &es_298) != 0x00)
-		ax_235 = (u16)fn1206_0038(&ch_299, &dx_300, &bp_236, &ds_198);
+	if (renamed_1eda_0cd4(&g_seg0800[0x09A2], bArg02, &es_298) != 0x00)
+		ax_235 = (u16)renamed_1206_0038(&ch_299, &dx_300, &bp_236, &ds_198);
 	*bpOut = 0x0000;   /* saved-BP output; not meaningful here */
 	*dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */
 	return (u8)(ax_235 >> 8);
 }
 
-// 0800:0AA1: u16 fn0800_0AA1(u16 * dsOut)
+// 0800:0AA1: u16 renamed_0800_0aa1(u16 * dsOut)
 // Increment/consume one item of the record at [58DEh]:[58DCh]; while its length
 // byte is < 2, append a '0' digit record; then paint the two updated labels and
 // show the mouse cursor.
-u16 fn0800_0AA1(u16 * dsOut)
+u16 renamed_0800_0aa1(u16 * dsOut)
 {
 	u8  abBuf[0x100];   /* [bp-0104h] record scratch (Reko ptrLoc010A) */
 	u8 *bLoc04 = g_dgroup + 0xF6E0;
@@ -399,20 +399,20 @@ u16 fn0800_0AA1(u16 * dsOut)
 	u16 ds_210 = 0x0000;
 
 	engine_format_u32(LG32(0x58DC), abBuf);
-	(void)fn1EDA_0A39(0x02, bLoc04, abBuf, &dx_257);
+	(void)renamed_1eda_0a39(0x02, bLoc04, abBuf, &dx_257);
 	if (bLoc04[0] < 0x02)
 	{
-		fn1EDA_0A1F(&g_seg0800[0x0A9F], abBuf);       /* {1,"0"} */
-		fn1EDA_0AAC(bLoc04, abBuf);
-		(void)fn1EDA_0A39(0x02, bLoc04, abBuf, &dx_262);
+		renamed_1eda_0a1f(&g_seg0800[0x0A9F], abBuf);       /* {1,"0"} */
+		renamed_1eda_0aac(bLoc04, abBuf);
+		(void)renamed_1eda_0a39(0x02, bLoc04, abBuf, &dx_262);
 	}
-	(void)fn1206_0066(&bp_122, &ds_126);
-	fn0800_005A(0x019B, 0x025C, 0x0192, 0x024B);
+	(void)renamed_1206_0066(&bp_122, &ds_126);
+	renamed_0800_005a(0x019B, 0x025C, 0x0192, 0x024B);
 	bgi_get_text_cursor_attributes(0x08);
 	(void)bgi_get_char_size_info(bLoc04, 0x0196, 0x0253, &ch_258);
 	bgi_get_text_cursor_attributes(0x0A);
 	(void)bgi_get_char_size_info(bLoc04, 0x0197, 0x0254, &ch_259);
-	(void)fn1206_0038(&ch_260, &dx_261, &bp_206, &ds_210);
+	(void)renamed_1206_0038(&ch_260, &dx_261, &bp_206, &ds_210);
 	bgi_get_text_cursor_attributes(0x00);
 
 	*dsOut = 0x0000;   /* DGROUP selector dropped in the flat model */

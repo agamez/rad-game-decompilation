@@ -14,7 +14,7 @@
  *              by the file-static dos_console_output() below.  This is the
  *              only DOS/hardware deviation in the chunk.
  *
- * Free-list model: fn1EDA_0308 walks the far-heap free list headed at
+ * Free-list model: renamed_1eda_0308 walks the far-heap free list headed at
  * DGROUP:0x5366, relinks nodes and, at DGROUP:0x536E, far-calls the code
  * stub at 1EDA:00A9 (`xor ax,ax ; retf 2`).  As in chunk 2b, the flat port
  * models the far-heap node fetches with file-static far_heap_word /
@@ -22,7 +22,7 @@
  * the 1EDA:00A9 stub with the file-static heap_grow() helper.  See
  * docs/notes-1EDA.md ("## chunk 2a").
  *
- * Cross-part staging: fn1EDA_0308 consumes the DX half of fn1EDA_0491's
+ * Cross-part staging: renamed_1eda_0308 consumes the DX half of renamed_1eda_0491's
  * result through the extern `g_0491_dx` declared in src/seg1EDA_shared.h
  * (defined in src/seg1EDA_part2b.c).
  */
@@ -40,7 +40,7 @@
  * The original addresses nodes as segment:offset pairs.  The flat port keeps
  * the literal 16-bit segment/offset values but cannot map them onto a real
  * DOS heap; these accessors preserve the original read/modify shape exactly
- * as chunk 1 (fn1EDA_00FC) and chunk 2b (fn1EDA_03D3/0432) did. */
+ * as chunk 1 (renamed_1eda_00fc) and chunk 2b (renamed_1eda_03d3/0432) did. */
 
 static u16 far_heap_word(u16 seg, u16 off)
 {
@@ -53,7 +53,7 @@ static void far_heap_setword(u16 seg, u16 off, u16 val)
 }
 
 /* The far call at 1EDA:039C / 1EDA:03BB goes through the DGROUP far code
- * pointer [536Eh]/[5370h].  fn1EDA_0000 installs 1EDA:00A9 there and every
+ * pointer [536Eh]/[5370h].  renamed_1eda_0000 installs 1EDA:00A9 there and every
  * recovered flow leaves it in place; the shipped stub is
  * `xor ax,ax ; retf 2`, i.e. it consumes one word argument and returns 0.
  * (seg1AB8 temporarily installs 1AB8:050B around its own direct helper call
@@ -74,7 +74,7 @@ static void dos_console_output(u8 al)
 }
 
 /* 1EDA:01E7 */
-void fn1EDA_01E7(u8 al)
+void renamed_1eda_01e7(u8 al)
 {
 	/* mov dl,al ; mov ah,6h ; int 21h -- direct console output */
 	dos_console_output(al);
@@ -83,7 +83,7 @@ void fn1EDA_01E7(u8 al)
 /* 1EDA:023F -- allocate from the far heap; on success returns DX:AX = block
  * (segment:offset).  Only the word at [bp+6h] is a real argument (the frozen
  * wArg04); wArg00/wArg02 are the far return-address words that the fatal-error
- * dispatcher fn1EDA_00E2 pops.  The size is handed to fn1EDA_0308 and its
+ * dispatcher renamed_1eda_00e2 pops.  The size is handed to renamed_1eda_0308 and its
  * carry flag decides the borrow/error path. */
 u32 fn1EDA_023F(u16 wArg00, u16 wArg02, u16 wArg04, u16 * dsOut)
 {
@@ -93,14 +93,14 @@ u32 fn1EDA_023F(u16 wArg00, u16 wArg02, u16 wArg04, u16 * dsOut)
 	/* mov ax,[bp+6h] ; call 0308h -- the size is the word pushed by the
 	 * caller, i.e. the FIRST flat argument (wArg00; wArg02/wArg04 model the
 	 * far-return words of the original frame). */
-	if (fn1EDA_0308(wArg00, &ax_11, &dx_15))
+	if (renamed_1eda_0308(wArg00, &ax_11, &dx_15))
 	{
 		/* 1EDA:024E: mov ax,0CBh ; jmp 00E2h */
 		u16 cx_57;
 		u16 dx_30;
 		u16 bx_58;
 		void *ds_29 = NULL;
-		u16 ax_26 = fn1EDA_00E2(0xCB, wArg00, wArg02,
+		u16 ax_26 = renamed_1eda_00e2(0xCB, wArg00, wArg02,
 		                        &cx_57, &dx_30, &bx_58, &ds_29);
 
 		*dsOut = 0x0000;            /* DGROUP selector dropped in flat model */
@@ -115,8 +115,8 @@ u32 fn1EDA_023F(u16 wArg00, u16 wArg02, u16 wArg04, u16 * dsOut)
 /* 1EDA:0254 -- free a far-heap block.  The real arguments are wArg04 (the
  * requested size passed in AX) and ptrArg06 (the 16:16 block address); the
  * frozen wArg00/wArg02 are the far return-address words used only by the
- * fatal-error tail call.  Validation is fn1EDA_03D3's carry flag. */
-s16 fn1EDA_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06,
+ * fatal-error tail call.  Validation is renamed_1eda_03d3's carry flag. */
+s16 renamed_1eda_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06,
                 u16 * dxOut, u16 * dsOut)
 {
 	u16 ax_16;
@@ -124,7 +124,7 @@ s16 fn1EDA_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06,
 
 	/* mov ax,[bp+6h] ; les cx,[bp+8h] ; mov bx,es ; call 03D3h --
 	 * size = wArg00, block far pointer = (wArg02 offset, wArg04 segment). */
-	if (fn1EDA_03D3(FAR_PTR(wArg04, wArg02), wArg00,
+	if (renamed_1eda_03d3(FAR_PTR(wArg04, wArg02), wArg00,
 	                &ax_16, (void *)&dx_20))
 	{
 		/* 1EDA:0268: mov ax,0CCh ; jmp 00E2h */
@@ -132,7 +132,7 @@ s16 fn1EDA_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06,
 		u16 dx_36;
 		u16 bx_67;
 		void *ds_35 = NULL;
-		u16 ax_32 = fn1EDA_00E2(0xCC, wArg00, wArg02,
+		u16 ax_32 = renamed_1eda_00e2(0xCC, wArg00, wArg02,
 		                        &cx_66, &dx_36, &bx_67, &ds_35);
 
 		*dxOut = dx_36;
@@ -152,10 +152,10 @@ s16 fn1EDA_0254(u16 wArg00, u16 wArg02, u16 wArg04, u8 * ptrArg06,
  * far pointer (offset at +0, segment at +2) followed by a 32-bit paragraph
  * size (low at +4, high at +6).  The walk stops when the next node's segment
  * equals the high-water segment [5360]. */
-u8 fn1EDA_0308(u16 ax, u16 * axOut, u16 * dxOut)
+u8 renamed_1eda_0308(u16 ax, u16 * axOut, u16 * dxOut)
 {
 	u16 ax_12 = ax;                 /* requested size (latched at 030C) */
-	u16 dx = 0x0000;                /* DX register; set by fn1EDA_0491 */
+	u16 dx = 0x0000;                /* DX register; set by renamed_1eda_0491 */
 	u16 di = 0x0000;
 	u16 es = 0x0000;
 	u16 cx = 0x0000;
@@ -171,7 +171,7 @@ u8 fn1EDA_0308(u16 ax, u16 * axOut, u16 * dxOut)
 
 l1EDA_030F:
 	/* call 0491h : AX = (size + 7) & 8; DX half latched in g_0491_dx */
-	ax_12 = fn1EDA_0491(ax_12);
+	ax_12 = renamed_1eda_0491(ax_12);
 	dx = g_0491_dx;
 
 	/* mov di,5366h ; mov cx,ds ; mov es,cx */

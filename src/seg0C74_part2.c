@@ -52,11 +52,11 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 	u16 wLoc84;             /* [bp+0FF7Ch] 023F block segment                */
 	u8  bLoc03;             /* [bp-0001h] resource index 1..1Dh              */
 	u16 dx_719;             /* engine_probe_file dxOut                             */
-	u16 dx_721;             /* fn1E78_016B dxOut                             */
-	u16 cx_85;              /* fn1EDA_08CE cxOut                             */
-	u16 dx_720;             /* fn1EDA_0FD0 dxOut                             */
+	u16 dx_721;             /* renamed_1e78_016b dxOut                             */
+	u16 cx_85;              /* renamed_1eda_08ce cxOut                             */
+	u16 dx_720;             /* renamed_1eda_0fd0 dxOut                             */
 	u16 ds_552 = 0x0000;    /* dropped DGROUP selector out of 1EDA calls     */
-	u16 dx_724;             /* fn1EDA_0254 dxOut                             */
+	u16 dx_724;             /* renamed_1eda_0254 dxOut                             */
 
 	/* mov di,3B2h ; push cs ; push di ; push cs ; call 0000h */
 	if (engine_probe_file(&g_seg0C74[0x03B2], &dx_719) == 0x00)
@@ -64,19 +64,19 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 		bgi_shutdown_video_driver();
 		bgi_swap_graphics_gateway();
 		/* push [0B8ACh] ; call far 1E78h:016Bh */
-		(void)fn1E78_016B(LG16(0xB8AC), &dx_721);
-		/* fn1EDA_08CE(0, cs:03BA, ds:0B9BC, &cx_85) then the paired
-		 * fn1EDA_0848(0, cx_85, ds:0B9BC) append-CRLF (stack reuse). */
-		(void)fn1EDA_08CE(0x0000, &g_seg0C74[0x03BA],
+		(void)renamed_1e78_016b(LG16(0xB8AC), &dx_721);
+		/* renamed_1eda_08ce(0, cs:03BA, ds:0B9BC, &cx_85) then the paired
+		 * renamed_1eda_0848(0, cx_85, ds:0B9BC) append-CRLF (stack reuse). */
+		(void)renamed_1eda_08ce(0x0000, &g_seg0C74[0x03BA],
 		                  &g_dgroup[0xB9BC], &cx_85);
-		(void)fn1EDA_0848(0x00, cx_85, &g_dgroup[0xB9BC]);
+		(void)renamed_1eda_0848(0x00, cx_85, &g_dgroup[0xB9BC]);
 		/* xor ax,ax ; call far 1EDAh:00E9h */
 		(void)fn1EDA_00E9(0x0000);
 	}
 
-	/* fn1EDA_0FA2(cs:03B2, ss:bp-0x82) ; fn1EDA_0FD0([4D0Eh], ss:bp-0x82) */
-	fn1EDA_0FA2(&g_seg0C74[0x03B2], abLoc82);
-	(void)fn1EDA_0FD0(LG16(0x4D0E), abLoc82, &dx_720);
+	/* renamed_1eda_0fa2(cs:03B2, ss:bp-0x82) ; renamed_1eda_0fd0([4D0Eh], ss:bp-0x82) */
+	renamed_1eda_0fa2(&g_seg0C74[0x03B2], abLoc82);
+	(void)renamed_1eda_0fd0(LG16(0x4D0E), abLoc82, &dx_720);
 
 	/* push 0 ; push 0 ; push 2Bh ; push 18h ; call 13A3h */
 	wLoc88 = bgi_clamp_rectangle_coords(0x0018, 0x002B, 0x0000, 0x0000);
@@ -102,22 +102,22 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 		if (b >= 0x01 && b <= 0x04)
 		{
 			/* push [4D0Eh] ; call 023Fh ; table[58E4h + b*4] = DX:AX;
-			 * fn1EDA_10BB(NULL, 1, ss:bp-0x82) (block data ptr dropped). */
+			 * renamed_1eda_10bb(NULL, 1, ss:bp-0x82) (block data ptr dropped). */
 			u32 blk = fn1EDA_023F(LG16(0x4D0E), 0x0000, 0x0000, &ds_552);
 			u16 idx = (u16)b;
 			LG16((u16)(0x58E4 + (u16)(idx * 4))) = (u16)blk;
 			LG16((u16)(0x58E6 + (u16)(idx * 4))) = (u16)(blk >> 16);
-			(void)fn1EDA_10BB((u8 *)0, 0x01,
+			(void)renamed_1eda_10bb((u8 *)0, 0x01,
 			                  (u8 *)far_ptr(LG32((u16)(0x58E4 + (u16)(b * 4)))), abLoc82);
 		}
 		else if (b >= 0x05 && b <= 0x19)
 		{
-			/* fn1EDA_10BB(NULL, 1, buf); bgi_signed_rectangle_intersect(0, scratch, 0, 0);
+			/* renamed_1eda_10bb(NULL, 1, buf); bgi_signed_rectangle_intersect(0, scratch, 0, 0);
 			 * then allocate wLoc88 bytes -> table[5904h + (b-4)*4] and
 			 * bgi_draw_clip_rectangle(block, 18h, 2Bh, 0, 0). */
 			u8 *pScratch = (u8 *)far_ptr(FAR_PTR(wLoc84, wLoc86));
 
-			(void)fn1EDA_10BB((u8 *)0, 0x01, pScratch, abLoc82);
+			(void)renamed_1eda_10bb((u8 *)0, 0x01, pScratch, abLoc82);
 			bgi_signed_rectangle_intersect(0x00, pScratch, 0x0000, 0x0000);
 			{
 				u32 blk = fn1EDA_023F(wLoc88, 0x0000, 0x0000, &ds_552);
@@ -133,12 +133,12 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 		else if (b >= 0x1A && b <= 0x1D)
 		{
 			/* push [4D0Eh] ; call 023Fh ; table[58F4h + (b-19h)*4] = DX:AX;
-			 * fn1EDA_10BB(NULL, 1, buf). */
+			 * renamed_1eda_10bb(NULL, 1, buf). */
 			u32 blk = fn1EDA_023F(LG16(0x4D0E), 0x0000, 0x0000, &ds_552);
 			u16 idx = (u16)(b - 0x19);
 			LG16((u16)(0x58F4 + (u16)(idx * 4))) = (u16)blk;
 			LG16((u16)(0x58F6 + (u16)(idx * 4))) = (u16)(blk >> 16);
-			(void)fn1EDA_10BB((u8 *)0, 0x01,
+			(void)renamed_1eda_10bb((u8 *)0, 0x01,
 			                  (u8 *)far_ptr(LG32((u16)(0x58F4 + (u16)((b - 0x19) * 4)))), abLoc82);
 		}
 
@@ -153,11 +153,11 @@ u16 engine_load_resources /* was fn0C74_03D4 */(void)
 	/* push [bp-0FF7Ch](seg) ; push [bp-0FF7Ah](off) ; push [4D0Eh] ;
 	 * call 0254h -> free the 03FE scratch block.  AL is passed on to 1051h. */
 	{
-		s16 ax_0254 = fn1EDA_0254(LG16(0x4D0E), wLoc86, wLoc84, 0,
+		s16 ax_0254 = renamed_1eda_0254(LG16(0x4D0E), wLoc86, wLoc84, 0,
 		                          &dx_724, &ds_552);
 
 		/* lea di,[bp+0FF7Eh] ; push ss ; push di ; call 1051h -- close. */
-		(void)fn1EDA_1051((u8)ax_0254, abLoc82);
+		(void)renamed_1eda_1051((u8)ax_0254, abLoc82);
 	}
 
 	return 0x0000;   /* original returns the dropped DGROUP selector */
@@ -175,7 +175,7 @@ u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 	u16 wLoc04 = 0x0000;    /* [bp-0004h] 023F block offset                   */
 	u16 wLoc02 = 0x0000;    /* [bp-0002h] 023F block segment                  */
 	u16 ds_109 = 0x0000;    /* dropped DGROUP selector out of 1EDA calls      */
-	u16 dx_373;             /* fn1EDA_0254 dxOut                              */
+	u16 dx_373;             /* renamed_1eda_0254 dxOut                              */
 	u8  dl_370;
 	u8  dl_371;
 
@@ -235,7 +235,7 @@ u8 * engine_scroll_blit /* was fn0C74_05B8 */(u16 * dsOut)
 	}
 
 	/* push [bp-2h] ; push [bp-4h] ; push [bp-6h] ; call 0254h */
-	(void)fn1EDA_0254(wLoc06, wLoc04, wLoc02, 0,
+	(void)renamed_1eda_0254(wLoc06, wLoc04, wLoc02, 0,
 	                  &dx_373, &ds_109);
 
 l05B8_06B5:
@@ -333,8 +333,8 @@ u8 * engine_scale_and_tick_clock /* was fn0C74_070D */(u16 wArg02, u16 wArg04, v
 u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 wArg08, u16 wArg0A)
 {
 	u8  abFrame[0x30EE];   /* [bp-0x30EE .. bp-1] whole local frame image */
-	u16 dx_rt;             /* fn1EDA_0D80 dxOut scratch                   */
-	u8 *es_849 = NULL;     /* fn1EDA_0CD4 esOut                           */
+	u16 dx_rt;             /* renamed_1eda_0d80 dxOut scratch                   */
+	u8 *es_849 = NULL;     /* renamed_1eda_0cd4 esOut                           */
 	u8  dl_scratch;        /* bgi_draw_line dlOut scratch                   */
 
 #define F8(mag)    (*(u8  *)&abFrame[(0x30EE - (mag))])
@@ -366,10 +366,10 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 		for (;;)
 		{
 			/* wLoc0E = rand(wArg06 - wArg0A + 1) + wArg0A */
-			F16(0x0E) = (u16)(fn1EDA_0D80((u16)(wArg06 - wArg0A + 0x0001),
+			F16(0x0E) = (u16)(renamed_1eda_0d80((u16)(wArg06 - wArg0A + 0x0001),
 			                              &dx_rt) + wArg0A);
 			/* wLoc10 = rand(wArg04 - wArg08 + 1) + wArg08 */
-			F16(0x10) = (u16)(fn1EDA_0D80((u16)(wArg04 - wArg08 + 0x0001),
+			F16(0x10) = (u16)(renamed_1eda_0d80((u16)(wArg04 - wArg08 + 0x0001),
 			                              &dx_rt) + wArg08);
 
 			/* bgi_draw_line(wLoc10, wLoc0E) -> AL stored at bLoc30E7 */
@@ -378,29 +378,29 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 			/* asm 0802h: call 0CD4h ; jz 081Ah -- the jz (table bit
 			 * CLEAR, i.e. the color is destructible) takes the 081Ah
 			 * erase-and-spawn-particle path; the bit-SET colors
-			 * {0,5,Dh} take the 0918h star-nudge path.  fn1EDA_0CD4
+			 * {0,5,Dh} take the 0918h star-nudge path.  renamed_1eda_0cd4
 			 * returns nonzero exactly when the bit is CLEAR, so the
 			 * nonzero case must select 081Ah.  (The two paths were
 			 * swapped here once, which left every bomb blast unable
 			 * to destroy anything but already-empty pixels -- the
 			 * mission-002 AUTO replay divergence.) */
-			if (fn1EDA_0CD4(&g_seg0C74[0x074B], F8(0x30E7),
+			if (renamed_1eda_0cd4(&g_seg0C74[0x074B], F8(0x30E7),
 			                &es_849) != 0x00)
 			{
 				/* Destructible color (asm 081Ah): erase the pixel,
 				 * then with probability 1/3 spawn a falling
 				 * debris particle of the same color nearby. */
 				bgi_get_line_attributes(0x00, F16(0x10), F16(0x0E));
-				if (fn1EDA_0D80(0x0003, &dx_rt) == 0x0001)
+				if (renamed_1eda_0d80(0x0003, &dx_rt) == 0x0001)
 				{
 					if (LG8(0x58B0) != 0x00)
-						audio_write_opl3_register((u16)fn1EDA_0D80(0x0064, &dx_rt));
+						audio_write_opl3_register((u16)renamed_1eda_0d80(0x0064, &dx_rt));
 
-					/* fn1E78_029C((s16)LG16(0x58E6) / 4) */
-					(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0004),
+					/* renamed_1e78_029c((s16)LG16(0x58E6) / 4) */
+					(void)renamed_1e78_029c((u16)((s16)LG16(0x58E6) / 0x0004),
 					                  &dx_rt);
 
-					F16(0x0E) = (u16)(fn1EDA_0D80(0x012C, &dx_rt) +
+					F16(0x0E) = (u16)(renamed_1eda_0d80(0x012C, &dx_rt) +
 					                  F16(0x30EA) - 0x0096);
 					if (F16(0x0E) < 0x0001)
 						F16(0x0E) = 0x0001;
@@ -408,7 +408,7 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 						F16(0x0E) = 0x027E;
 
 					F16(0x10) = (u16)(F16(0x30EC) -
-					                  (fn1EDA_0D80(0x00C8, &dx_rt) +
+					                  (renamed_1eda_0d80(0x00C8, &dx_rt) +
 					                   0x0016));
 					if (F16(0x10) < 0x0001)
 						F16(0x10) = 0x0001;
@@ -439,14 +439,14 @@ u16 engine_scatter_starfield /* was fn0C74_076B */(u16 wArg04, u16 wArg06, u16 w
 				{
 					u16 idx;
 
-					F16(0x08) = (u16)(fn1EDA_0D80(F16(0x06),
+					F16(0x08) = (u16)(renamed_1eda_0d80(F16(0x06),
 					                              &dx_rt) + 0x0001);
 					idx = F16(0x08);
 					if (AY_ARR(idx) != 0x01F4)
 					{
 						/* draw at the stored point (colour 0) */
 						bgi_get_line_attributes(0x00, AY_ARR(idx), AX_ARR(idx));
-						F16(0x0E) = fn1EDA_0D80(0x0014, &dx_rt);
+						F16(0x0E) = renamed_1eda_0d80(0x0014, &dx_rt);
 						if (F16(0x0E) == 0x0001 ||
 						    bgi_draw_line((u16)(AY_ARR(idx) + 0x0001),
 						                AX_ARR(idx),

@@ -158,7 +158,7 @@ u8 engine_column_cells_down /* was fn0C74_4DAC */(u16 *bpOut, u16 *dsOut)
 
 		/* l0C74_4F75: push [bp-0Ah] ; push [bp-0Ch] ; push [bp-8h] ;
 		 *             call far 1EDAh:0254h */
-		(void)fn1EDA_0254(wLoc08, (u16)(blk & 0xFFFFu), (u16)(blk >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(wLoc08, (u16)(blk & 0xFFFFu), (u16)(blk >> 16), 0, &dxTmp, &dsTmp);
 
 		/* 4F80: mov word ptr [bp-6h],0FFEAh */
 		wLoc06 = 0xFFEA;
@@ -341,7 +341,7 @@ u8 engine_column_cells_up /* was fn0C74_4FD7 */(u16 *bpOut, u16 *dsOut)
 
 		/* l0C74_5159: push [bp-8h] ; push [bp-0Ah] ; push [bp-6h] ;
 		 *             call far 1EDAh:0254h */
-		(void)fn1EDA_0254(wLoc06, (u16)(blk & 0xFFFFu), (u16)(blk >> 16), 0, &dxTmp, &dsTmp);
+		(void)renamed_1eda_0254(wLoc06, (u16)(blk & 0xFFFFu), (u16)(blk >> 16), 0, &dxTmp, &dsTmp);
 
 		/* 5164: mov byte ptr [bp-3h],2Ch */
 		bLoc03 = 0x2C;

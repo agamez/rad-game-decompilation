@@ -13,7 +13,7 @@
  *   instruction, no __cli/__sti, no int 23h and no raw IVT dispatch occur in
  *   0A35..0E2E.  Every hardware-touching operation is reached indirectly
  *   through already-ported callees: engine_scale_and_tick_clock -> engine_clock_tick and
- *   audio_write_opl3_register/033B (sound, seg11C8.c); fn1E78_029C (keyboard/pacing,
+ *   audio_write_opl3_register/033B (sound, seg11C8.c); renamed_1e78_029c (keyboard/pacing,
  *   seg1E78.c); fn1AB8_* (video driver); fn1EDA_023F/0254 (far heap).  The
  *   PC-speaker / AdLib ports attributed to 0E2E by analysis/summary/
  *   functions.tsv are transitive (0E2E itself issues none).
@@ -62,7 +62,7 @@
 u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 {
 	u8  abFrame[0x30EC];   /* [bp-0x30EC .. bp-1] whole local frame image */
-	u16 dx_a, dx_b, dx_c;  /* fn1EDA_0D80 dxOut scratch */
+	u16 dx_a, dx_b, dx_c;  /* renamed_1eda_0d80 dxOut scratch */
 	u8  dl_96;             /* bgi_draw_line dlOut scratch   */
 
 #define F8(mag)    (*(u8  *)&abFrame[(0x30EC - (mag))])
@@ -93,12 +93,12 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 		for (;;)
 		{
 			/* 0A8F: wLoc0E = rand(2Dh) + (58B4h+15h) - 15h, then clamp. */
-			F16(0x0E) = (u16)(fn1EDA_0D80(0x002D, &dx_a) +
+			F16(0x0E) = (u16)(renamed_1eda_0d80(0x002D, &dx_a) +
 			                  F16(0x0A) - 0x0015);
 			if ((u16)(F16(0x0A) + 0x0009) < F16(0x0E))
 				F16(0x0E) = (u16)(F16(0x0E) - 0x0001);
 			/* wLoc10 = rand(2*(58BA-58B8)/2 + 2) + (58B8h+...)-... */
-			F16(0x10) = (u16)(fn1EDA_0D80(
+			F16(0x10) = (u16)(renamed_1eda_0d80(
 			                     (u16)((u16)(F16(0x30E8) << 1) + 0x0002),
 			                     &dx_b) +
 			                  F16(0x0C) - F16(0x30E8));
@@ -110,16 +110,16 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 			{
 				/* 0ADE: free point -> draw at (wLoc10, wLoc0E) colour 0. */
 				(void)bgi_get_line_attributes(0x00, F16(0x10), F16(0x0E));
-				if (fn1EDA_0D80(0x0003, &dx_c) != 0x0001)
+				if (renamed_1eda_0d80(0x0003, &dx_c) != 0x0001)
 					goto l0C74_0C97;
 
 				if (LG8(0x58B0) != 0x00)
-					audio_write_opl3_register((u16)fn1EDA_0D80(0x0064, &dx_a));
+					audio_write_opl3_register((u16)renamed_1eda_0d80(0x0064, &dx_a));
 
-				(void)fn1E78_029C((u16)((s16)LG16(0x58E6) / 0x0004),
+				(void)renamed_1e78_029c((u16)((s16)LG16(0x58E6) / 0x0004),
 				                  &dx_a);
 
-				F16(0x0E) = (u16)(fn1EDA_0D80(0x012C, &dx_b) +
+				F16(0x0E) = (u16)(renamed_1eda_0d80(0x012C, &dx_b) +
 				                  F16(0x0A) - 0x0096);
 				if (F16(0x0E) < 0x0001)
 					F16(0x0E) = 0x0001;
@@ -127,7 +127,7 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 					F16(0x0E) = 0x027E;
 
 				F16(0x10) = (u16)(F16(0x0C) -
-				                  (fn1EDA_0D80(0x00C8, &dx_c) + 0x0016));
+				                  (renamed_1eda_0d80(0x00C8, &dx_c) + 0x0016));
 				if (F16(0x10) < 0x0001)
 					F16(0x10) = 0x0001;
 				if (F16(0x10) > 0x0177)
@@ -152,7 +152,7 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 				/* 0BDA: occupied -> nudge a stored point. */
 				if (F16(0x06) != 0x0000)
 				{
-					F16(0x08) = (u16)(fn1EDA_0D80(F16(0x06), &dx_a) +
+					F16(0x08) = (u16)(renamed_1eda_0d80(F16(0x06), &dx_a) +
 					                  0x0001);
 					if (AY_ARR(F16(0x08)) != 0x01F4)
 					{
@@ -160,7 +160,7 @@ u16 engine_scatter_muck /* was fn0C74_0A35 */(void)
 						(void)bgi_get_line_attributes(0x00,
 						                  AY_ARR(F16(0x08)),
 						                  AX_ARR(F16(0x08)));
-						F16(0x0E) = fn1EDA_0D80(0x0014, &dx_b);
+						F16(0x0E) = renamed_1eda_0d80(0x0014, &dx_b);
 						if (F16(0x0E) == 0x0001 ||
 						    bgi_draw_line(
 						        (u16)(AY_ARR(F16(0x08)) + 0x0001),
@@ -378,8 +378,8 @@ u8 * engine_draw_status_sprites /* was fn0C74_0E2E */(u16 wArg02, void * dsOut)
 {
 	u16 wL4;                 /* [bp-4] first  bgi_clamp_rectangle_coords result (blk4 size) */
 	u16 wL6;                 /* [bp-6] second bgi_clamp_rectangle_coords result (blk6 size) */
-	u16 dx_389;              /* fn1EDA_0254 dxOut */
-	u16 dx_390;              /* fn1EDA_0254 dxOut */
+	u16 dx_389;              /* renamed_1eda_0254 dxOut */
+	u16 dx_390;              /* renamed_1eda_0254 dxOut */
 	u16 ds_314 = 0x0000;     /* fn1EDA_023F/0254 dsOut (dropped selector) */
 	u32 blk6;                /* DX:AX of 023F(wL6) */
 	u32 blk4;                /* DX:AX of 023F(wL4) */
@@ -436,10 +436,10 @@ u8 * engine_draw_status_sprites /* was fn0C74_0E2E */(u16 wArg02, void * dsOut)
 	}
 
 	/* push [bp-8h] ; push [bp-0Ah] ; push [bp-6h] ; call 0254h */
-	fn1EDA_0254(wL6, (u16)((blk6) & 0xFFFFu), (u16)((blk6) >> 16), 0,
+	renamed_1eda_0254(wL6, (u16)((blk6) & 0xFFFFu), (u16)((blk6) >> 16), 0,
 	            &dx_389, &ds_314);
 	/* push [bp-0Ch] ; push [bp-0Eh] ; push [bp-4h] ; call 0254h */
-	fn1EDA_0254(wL4, (u16)((blk4) & 0xFFFFu), (u16)((blk4) >> 16), 0,
+	renamed_1eda_0254(wL4, (u16)((blk4) & 0xFFFFu), (u16)((blk4) >> 16), 0,
 	            &dx_390, &ds_314);
 
 	*(u16 *)dsOut = 0x0000;

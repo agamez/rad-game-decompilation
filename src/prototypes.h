@@ -8,20 +8,20 @@
  * Functions with exotic Reko signature types are not declared here;
  * see analysis/summary/complex_sigs.txt for the manual worklist. */
 
-extern void fn0800_3BF2(void * ptrArg04);
-extern void fn0800_4255(void * es);
+extern void renamed_0800_3bf2(void * ptrArg04);
+extern void renamed_0800_4255(void * es);
 extern void audio_write_adlib_address(u8 bArg02);
 extern void audio_write_adlib_data(u8 bArg02);
 extern void audio_sweep_adlib_ports(void);
 extern void audio_enable_opl3(void);
 extern void audio_write_adlib_register(u8 bArg02, u8 bArg04);
 extern void audio_configure_opl3_mixer(void);
-extern u8 fn1206_0000(void);
-extern u16 fn1206_000D(u16 * siOut, void * esOut, void * dsOut);
-extern u16 fn1206_00D1(void * ds, u16 * siOut, void * esOut, void * dsOut);
-extern u16 fn1206_012D(void * ds, void * dsOut);
-extern u8 fn1229_0735(s16 * dxOut, void * bpOut, void * dsOut);
-extern void fn1229_0CCE(void);
+extern u8 renamed_1206_0000(void);
+extern u16 renamed_1206_000d(u16 * siOut, void * esOut, void * dsOut);
+extern u16 renamed_1206_00d1(void * ds, u16 * siOut, void * esOut, void * dsOut);
+extern u16 renamed_1206_012d(void * ds, void * dsOut);
+extern u8 renamed_1229_0735(s16 * dxOut, void * bpOut, void * dsOut);
+extern void renamed_1229_0cce(void);
 extern u8 vgaerr_show_cursor(u16 * dxOut, u16 * bpOut, void * dsOut) /* was fn133F_0137 */;
 extern u8 vgaerr_hide_cursor(s16 * dxOut, u16 * bpOut, void * dsOut) /* was fn133F_0141 */;
 extern u16 stub_get_video_info(void * dsOut) /* was fn13C1_0000 */;
@@ -41,13 +41,13 @@ extern u8 bgi_detect_vga_adapter(void);
 extern u16 bgi_detect_video_adapter(void);
 extern void dos_get_system_time(u16 * ptrArg04, u16 * ptrArg08, u16 * ptrArg0C, void * ptrArg10) /* was fn1E5F_00A2 */;
 extern void dos_get_interrupt_vector(u32 * ptrArg04, u8 bArg08) /* was fn1E5F_0159 */;
-extern void fn1E78_01C0(void);
-extern u16 fn1E78_02BF(u8 * es_di, u8 al, u16 cx);
-extern u8 fn1E78_02F4(void);
-extern void fn1E78_032F(void * ptrArg04);
-extern void fn1E78_04F6(void);
-extern void fn1EDA_01B3(u8 al);
-extern void fn1EDA_01D4(u8 al);
-extern void fn1EDA_01DF(u8 al);
+extern void renamed_1e78_01c0(void);
+extern u16 renamed_1e78_02bf(u8 * es_di, u8 al, u16 cx);
+extern u8 renamed_1e78_02f4(void);
+extern void renamed_1e78_032f(void * ptrArg04);
+extern void renamed_1e78_04f6(void);
+extern void renamed_1eda_01b3(u8 al);
+extern void renamed_1eda_01d4(u8 al);
+extern void renamed_1eda_01df(u8 al);
 
 #endif /* RADPROTOTYPES_H */

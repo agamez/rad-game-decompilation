@@ -135,9 +135,9 @@ void * config_mouse_speed_threshold(u16 wArg06) /* was fn13C8_0111 */
     void *ds_41 = 0;
 
     r.ax = 0x0013;      /* INT 33h function 19h: speed threshold */
-    /* fn1EDA_04B7's AX result is stored to frame DX (the original
+    /* renamed_1eda_04b7's AX result is stored to frame DX (the original
      * `mov [bp-0Eh],ax`), so the prototype returns u16. */
-    r.dx = fn1EDA_04B7(wArg06, (s16)wArg06, &g_seg1EDA[0x0109], wLoc1A, psegLoc18);
+    r.dx = renamed_1eda_04b7(wArg06, (s16)wArg06, &g_seg1EDA[0x0109], wLoc1A, psegLoc18);
     dos_interrupt_trampoline((u8 *)&r, 0x33);
     ds_41 = (void *)(uintptr_t)r.ds;   /* Reko-modelled DS return (flat: 0) */
     return ds_41;

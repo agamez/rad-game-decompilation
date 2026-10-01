@@ -39,37 +39,37 @@
 #include "seg1AB8.h"
 #include "seg1EDA.h"
 
-// 1229:09F9: void fn1229_09F9(u8 bArg02, u8 * ptrArg04)
-void fn1229_09F9(u8 bArg02, u8 * ptrArg04)
+// 1229:09F9: void renamed_1229_09f9(u8 bArg02, u8 * ptrArg04)
+void renamed_1229_09f9(u8 bArg02, u8 * ptrArg04)
 {
 	u8  buf200[0x100];   /* [bp-0200h] prepend staging (lea di,[bp+0FE00h]) */
-	u8  buf100[0x100];   /* [bp-0100h] fn1EDA_0F26 number output */
+	u8  buf100[0x100];   /* [bp-0100h] renamed_1eda_0f26 number output */
 	u16 dx_262;
 	u16 dx_263;
 	u16 dx_264;
 
-	/* fn1EDA_0F26(0FFh, ss:bp-0100h, 0, 32-bit bArg02) */
-	fn1EDA_0F26(0xFF, buf100, 0x00, (u32)bArg02);
+	/* renamed_1eda_0f26(0FFh, ss:bp-0100h, 0, 32-bit bArg02) */
+	renamed_1eda_0f26(0xFF, buf100, 0x00, (u32)bArg02);
 	if (bArg02 < 0x0A)
 	{
 		/* l1229_0A1C: prepend cs:09F7 ({1,"0"}) to buf100 */
-		fn1EDA_0A1F(&g_seg1229[0x09F7], buf200);
-		fn1EDA_0AAC(buf100, buf200);
-		fn1EDA_0A39(0xFF, buf100, buf200, &dx_262);
+		renamed_1eda_0a1f(&g_seg1229[0x09F7], buf200);
+		renamed_1eda_0aac(buf100, buf200);
+		renamed_1eda_0a39(0xFF, buf100, buf200, &dx_262);
 	}
 	if (bArg02 < 100)
 	{
 		/* l1229_0A4B: second prepend; zero-pad to 3 digits */
-		fn1EDA_0A1F(&g_seg1229[0x09F7], buf200);
-		fn1EDA_0AAC(buf100, buf200);
-		fn1EDA_0A39(0xFF, buf100, buf200, &dx_263);
+		renamed_1eda_0a1f(&g_seg1229[0x09F7], buf200);
+		renamed_1eda_0aac(buf100, buf200);
+		renamed_1eda_0a39(0xFF, buf100, buf200, &dx_263);
 	}
 	/* l1229_0A74: copy buf100 into the caller's staged far pointer */
-	fn1EDA_0A39(0xFF, ptrArg04, buf100, &dx_264);
+	renamed_1eda_0a39(0xFF, ptrArg04, buf100, &dx_264);
 }
 
-// 1229:0AA8: u16 fn1229_0AA8(void)
-u16 fn1229_0AA8(void)
+// 1229:0AA8: u16 renamed_1229_0aa8(void)
+u16 renamed_1229_0aa8(void)
 {
 	u8  buf_202[0x100];   /* [bp-0202h] accumulated menu line (staged dest) */
 	u8  buf_302[0x100];   /* [bp-0302h] 09F9 scratch (lea di,[bp+0FCFEh]) */
@@ -81,7 +81,7 @@ u16 fn1229_0AA8(void)
 	u8  bLoc03_624;       /* [bp-0001h] column (0..1Ch) */
 	u8  ch_725;           /* bgi_get_char_size_info chOut */
 	u16 ds_227;           /* bgi_load_video_driver_file dsOut (dropped DGROUP selector) */
-	u16 dx_724;           /* fn1EDA_0A39 dxOut */
+	u16 dx_724;           /* renamed_1eda_0a39 dxOut */
 
 	bgi_draw_text_rectangle(0x01, 0x0176, 0x027E, 0x01, 0x01);
 	bgi_update_text_window_position();
@@ -124,36 +124,36 @@ u16 fn1229_0AA8(void)
 	/* 09F9(formatted byte) then 0AAC appends into buf_202 (the staged dest).
 	 * Literals: cs:0A8Bh={1," "}, cs:0A8Dh={5,"TIME:"}, cs:0A93h={6," PUSH:"},
 	 * cs:0A9Ah={6," BLOW:"}, cs:0AA1h={6," PASS:"}; ds:5CB4 / ds:5CBB names. */
-	fn1229_09F9(LG8(0x598E), buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0A8B], buf_202);
-	fn1EDA_0AAC(&g_dgroup[0x5CB4], buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0A8B], buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0A8D], buf_202);
+	renamed_1229_09f9(LG8(0x598E), buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0A8B], buf_202);
+	renamed_1eda_0aac(&g_dgroup[0x5CB4], buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0A8B], buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0A8D], buf_202);
 
-	fn1229_09F9(LG8(0x5CDC), buf_302);
-	fn1EDA_0AAC(buf_302, buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0A93], buf_202);
+	renamed_1229_09f9(LG8(0x5CDC), buf_302);
+	renamed_1eda_0aac(buf_302, buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0A93], buf_202);
 
-	fn1229_09F9(LG8(0x5CDA), buf_402);
-	fn1EDA_0AAC(buf_402, buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0A9A], buf_202);
+	renamed_1229_09f9(LG8(0x5CDA), buf_402);
+	renamed_1eda_0aac(buf_402, buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0A9A], buf_202);
 
-	fn1229_09F9(LG8(0x5CDD), buf_502);
-	fn1EDA_0AAC(buf_502, buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0AA1], buf_202);
+	renamed_1229_09f9(LG8(0x5CDD), buf_502);
+	renamed_1eda_0aac(buf_502, buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0AA1], buf_202);
 
-	fn1229_09F9(LG8(0x5CDB), buf_602);
-	fn1EDA_0AAC(buf_602, buf_202);
-	fn1EDA_0AAC(&g_seg1229[0x0A8B], buf_202);
-	fn1EDA_0AAC(&g_dgroup[0x5CBB], buf_202);
+	renamed_1229_09f9(LG8(0x5CDB), buf_602);
+	renamed_1eda_0aac(buf_602, buf_202);
+	renamed_1eda_0aac(&g_seg1229[0x0A8B], buf_202);
+	renamed_1eda_0aac(&g_dgroup[0x5CBB], buf_202);
 
-	fn1EDA_0A39(0xFF, buf_102, buf_202, &dx_724);
+	renamed_1eda_0a39(0xFF, buf_102, buf_202, &dx_724);
 	(void)bgi_get_char_size_info(buf_102, 0x017D, (u16)(LG16(0x50C4) + 0x16), &ch_725);
 	return ds_227;   /* Reko return = the dropped DGROUP selector (0) */
 }
 
-// 1229:0C58: void fn1229_0C58(void)
-void fn1229_0C58(void)
+// 1229:0C58: void renamed_1229_0c58(void)
+void renamed_1229_0c58(void)
 {
 	u8 bLoc05_81 = LG8(0x6CBA);   /* [bp-0003h] running tile index (6CBAh) */
 	u8 bLoc03_82 = 0x00;          /* [bp-0001h] row (0..3) */

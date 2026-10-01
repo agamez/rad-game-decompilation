@@ -47,8 +47,8 @@ static u16 seg1229_scan_0528(s16 * dxOut, u16 * bpOut, u16 * dsOut)
 	                   dxOut, bpOut, dsOut);
 }
 
-// 1229:0CCE: void fn1229_0CCE(void)
-void fn1229_0CCE(void)
+// 1229:0CCE: void renamed_1229_0cce(void)
+void renamed_1229_0cce(void)
 {
 	u16 dx_341;   /* dxOut of 133F:0137 */
 	u16 bp_342;   /* bpOut of 133F:0137 */
@@ -65,8 +65,8 @@ void fn1229_0CCE(void)
 	bgi_get_text_cursor_attributes(0x0F);
 	/* push 0h ; push 0h ; push 27Fh ; push 177h */
 	bgi_clip_text_rectangle(0x0177, 0x027F, 0x0000, 0x0000);
-	(void)fn1229_0AA8();
-	fn1229_0C58();
+	(void)renamed_1229_0aa8();
+	renamed_1229_0c58();
 
 	/* five menu labels: far 133F:0352(ds far ptr, y0, y1, x0, x1, key).
 	 * The pointers are length-prefixed strings in this segment. */
@@ -91,11 +91,11 @@ void fn1229_0CCE(void)
 	/* push 16h ; push 16h */
 	vgaerr_set_cursor_step(0x0016, 0x0016);
 	/* push cs:0CCCh (src) ; push ds:62DEh (dst) ; push 0FFh */
-	(void)fn1EDA_0A39(0xFF, &g_dgroup[0x62DE], &g_seg1229[0x0CCC], &dx_343);
+	(void)renamed_1eda_0a39(0xFF, &g_dgroup[0x62DE], &g_seg1229[0x0CCC], &dx_343);
 }
 
-// 1229:0DCC: u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
-u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
+// 1229:0DCC: u16 renamed_1229_0dcc(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
+u16 renamed_1229_0dcc(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
 {
 	u8  buf_100[0x100];   /* [bp-0100h] string staging (lea di,[bp+0FF00h]) */
 	u8  bLocFEFF;         /* [bp-0FEFFh] (= [bp-0101h]) drag/refresh flag */
@@ -143,20 +143,20 @@ u16 fn1229_0DCC(u8 * ptrArg04, u16 * bpOut, u16 * dsOut)
 	u16 dx_1363;          /* dxOut of the first tail 1EDA:0A39 */
 
 	/* les di,[bp+6h] ; push es:di (src) ; push ss:buf (dst) ; push 0FFh */
-	fn1EDA_0A39(0xFF, buf_100, ptrArg04, &dx_1359);
+	renamed_1eda_0a39(0xFF, buf_100, ptrArg04, &dx_1359);
 	bgi_set_text_window();
 	/* push 0Fh ; push 3Fh ; push 3Fh ; push 3Fh */
 	bgi_get_pixel(0x3F, 0x3F, 0x3F, 0x0F);
 	/* push ss:buf (src) ; push ds:6BBAh (dst) ; push 0FFh */
-	fn1EDA_0A39(0xFF, &g_dgroup[0x6BBA], buf_100, &dx_1360);
+	renamed_1eda_0a39(0xFF, &g_dgroup[0x6BBA], buf_100, &dx_1360);
 
 	LG8(0x62DB) = 0x00;
 	LG8(0x62CB) = 0x01;
 	LG8(0x6CBA) = 0x00;
 	/* push 1h ; call far 13C8:0111 ; call 039Dh ; call 0CCEh */
 	(void)config_mouse_speed_threshold(0x01);
-	fn1229_039D();
-	fn1229_0CCE();
+	renamed_1229_039d();
+	renamed_1229_0cce();
 	vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 	bLocFEFF = 0x00;
 
@@ -170,13 +170,13 @@ l1229_0E2E:
 	    (s16)LG16(0x62D0) > 0x0059 &&
 	    (s16)LG16(0x62D2) > 0x0187)
 	{
-		fn1E78_02C7(0x00F0);
-		(void)fn1E78_029C(0x0064, &dx_1361);
+		renamed_1e78_02c7(0x00F0);
+		(void)renamed_1e78_029c(0x0064, &dx_1361);
 		/* (Y-187h)/16h*19h + (X-59h)/16h */
 		ax_247 = (s16)(((s16)(LG16(0x62D2) - 0x0187) / 0x16) * 0x19 +
 		               ((s16)(LG16(0x62D0) - 0x0059) / 0x16));
 		LG8(0x62CB) = (u8)((u16)LG8(0x6CBA) + (u16)ax_247);
-		(void)fn1E78_02F4();
+		(void)renamed_1e78_02f4();
 		dx_1022 = ax_247;
 	}
 
@@ -223,12 +223,12 @@ l1229_0E2E:
 		{
 			vgaerr_show_cursor(&dx_1366, &bp_891, &ds_895);
 			if (bLocFEFF != 0x00 &&
-			    (u8)fn1229_061B(&dx_1368, &ds_u16) != 0x00)
-				(void)fn1229_0735(&dx_1369, &bp_dummy, &ds_dummy);
+			    (u8)renamed_1229_061b(&dx_1368, &ds_u16) != 0x00)
+				(void)renamed_1229_0735(&dx_1369, &bp_dummy, &ds_dummy);
 			LG32(0x598E) = (u32)(LG32(0x598E) + 0x00000001u);
-			(void)fn1229_0486();
+			(void)renamed_1229_0486();
 			bLocFEFF = 0x00;
-			(void)fn1229_0AA8();
+			(void)renamed_1229_0aa8();
 			vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 			/* drain the keyboard/mouse queue */
 			do
@@ -245,12 +245,12 @@ l1229_0E2E:
 		{
 			vgaerr_show_cursor(&dx_1371, &bp_730, &ds_734);
 			if (bLocFEFF != 0x00 &&
-			    (u8)fn1229_061B(&dx_1373, &ds_u16) != 0x00)
-				(void)fn1229_0735(&dx_1374, &bp_dummy, &ds_dummy);
+			    (u8)renamed_1229_061b(&dx_1373, &ds_u16) != 0x00)
+				(void)renamed_1229_0735(&dx_1374, &bp_dummy, &ds_dummy);
 			LG32(0x598E) = (u32)(LG32(0x598E) - 0x00000001u);
-			(void)fn1229_0486();
+			(void)renamed_1229_0486();
 			bLocFEFF = 0x00;
-			(void)fn1229_0AA8();
+			(void)renamed_1229_0aa8();
 			vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 			do
 			{
@@ -264,8 +264,8 @@ l1229_0E2E:
 		LG8(0x62DB) = 0x01;
 		LG8(0x5CB3) = 0x01;
 		if (bLocFEFF != 0x00 &&
-		    (u8)fn1229_061B(&dx_1022, &ds_u16) != 0x00)
-			(void)fn1229_0735(&dx_1022, &bp_dummy, &ds_dummy);
+		    (u8)renamed_1229_061b(&dx_1022, &ds_u16) != 0x00)
+			(void)renamed_1229_0735(&dx_1022, &bp_dummy, &ds_dummy);
 		do
 		{
 			ax_702 = seg1229_scan_0528(&dx_1022, &bp_186, &ds_1002);
@@ -277,8 +277,8 @@ l1229_0E2E:
 		LG8(0x5CB3) = 0x00;
 		LG8(0x62DB) = 0x01;
 		if (bLocFEFF != 0x00 &&
-		    (u8)fn1229_061B(&dx_1022, &ds_u16) != 0x00)
-			(void)fn1229_0735(&dx_1022, &bp_dummy, &ds_dummy);
+		    (u8)renamed_1229_061b(&dx_1022, &ds_u16) != 0x00)
+			(void)renamed_1229_0735(&dx_1022, &bp_dummy, &ds_dummy);
 	}
 	else if (ax_487 == 0x0053)
 	{
@@ -288,7 +288,7 @@ l1229_0E2E:
 		else
 			LG8(0x6CBA) = 0x64;
 		vgaerr_show_cursor(&dx_1379, &bp_1380, &ds_509);
-		fn1229_0C58();
+		renamed_1229_0c58();
 		vgaerr_hide_cursor(&dx_1022, &bp_186, &ds_1002);
 		do
 		{
@@ -307,14 +307,14 @@ l1229_10EF:
 	{
 		bgi_set_text_window();
 		/* compare the working name ds:5CB4 with "NONAME" (cs:0DC5).  The
-		 * frozen fn1EDA_0B24 returns 1 when the records are equal, so the
+		 * frozen renamed_1eda_0b24 returns 1 when the records are equal, so the
 		 * asm `jnz 112Eh` (ZF clear, unequal) is `== 0` here. */
-		if (fn1EDA_0B24(&g_seg1229[0x0DC5], &g_dgroup[0x5CB4],
+		if (renamed_1eda_0b24(&g_seg1229[0x0DC5], &g_dgroup[0x5CB4],
 		                &ax_1362, &dx_1065) == 0x00)
 		{
 			/* l1229_112E: restore the name buffers */
-			(void)fn1EDA_0A39(0x06, &g_dgroup[0x5ED6], &g_dgroup[0x5CB4], &dx_1363);
-			(void)fn1EDA_0A39(0x06, &g_dgroup[0x5ECE], &g_dgroup[0x5ED6], &dx_1065);
+			(void)renamed_1eda_0a39(0x06, &g_dgroup[0x5ED6], &g_dgroup[0x5CB4], &dx_1363);
+			(void)renamed_1eda_0a39(0x06, &g_dgroup[0x5ECE], &g_dgroup[0x5ED6], &dx_1065);
 		}
 		else
 		{
