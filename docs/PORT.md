@@ -1174,3 +1174,30 @@ VERIFIED:
   every move animation (previously they alternated blank for 1-5 s).
 - fullrun.py F5-AUTO replay still wins: rec=2.0 goalpix=6 (twice: with the
   temporary RAD_BGI_LOG trace present and after reverting it).
+
+### Session 10 round 4: FIXED -- minutes showed "14" during moves (098A dsOut overflow)
+
+Symptom: during move animations the clock displayed a fixed "14" in the
+minutes field (seconds correct).  Data probe: DGROUP:58CEh = 0x55E1 (21985)
+instead of 0, so fn0C74_020C formatted the 32-bit 0x55E10003 = 1440133187 and
+its 2-char record kept the leading digits "14".
+
+ROOT CAUSE: fn1EDA_098A (and 3 sibling sites) wrote their "dropped DGROUP
+selector" out-param as *(void **)dsOut = an 8-byte pointer, while every caller
+stores that output in a 16-byte--no, 16-BIT local (e.g. fn0C74_02D8's
+u16 ds_44).  The 6 overflow bytes landed on the adjacent local dx_45 (the
+quotient-high out-param), which had just been set to 0 and was then stored
+into DGROUP:58CEh.  0x55E1 is the high word of the PIE-mapped g_dgroup
+address.  The screen loop's fn0800_0C71 path only looked correct because
+0BEC explicitly zeroes 58CEh and the clobber pattern differed there.
+
+FIX: all four dsOut sites now write 2 bytes (the 16-bit selector the ABI
+actually carries):
+- seg1EDA_part4.c fn1EDA_098A normal path + divide-by-zero path
+- seg1AB8_part4.c fn1AB8_11FB (propagated the 8-byte value)
+- seg0C74_part5b.c (wrote 8 zero bytes)
+
+VERIFIED: during full mission-001 program execution DGROUP:58CEh stays 0,
+the 020C record reads "03" (023033...) and the 011E record "59"; both digit
+pairs render correctly for the whole run.  fullrun.py F5-AUTO replay still
+wins: rec=2.0 goalpix=6.

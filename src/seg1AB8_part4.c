@@ -47,7 +47,7 @@ u16 fn1AB8_11FB(u16 wArg02, void * dsOut)
 	                         fn1EDA_096F(wArg02, LG16(0xB84A), 0x0000, 0x0000),
 	                         ax_11, 0x0000,
 	                         &cx_69, &dx_70, &bx_71, &ds_46);
-	*(void **)dsOut = ds_46;
+	*(u16 *)dsOut = (u16)(uintptr_t)ds_46;  /* 16-bit dropped selector */
 	return ax_43;
 }
 

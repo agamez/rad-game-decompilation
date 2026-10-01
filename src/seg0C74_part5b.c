@@ -126,6 +126,6 @@ u16 fn0C74_1D95(u16 wArg02, void * dsOut)
 	(void)fn1EDA_0254(wLoc04, (u16)((dwLoc0E) & 0xFFFFu), (u16)((dwLoc0E) >> 16), 0,
 	                  &dxTmp, &dsTmp);
 
-	*(void **)dsOut = NULL;  /* DGROUP selector dropped in the flat model */
+	*(u16 *)dsOut = 0x0000;  /* DGROUP selector dropped in the flat model */
 	return 0x0000;           /* saved-BP artifact; no caller consumes it */
 }

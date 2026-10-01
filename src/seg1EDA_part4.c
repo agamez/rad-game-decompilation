@@ -372,7 +372,8 @@ s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 *
 		*cxOut = (s16)cx_22;
 		*dxOut = (s16)dx_24;
 		*bxOut = (s16)bx_21;
-		*(void **)dsOut = ds_23;
+		*(u16 *)dsOut = (u16)(uintptr_t)ds_23;  /* 16-bit dropped selector: an
+		 * 8-byte write here clobbers adjacent call-site locals */
 		return (s16)ax_20;
 	}
 
@@ -469,7 +470,9 @@ s16 fn1EDA_098A(u32 bx_cx, u32 dx_ax, u16 wArg00, u16 wArg02, s16 * cxOut, s16 *
 	*dxOut = (s16)dx_v;
 	*bxOut = (s16)bx_v;
 	/* Original leaves DS at the DGROUP selector; flat model stores the base. */
-	*(void **)dsOut = (void *)g_dgroup;
+	*(u16 *)dsOut = (u16)(uintptr_t)g_dgroup;  /* 16-bit dropped selector: an
+	 * 8-byte write here clobbers adjacent call-site locals (02D8's dx_45
+	 * received g_dgroup's high word and poisoned DGROUP:58CEh) */
 	return (s16)ax_v;
 }
 
