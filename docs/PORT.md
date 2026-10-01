@@ -1105,3 +1105,45 @@ NOT YET REPRODUCED: a concrete "does not work properly" failure on level 2+
 (b) digit colour after the 2<->10 swap, (c) pause semantics on other keys.
 NEEDS USER INPUT: the exact visual symptom on level 2+ (frozen digits? wrong
 value? wrong colour? not visible?).
+
+### Session 10 round 2: the "--.--" symptom reproduced -- digits blanked during moves
+
+User clarified the symptom: while the robot animates a movement the timer
+shows TIME: --.-- (blanked digits / shadow stubs); the real value reappears
+when the move finishes.  The clock itself counts correctly throughout.
+
+REPRODUCED (canvas band x555-620, y400-412 sampled at 5 Hz through mission-001
+program execution): the digit pairs erase down to their shadow stubs and stay
+blank for 1-5 s at a time, ALTERNATING between the minutes pair (x564-580) and
+the seconds pair (x587-605); the background repaints as panel cyan 3.
+
+MECHANISM (traced):
+- Painters: fn0800_0AA1 (seconds) and fn0800_0B42 (minutes) each do
+  erase-fill (005A -> 1B3E -> op 0x12 filled rect with g_fill_color = panel
+  cyan 3, correct rects x587-605/y403-411 and x564-580/y403-411) followed by
+  the shadow (colour 8) and digit (colour 10) glyph passes (1D82 -> op 0x08
+  pen at (595,406)/(563,406) + op 0x26 text from the DGROUP-staged records at
+  0xF6E0/0xF6F0 -- the stack-buffer segment-0 bug is already fixed).
+- Trigger: fn0800_0C71 repaints only when the cached seconds/minutes change;
+  it runs per iteration of the screen command loops (2401/3D9D/2827/31B7).
+  During a movement the loop is blocked inside the dispatch, so no 0C71 runs
+  and nothing repaints.
+- BGI op trace (RAD_BGI_LOG, re-added temporarily, then reverted): the timer
+  paints appear only at screen setup; no per-second repaints occur while
+  moves animate.
+- 1E78:029C (the wait primitive used inside moves) is a pure BIOS-tick delay
+  in the original -- it services the clock lazily but does NOT repaint.
+
+ROOT CAUSE SHAPE: something in the movement path erases the digit rects (the
+panel repaint, likely fn0800_09C2 stage repaints or the 0C74 scroll/window
+redraw) without re-invoking the digit painters, and the digit painters only
+run on a seconds/minutes CHANGE from the screen loop, which is blocked during
+the move.  The original keeps the digits visible during moves (DOSBox captures
+dm2/dm3: digits change every sample while the demo executes).
+
+NEXT STEPS (concrete): (1) trace which op writes the erase into x564-605,
+y403-411 during a move -- add the temporary RAD_BGI_LOG back, run one move,
+and correlate the erase op with the caller (09C2 stage vs 05B8 scroll);
+(2) either suppress that erase for the digit rects or re-invoke 0AA1/0B42
+after it, mirroring where the original repaints.
+Baseline re-verified after reverting the trace: fullrun.py rec=2.0 goalpix=6.
