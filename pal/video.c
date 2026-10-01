@@ -1138,7 +1138,17 @@ u16 pal_bgi_dispatch(u16 si, u16 *regs)
          * it uses the fill (background) color, not the line color: in
          * renamed_0800_1315/renamed_0800_19e1 it immediately precedes the 0x0C bevel
          * lines, which are the only calls that consume the line color. */
-        int x0 = ax, y0 = bx + 1, x1 = cx + 1, y1 = dx;
+        /* The fill is drawn in VIEWPORT-RELATIVE coordinates, exactly like
+         * the 0x0C line handler: the driver's 0x189 helper translates by the
+         * viewport origin (g_org_x/g_org_y, set by op 0x38).  The F2
+         * "Code Mission" dialog relies on this: it sets the viewport to the
+         * box, fills (0,0)-(208,18) -- i.e. the box interior --, resets the
+         * viewport to the full screen and then draws the border lines in
+         * absolute coordinates.  Without the translate the fill landed at
+         * the top-left corner of the screen and the dialog had no interior,
+         * leaving the 8x8 prompt glyphs on the page background (unreadable). */
+        int x0 = ax + g_org_x, y0 = bx + g_org_y + 1;
+        int x1 = cx + g_org_x + 1, y1 = dx + g_org_y;
         int x, y, t;
         if (x0 > x1) { t = x0; x0 = x1; x1 = t; }
         if (y0 > y1) { t = y0; y0 = y1; y1 = t; }
