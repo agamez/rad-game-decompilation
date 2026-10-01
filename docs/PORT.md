@@ -1254,3 +1254,57 @@ save state; the dialog pre-fills it and the game rewrites it when a mission
 is played.  RAD.DAT holds 105 fixed 537-byte chunks: chunk 0 = the DEMO
 entry, chunks 1..105 = [06][name][hint][level data] with the name at the
 chunk start.
+
+## Session 12 -- game speed command line (-s/--speed)
+
+User request: a command line parameter to accelerate the game -- movement
+faster, the mission clock counts down faster -- without cheating the timer
+(no timer freeze, no score hack): a global game-time multiplier, like the
+DOSBox cycles control.
+
+Design: ALL game time funnels through exactly two game-time -> host-time
+conversion points, so a single multiplier applied there speeds up the whole
+simulation uniformly while leaving every piece of game logic untouched:
+
+1. src/seg1E78.c fn1E78_pace_ns (the 029Ch/02BFh pacing primitive): the
+   wall-time hold is divided by the factor.  Every animation delay
+   (walk per-pixel, climb, crate drag, fuse, burn, recoil, intro slides)
+   goes through here.
+2. src/seg0800_part1.c fn0800_timer_service (the emulated int-1Ch): the
+   host-elapsed -> 18.2 Hz tick count is multiplied by the factor, so the
+   mission countdown at DGROUP 0x58D8 drains proportionally faster while
+   keeping the exact original tick semantics (18.2065 Hz, +37h ms/tick).
+
+The factor lives in `double g_game_speed` (globals.c/globals.h, default
+1.0).  src/main.c parse_speed_args() extracts:
+
+  -s2  -s 2  --speed=2  --speed 2   (factor 0.1..100, fractional ok)
+  RAD_SPEED env                     (when no option given)
+
+and STRIPS the speed options from the fabricated PSP command tail, so the
+DOS game never sees them.  Invalid factors print
+"rad: invalid speed factor '...' (allowed 0.1..100)" and exit 2; the
+notice "rad: game speed xN" goes to stderr when the factor != 1.  Speeds
+below 1 slow the game down symmetrically (slow motion).
+
+VERIFIED (headless, fake-key drives):
+- Clock drain measured at DGROUP 0x58D8 during an armed mission,
+  game-seconds consumed per wall-second: 0.5x = 0.44, 1x = 0.93 (base),
+  2x = 1.78, 4x = 3.67 -- i.e. 0.47x / 1.0 / 1.91x / 3.95x relative.
+- fullrun.py F5-AUTO replay at default speed (factor untouched at 1.0:
+  the pace_ns divide is skipped, timer target x1.0): still ends
+  rec=2.0 goalpix=6.
+- fullrun.py flow re-run with -s4: IDENTICAL result (rec=2.0, goalpix=6)
+  at ~43s wall vs ~105s at 1x (the remaining wall delta is the unscaled
+  ~2.5s boot plus harness key-schedule offsets, not game time).
+
+Harness notes (for future probing): the intro is two pages -- the SPACE
+advances page 1 and F1 (any key) dismisses the PRESSEZ box; the mission
+briefing then loads in ~1.1s of REAL time and RETURN arms the clock.  Key
+schedules therefore do not scale uniformly with the speed factor: at -s4
+use "2.5:space,3.0:f1,5.5:return,6.5:return", at 0.5x
+"3.7:space,6.0:f1,9.0:return,10.5:return".  The process ignores SIGTERM
+(pre-existing SDL/pal behaviour, also on the baseline binary); test
+harnesses must SIGKILL.
+
+data/RAD.MEM restored before commit (test drives replay missions).

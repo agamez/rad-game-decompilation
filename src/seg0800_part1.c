@@ -168,7 +168,11 @@ void fn0800_timer_service(void)
 	}
 	el = (long double)(now.tv_sec - g_timer_t0.tv_sec) +
 	     (long double)(now.tv_nsec - g_timer_t0.tv_nsec) / 1.0e9L;
-	target = (unsigned long long)(el * 18.2065L);
+	/* -s/--speed: the emulated int-1Ch ticks elapse `speed` times faster, so
+	 * the mission countdown drains proportionally faster -- the clock keeps
+	 * its exact original tick semantics (18.2 Hz, +37h ms per tick), it just
+	 * runs against a faster wall clock. */
+	target = (unsigned long long)(el * 18.2065L * g_game_speed);
 	if (target <= g_timer_ticks_applied)
 		return;
 	while (g_timer_ticks_applied < target)

@@ -76,6 +76,13 @@ void fn1E78_pace_ns(unsigned long long ns)
 	struct timespec t0, now;
 	int64_t done;
 
+	/* -s/--speed: hold for ns/speed of wall time.  Every pacing delay of the
+	 * game funnels through here (029Ch/02BFh), so this single divide makes
+	 * movement animation and all timed sequences run proportionally faster
+	 * without touching any game logic. */
+	if (g_game_speed != 1.0)
+		ns = (unsigned long long)((long double)ns / g_game_speed);
+
 	clock_gettime(CLOCK_MONOTONIC, &t0);
 	pal_input_pump();
 	if (ns > 400000ull)

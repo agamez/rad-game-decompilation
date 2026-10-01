@@ -93,13 +93,73 @@ static void rad_dump_handler(int sig)
 }
 /* ---- end diagnostic ---- */
 
+/* Extract the port-level -s/--speed <factor> arguments.  Returns the new
+ * argument count and (via fargv) an argument vector with the speed options
+ * removed, so the fabricated PSP command tail contains only what the DOS
+ * game itself would have seen.  Also honours the RAD_SPEED environment
+ * variable when no option is given. */
+static int parse_speed_args(int argc, char **argv, char **fargv)
+{
+    int n = 0;
+    fargv[n++] = argv[0];
+    for (int i = 1; i < argc; i++) {
+        const char *a = argv[i];
+        const char *val = NULL;
+        int consumes_next = 0;
+
+        if (strcmp(a, "-s") == 0 || strcmp(a, "--speed") == 0)
+            consumes_next = 1;
+        else if (strncmp(a, "-s", 2) == 0)
+            val = a + 2;
+        else if (strncmp(a, "--speed=", 8) == 0)
+            val = a + 8;
+        else {
+            fargv[n++] = argv[i];       /* game-visible argument: keep */
+            continue;
+        }
+
+        if (consumes_next) {
+            if (i + 1 < argc)
+                val = argv[++i];
+            else {
+                fprintf(stderr, "rad: %s requires a speed factor\n", a);
+                exit(2);
+            }
+        }
+        {
+            char *end = NULL;
+            double f = strtod(val, &end);
+            if (end == val || f < 0.1 || f > 100.0) {
+                fprintf(stderr, "rad: invalid speed factor '%s' (allowed 0.1..100)\n", val);
+                exit(2);
+            }
+            g_game_speed = f;
+        }
+    }
+    if (g_game_speed == 1.0) {
+        const char *e = getenv("RAD_SPEED");
+        if (e && *e) {
+            double f = strtod(e, NULL);
+            if (f >= 0.1 && f <= 100.0)
+                g_game_speed = f;
+        }
+    }
+    return n;
+}
+
 int main(int argc, char **argv)
 {
     const char *dumpsecs = getenv("RAD_DUMP_SECS");
+    char *fargv[64];
+    int fargc;
+
     if (dumpsecs) { signal(SIGALRM, rad_dump_handler); alarm((unsigned)atoi(dumpsecs)); }
+    fargc = parse_speed_args(argc, argv, fargv);
+    if (g_game_speed != 1.0)
+        fprintf(stderr, "rad: game speed x%g\n", g_game_speed);
     pal_init();
     rad_load_images();
-    build_psp(argc, argv);
+    build_psp(fargc, fargv);
     renamed_0800_4255(g_psp);          /* recovered CRT entry: init + main loop + exit */
     pal_shutdown();
     return 0;

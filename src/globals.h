@@ -11,6 +11,13 @@
 
 #include "radtypes.h"
 
+/* Global game-time multiplier (command line -s/--speed): 1.0 = original
+ * speed, 2.0 = everything (movement animation, game clock countdown,
+ * timed sequences) runs twice as fast in wall time.  Applied ONLY at the
+ * two game-time -> host-time conversion points (fn1E78_pace_ns and
+ * fn0800_timer_service); no game logic, score or replay semantics change. */
+extern double g_game_speed;
+
 extern u8 g_dgroup[0x10000] __attribute__((aligned(65536)));
 
 #define LG8(off)   (*(u8  *)&g_dgroup[(off)])

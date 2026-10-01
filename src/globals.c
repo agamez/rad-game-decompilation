@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+double g_game_speed = 1.0;   /* -s/--speed command line; see globals.h */
+
 u8 g_dgroup[0x10000] __attribute__((aligned(65536)));
 
 u8 g_seg0800[] __attribute__((aligned(65536)));
