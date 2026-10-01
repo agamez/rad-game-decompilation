@@ -171,6 +171,22 @@ u16 renamed_1eda_060c(u8 * block)
 			bx_17 = cx_16;                     /* mov bx,cx */
 		}
 	}
+	/* 060C:061F `je 0674h`: the read-stream (0xD7B1) path jumps straight to
+	 * the callback install at 0674h and KEEPS id 0xD7B1 -- the original only
+	 * executes the 060C:066F `mov [di+2],0xD7B2` on the other paths.  The
+	 * first transcription set 0xD7B2 unconditionally, so the 0776 read
+	 * prelude (which requires 0xD7B1) latched error 0x68 and every RAD.MEM
+	 * read (the F2 mission-code pre-fill) failed. */
+	if (*(u16 *)(block + 0x02) == 0xD7B1)
+	{
+		*(u16 *)(block + 0x14) = ax_12;        /* mov [di+14h],ax (06E8h) */
+		*(u16 *)(block + 0x16) = 0x1EDA;       /* mov [di+16h],cs */
+		*(u16 *)(block + 0x18) = cx_16;        /* mov [di+18h],cx */
+		*(u16 *)(block + 0x1A) = bx_17;        /* mov [di+1Ah],bx */
+		*(u16 *)(block + 0x1C) = 0x075D;       /* mov word [di+1Ch],75Dh */
+		*(u16 *)(block + 0x1E) = 0x1EDA;       /* mov [di+1Eh],cs */
+		return 0x0000;                         /* xor ax,ax ; pop ds ; retf 4 */
+	}
 	*(u16 *)(block + 0x02) = 0xD7B2;           /* mov word [di+2],0D7B2h */
 	*(u16 *)(block + 0x14) = ax_12;            /* mov [di+14h],ax */
 	*(u16 *)(block + 0x16) = 0x1EDA;           /* mov [di+16h],cs */

@@ -35,6 +35,7 @@
 #include "seg0800.h"
 #include "seg1AB8.h"
 #include "seg1EDA.h"
+#include "seg1EDA_shared.h"
 #include "seg1206.h"
 #include "seg0C74.h"
 #include "seg1E78.h"
@@ -55,7 +56,12 @@ u16 renamed_0800_11ef(void)
 {
 	u8  buf18C[0x100];   /* [bp-018Ch] 0D20 ptrArg0E dst (0FFh bytes) */
 	u8  buf88[0x80];     /* [bp-0088h] RAD.DAT stream block           */
-	u8  buf8[0x06];      /* [bp-0008h] saved 6-byte record head       */
+	u8  buf8[0x07];      /* [bp-0008h] saved record head: the original frame
+	                      * spans [bp-8h..bp-2h] = SEVEN bytes -- 0A39 copies the
+	                      * length byte PLUS 6 payload chars, and the 0B24 name
+	                      * compare reads 6 chars (buf8[1..6]).  The first
+	                      * transcription sized it 6, so the 6th char was stack
+	                      * garbage and no RAD.DAT name ever matched. */
 	u16 bp_12;           /* renamed_1206_0066 bpOut (pass-through caller BP) */
 	u16 ds_16;           /* renamed_1206_0066 dsOut (dropped selector)       */
 	u8  ch_456;          /* renamed_1206_0038 chOut                          */
@@ -77,6 +83,7 @@ u16 renamed_0800_11ef(void)
 	u8  ch_dummy;        /* fn1EDA_04A9 chOut (reused)                 */
 	u16 ds_dummy;        /* fn1EDA_04A9 dsOut (reused)                 */
 	u8  b_1185;          /* renamed_1eda_1185 "past end" result              */
+	u8 *saved_io;        /* g_1EDA_io_buffer save/restore around the read    */
 	u16 ax_324;          /* loop counter low word (seeded 0)           */
 	u16 dx_320;          /* CWD (sign extension) of ax_324             */
 
@@ -118,7 +125,17 @@ u16 renamed_0800_11ef(void)
 	do
 	{
 		LG32(0x598E) = LG32(0x598E) + 0x00000001u;
+		/* The original's 1EDA:1085 reads the 0x219-byte record straight into
+		 * the caller-supplied ds:5CB4 (its data-buffer far pointer was dropped
+		 * from the frozen prototype; the port's 1091 reads the shared
+		 * g_1EDA_io_buffer slot instead).  Point the slot at ds:5CB4 for the
+		 * read -- the following 0B24 compares the typed name against 5CB4,
+		 * and with the slot left alone the record never landed there, so the
+		 * sweep never matched and every F2 code fell back to record 1. */
+		saved_io = g_1EDA_io_buffer;
+		g_1EDA_io_buffer = &g_dgroup[0x5CB4];
 		(void)renamed_1eda_1085(al_235, buf88);
+		g_1EDA_io_buffer = saved_io;
 		(void)fn1EDA_04A9(0x0000, 0x0000, &ch_dummy, &ds_dummy);
 		/* mov di,5CB4h ; push ds ; push di ; lea di,[bp-8h] ;
 		 * push ss ; push di ; call 1EDA:0B24h */

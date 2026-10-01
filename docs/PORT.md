@@ -1201,3 +1201,56 @@ VERIFIED: during full mission-001 program execution DGROUP:58CEh stays 0,
 the 020C record reads "03" (023033...) and the 011E record "59"; both digit
 pairs render correctly for the whole run.  fullrun.py F5-AUTO replay still
 wins: rec=2.0 goalpix=6.
+
+### Session 10 round 5: FIXED -- F2 mission-code dialog (Code Mission)
+
+User symptom: "F2: MISSION should ask for a string ('MADRID'); then F1 goes
+to that level directly.  The input box is not properly working and it doesn't
+go to that level."  Four stacked defects, all fixed:
+
+1. SEGV opening the dialog (seg0800_part3.c renamed_0800_0d20): the dialog
+   feeds the prompt/answer/composition records straight into the BGI 0x26
+   text op, which materializes them as 16:16 far pointers.  Six C stack
+   buffers resolved to segment 0 -> the driver read pixel garbage as a glyph
+   count/pointer -> SIGSEGV in pal_bgi_dispatch.  Same SS==DS class as the
+   timer-digit fix.  All six buffers staged in DGROUP 0xF840..0xFD47.
+
+2. Typed characters never appeared (seg1AB8_part4.c fn1AB8_1492): its local
+   record copy buf[0x100] was also a stack buffer handed to 1D82.  Staged at
+   DGROUP 0xFD50.
+
+3. Typed characters silently dropped (seg0800_part3.c 0D20 insert test
+   0FB6..0FE5): the original is a 32-bit signed compare (cwd; cmp dx,bx; jl
+   insert; jg no; cmp ax,cx; jnc no) -- insert iff (s16)pen < 0 ||
+   pen < limit.  A spurious `== 0 &&` restricted insertion to pen == 0.
+   Also fixed: the 1492 draw and the insert both depend on the driver pen;
+   field-full typing is dropped exactly as in the original (the DOSBox
+   reference shows the same 0-diff behaviour with a full field).
+
+4. The RAD.DAT name sweep never matched (two bugs):
+   a. seg1EDA_part3c.c renamed_1eda_060c (the stream open callback): the
+      original's `je 0674h` keeps id 0xD7B1 on the read-stream path; the
+      transcription set 0xD7B2 unconditionally, so the 0776 read prelude
+      latched error 0x68 and the RAD.MEM pre-fill (the last mission name)
+      never loaded -- the dialog opened empty.
+   b. seg0800_part4.c renamed_0800_11ef (the sweep): the original's
+      1EDA:1085 reads each 0x219-byte RAD.DAT record into ds:5CB4, but the
+      port's 1091 reads the shared g_1EDA_io_buffer slot, so the 0B24
+      compare saw only the stale NONAME.  The slot is now redirected to
+      ds:5CB4 around the read (the established part11 pattern).
+   c. buf8, the saved record head, was declared 6 bytes; the original frame
+      spans [bp-8h..bp-2h] = SEVEN (0A39 copies the length byte plus 6
+      payload chars and the 0B24 compare reads 6 chars).  Resized to 7.
+
+VERIFIED (fake-key drives, headless):
+- RAD.MEM pre-fill loads (PREFILL err=0000); the sweep compares all 105
+  chunks; typing "MADRID" after erasing the pre-fill sets the live answer
+  record to [06]"MADRID" and the sweep match lands at position 8
+  (MADRID = mission 8 in RAD.DAT); F1 loads it.  Three consecutive runs.
+- fullrun.py F5-AUTO replay still wins: rec=2.0 goalpix=6.
+
+NOTE: the RAD.MEM file (data/RAD.MEM, "LONDON\r\n" in git) is the shipped
+save state; the dialog pre-fills it and the game rewrites it when a mission
+is played.  RAD.DAT holds 105 fixed 537-byte chunks: chunk 0 = the DEMO
+entry, chunks 1..105 = [06][name][hint][level data] with the name at the
+chunk start.

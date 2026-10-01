@@ -234,21 +234,30 @@ u16 renamed_0800_0d20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg
 {
 	/* enter 518h: 0x518 bytes of locals.  Offsets are bp-relative, matching
 	 * the .asm comments; buffer sizes are the 0x100-byte 0A39 record clamp. */
-	u8  abLoc0100[0x100];   /* [bp-0100h] first 0A39 destination (fp-0x102) */
+	/* All six work buffers are staged in DGROUP free space (0xF840..0xFD47;
+	 * see the fn0800_0AA1/0B42/0C74_011E notes): the dialog feeds the prompt,
+	 * answer and composition records straight into the BGI driver's 0x26 text
+	 * op, which materializes them as 16:16 far pointers via far_seg_of().  A
+	 * C stack buffer resolves to segment 0 there and the driver then reads
+	 * pixel garbage as a glyph count/pointer (SEGV in pal_bgi_dispatch when
+	 * opening the F2 "Code Mission" dialog).  The original's tiny model had
+	 * SS==DS so the stack buffers were valid far pointers; the flat port is
+	 * not. */
+	u8 *abLoc0100 = g_dgroup + 0xF840;   /* [bp-0100h] first 0A39 destination */
 	u16 ax_181;             /* [bp-0106h] heap size (return of 13A3) */
 	u32 dx_ax_1868;         /* heap block, (segment << 16) | offset */
 	u16 ds_200 = 0x0000;    /* DGROUP selector out of 023F (dropped) */
 	u16 ds_296 = 0x0000;    /* DGROUP selector out of 1536 (dropped) */
-	u8  bLoc0206[0x100];    /* [bp-0206h] record buffer (Reko bLoc0208_1483) */
+	u8 *bLoc0206 = g_dgroup + 0xF940;    /* [bp-0206h] record buffer */
 	u8  bLoc0209 = 0x00;    /* [bp-0207h] key/selection (Reko bLoc0209_1592) */
 	u16 ax_422;             /* [bp-020Ah] (Reko ax_422) */
 	u16 ax_317;             /* [bp-020Ch] (Reko ax_317) */
 	u16 ax_769;             /* [bp-020Eh] (Reko ax_769) */
 	u16 wLoc0210 = 0x0000;  /* [bp-0210h] tick counter (Reko wLoc0212_1593) */
-	u8  abStream0310[0x100];/* [bp-0310h] stream block (Reko ptrLoc051E_1499) */
-	u8  bLoc0318[8];        /* [bp-0318h] line buffer (Reko fp-0x31A) */
-	u8  abLoc0418[0x100];   /* [bp-0418h] temp record (Reko ptrLoc051E_1563) */
-	u8  abLoc0518[0x100];   /* [bp-0518h] temp record (Reko ptrLoc051E_1717) */
+	u8 *abStream0310 = g_dgroup + 0xFA40;/* [bp-0310h] stream block */
+	u8 *bLoc0318 = g_dgroup + 0xFB40;    /* [bp-0318h] line buffer */
+	u8 *abLoc0418 = g_dgroup + 0xFB48;   /* [bp-0418h] temp record */
+	u8 *abLoc0518 = g_dgroup + 0xFC48;   /* [bp-0518h] temp record */
 	u16 dx_1869;
 	u16 dx_1873;
 	u16 dx_1874;
@@ -391,8 +400,13 @@ u16 renamed_0800_0d20(u8 *ptrArg02, u16 wArg06, u16 wArg08, u16 wArg0A, u16 wArg
 				/* cmp dx,bx ; jl ; jg ; cmp ax,cx ; jnc : action when the
 				 * cursor column is negative or exactly 0 and < the field
 				 * width. */
-				if ((s16)ax_1197 < 0 ||
-				    ((s16)ax_1197 == 0 && ax_1197 < ax_1188))
+				/* 0FB6..0FE5: cwd; cmp dx,bx (bx = 0); jl insert;
+				 * jg no; cmp ax,cx; jnc no -- i.e. the 32-bit
+				 * signed pen (dx:ax) < (0:limit).  A previous
+				 * transcription added a spurious `== 0 &&`,
+				 * which only inserted at pen == 0 and silently
+				 * dropped every typed character. */
+				if ((s16)ax_1197 < 0 || ax_1197 < ax_1188)
 				{
 					renamed_1eda_0b4f(bLoc0209, abLoc0418);
 					bgi_draw_text_string(abLoc0418);

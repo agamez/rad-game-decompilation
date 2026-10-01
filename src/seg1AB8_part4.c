@@ -231,7 +231,13 @@ l1AB8_148C:
 // 1AB8:1492: void bgi_draw_text_string(u8 * ptrArg04)
 void bgi_draw_text_string(u8 * ptrArg04)  /* was fn1AB8_1492 */
 {
-	u8  buf[0x100];                /* [bp-0100h] */
+	/* The record copy is staged at DGROUP 0xFD50 (see the fn0800_0AA1 /
+	 * fn0C74_011E notes): the original copies the record to its SS-based
+	 * local buffer and hands it to 1D82, which materializes it as a 16:16
+	 * far pointer for the driver's text op.  A C stack buffer resolves to
+	 * segment 0 there, so the driver drew nothing (typed characters never
+	 * appeared in the F2 "Code Mission" dialog).  SS==DS in the original. */
+	u8 *buf = g_dgroup + 0xFD50;   /* [bp-0100h] */
 	u16 dx_157;
 	u8  ch_158;
 	u16 ax_1E0B;
