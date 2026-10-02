@@ -82,7 +82,16 @@ u16 renamed_0800_3cfa(void)
 
 	/* mov ax,[bp-2h] ; shl ax,3h ; xor dx,dx ; mov cx,64h ; div cx ;
 	 * mov [58E6h],ax */
-	LG16(0x58E6) = (u16)(((u16)wLoc04 << 0x03) / 0x0064);
+	/* -s/--speed: this calibration counts draw passes per 100 emulated
+	 * 18.2 Hz ticks.  Both the tick rate (fn0800_timer_service) and the
+	 * per-pass cost (fn1E78_pace_ns) scale with the speed factor, so the
+	 * raw count scales UP with it and would cancel the pace_ns divide --
+	 * the robot would keep the original wall speed while only the clock
+	 * ran faster.  58E6h expresses a per-unit wall cost, so divide the
+	 * calibrated value by the factor; this restores the 1x value (7, the
+	 * floor) at every speed. */
+	LG16(0x58E6) = (u16)((((unsigned long long)wLoc04 << 0x03) / 0x0064) /
+	                     (unsigned long long)g_game_speed);
 	/* cmp word [58E6h],7h ; jge ; else mov word [58E6h],7h */
 	if (LG16(0x58E6) < 0x0007)
 		LG16(0x58E6) = 0x0007;

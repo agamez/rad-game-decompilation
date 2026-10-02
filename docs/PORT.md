@@ -1308,3 +1308,31 @@ use "2.5:space,3.0:f1,5.5:return,6.5:return", at 0.5x
 harnesses must SIGKILL.
 
 data/RAD.MEM restored before commit (test drives replay missions).
+
+### Session 12 addendum -- the 58E6h frame governor cancelled the speedup
+
+User report: the timer counted down at the requested speed but the robot
+still moved at the original wall speed.
+
+Cause: 0800:3CFA (renamed_0800_3cfa, run once from the 3D9D top-level
+driver) is a frame-rate governor.  It counts draw passes until the
+ds:555Eh interval record shows 100 emulated 18.2 Hz ticks and writes
+ds:58E6h = passes*8/100 (floor 7).  With -sN both the tick rate
+(fn0800_timer_service) and the per-pass cost (fn1E78_pace_ns) scale with
+N, so the raw count scales up ~N-fold (measured: 58E6h = 7 at 1x via the
+floor clamp, 29 at 4x).  The walk step is 02D8(58E6h*2): N times more
+delay units at 1/N wall each = the original wall time per pixel -- the
+governor cancelled the movement speedup exactly, while the clock (in
+game ticks) still ran fast, which is what the user saw.
+
+Fix: divide the calibrated value by the game speed factor before the
+floor clamp.  58E6h expresses a per-unit wall cost, so this restores the
+1x value (7) at every speed; the walk step becomes 14/N wall ms while
+its game-time length (14 game-ms) is unchanged, so recorded replays and
+all game-time mechanics keep the 1x trajectory.
+
+VERIFIED (RAD_PACE_TRACE, headless):
+- 02D8 hold for the same wArg02=7: 7.9ms at 1x, 1.77ms at 4x (the walk
+  pacer now scales; 58E6h stays 7 at 1x and 4x).
+- fullrun.py at 1x: rec=2.0 goalpix=6.  fullrun.py flow at -s4:
+  rec=2.0 goalpix=6 (identical result, faster wall clock).
