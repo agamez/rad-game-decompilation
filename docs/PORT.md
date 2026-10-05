@@ -1336,3 +1336,19 @@ VERIFIED (RAD_PACE_TRACE, headless):
   pacer now scales; 58E6h stays 7 at 1x and 4x).
 - fullrun.py at 1x: rec=2.0 goalpix=6.  fullrun.py flow at -s4:
   rec=2.0 goalpix=6 (identical result, faster wall clock).
+
+### Session 12 addendum 2 -- clock vs game speed consistency verified
+
+User suspected the countdown ran ahead of the game itself at -sN.
+End-to-end measurement (AUTO demo replay, game-time trajectory identical
+at any speed, sampled at the rec=2 win):
+
+  1x: 95.0s wall from arming to win, 84 game-sec consumed (240->156)
+  4x: 23.7s wall from arming to win, 84 game-sec consumed (240->156)
+
+i.e. wall ratio 4.01x with IDENTICAL game-time consumption: the clock and
+the movement are exactly in step.  The perception of a faster countdown
+comes from the player remaining at 1x (aiming/thinking/commanding are
+real-time while the clock never pauses), which is inherent to a uniform
+speedup.  User chose to keep the current behaviour (no separate clock
+factor).
